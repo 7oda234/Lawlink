@@ -1,47 +1,24 @@
-# --- Dependencies ---
-# These folders are huge; always ignore them.
-node_modules/
-jspm_packages/
-
-# --- Security & Credentials ---
-# Never upload your MySQL or MongoDB passwords.
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# --- Build & Compiled Output ---
-# React/Vite production files.
-dist/
-build/
-out/
-.next/
-
-# --- Logs & Debugging ---
-# Clean up your X1 Carbon's temporary error files.
+# Logs
 logs
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# --- Database Backup & Temp ---
-# MySQL dumps and MongoDB exports.
-*.sql
-*.sqlite
-*.dump
+node_modules
+dist
+dist-ssr
+*.local
 
-# --- Editor & System Files ---
-# Files created by VS Code or Windows.
+# Editor directories and files
 .vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
+!.vscode/extensions.json
+.idea
 .DS_Store
-Thumbs.db
-
-# --- Testing ---
-# Code coverage reports.
-coverage/
-.nyc_output/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
