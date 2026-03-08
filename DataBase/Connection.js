@@ -4,7 +4,7 @@ const connection = mysql.createConnection({
   host: "localhost",
   user: "root",
   password: "",
-  database: "lawlink_computer_app",
+  database: "lawlink",
   port: 3307
 });
 
