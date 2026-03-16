@@ -39,7 +39,7 @@ const LandingPage = () => {
           animate={{ scale: 1 }}
           transition={{ duration: 10, repeat: Infinity, repeatType: "reverse" }}
           className="absolute inset-0 bg-cover bg-center z-0"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80')" }}
+          style={{ backgroundImage: "url('https://media.istockphoto.com/id/1018024484/photo/courtroom.jpg?s=612x612&w=0&k=20&c=iY8qKyfI1nxHtarT2Fll2_qKIs93dVIKlOhVi4ZjZMs=')" }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-white z-10" /> 
         

@@ -2,8 +2,8 @@ import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
+import AboutUs from './pages/AboutUs';
 import './styles/index.css'; // Adjust path if needed
-import AboutUs from './pages/AboutUs'; // Ensure this is imported for routing
 import './styles/AboutUs.css'; // Import About Us specific styles
 
 function App() {
