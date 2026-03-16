@@ -1,18 +1,20 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import LandingPage from './LandingPage';
-import LoginPage from './LoginPage';
+import LandingPage from './pages/LandingPage';
+import LoginPage from './pages/LoginPage';
+import './styles/index.css'; // Adjust path if needed
+import AboutUs from './pages/AboutUs'; // Ensure this is imported for routing
+import './styles/AboutUs.css'; // Import About Us specific styles
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        {/* The default home page */}
-        <Route path="/" element={<LandingPage />} />
-        
-        {/* The login page */}
-        <Route path="/login" element={<LoginPage />} />
-      </Routes>
+    <Routes>
+  <Route path="/" element={<LandingPage />} />
+  <Route path="/login" element={<LoginPage />} />
+  {/* Change this to lowercase/no spaces */}
+  <Route path="/about" element={<AboutUs />} /> 
+</Routes>
     </BrowserRouter>
   );
 }

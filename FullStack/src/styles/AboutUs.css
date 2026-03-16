@@ -1,0 +1,46 @@
+/* LawLink Custom Visuals 
+  Note: Layout, spacing, and typography are now handled by Tailwind CSS in the .jsx files.
+*/
+
+/* --- Global Premium Typography --- */
+/* We apply this to a specific wrapper class so it doesn't break the whole app */
+.premium-legal-theme {
+  font-family: 'Times New Roman', Times, serif;
+  color: #0a0a0a;
+}
+
+.premium-legal-theme h1, 
+.premium-legal-theme h2, 
+.premium-legal-theme h3,
+.premium-legal-theme h4 {
+  font-family: 'Georgia', serif; /* Classic authoritative legal look */
+}
+
+.premium-legal-theme p {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; /* Clean readable body text */
+}
+
+/* --- Team Member Photo Effects --- */
+.team-card-image-wrapper img {
+  border-radius: 50%; /* Traditional formal portrait look */
+  filter: grayscale(100%); /* Classic, serious look */
+  transition: all 0.4s ease-in-out;
+}
+
+/* Highlight the color and slightly enlarge when hovered */
+.team-card-wrapper:hover .team-card-image-wrapper img {
+  filter: grayscale(0%); 
+  transform: scale(1.05);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+/* --- Core Value Icon Styling --- */
+.value-icon-wrapper {
+  opacity: 0.85;
+  transition: all 0.3s ease;
+}
+
+.value-card-container:hover .value-icon-wrapper {
+  opacity: 1;
+  transform: translateY(-5px);
+}
