@@ -1,0 +1,14 @@
+:root {
+  --lawyer-bg: #e2e8f0;
+  --lawyer-text: #0f172a;
+}
+
+.lawyer-dashboard {
+  background: var(--lawyer-bg);
+  color: var(--lawyer-text);
+}
+
+.lawyer-card {
+  border: 1px solid #cbd5e1;
+  border-radius: 0.75rem;
+}

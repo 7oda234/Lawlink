@@ -1,0 +1,13 @@
+:root {
+  --public-bg: #f8fafc;
+  --public-text: #0f172a;
+}
+
+.public-page {
+  background: var(--public-bg);
+  color: var(--public-text);
+}
+
+.public-hero {
+  padding: 3rem 1rem;
+}

@@ -1,0 +1,14 @@
+:root {
+  --comm-bg: #f8fafc;
+  --comm-text: #1e293b;
+}
+
+.comm-chat-container {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 1rem;
+}
+
+.comm-message {
+  margin-bottom: 0.75rem;
+}

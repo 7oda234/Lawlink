@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Scale, User, Menu, X } from 'lucide-react';
+import { Scale, User, Menu, X, Sun, Moon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTheme } from '../context/ThemeContext';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { mode, palette, toggleMode, setPalette, palettes } = useTheme();
 
   // Detect scrolling to trigger the glassmorphism effect
   useEffect(() => {
@@ -66,8 +68,27 @@ const Navbar = () => {
           })}
         </nav>
 
-        {/* Desktop Auth Buttons */}
-        <div className="hidden md:flex items-center gap-5 text-sm">
+        {/* Desktop Auth and Theme Controls */}
+        <div className="hidden md:flex items-center gap-3 text-sm">
+          <button
+            onClick={toggleMode}
+            className="text-gray-300 hover:text-white transition p-2 rounded-md bg-black/20 hover:bg-black/30"
+            aria-label="Toggle theme mode"
+          >
+            {mode === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+          <div className="flex items-center gap-1">
+            {palettes.map((color) => (
+              <button
+                key={color}
+                onClick={() => setPalette(color)}
+                className={`w-3 h-3 rounded-full border ${palette === color ? 'ring-2 ring-white' : 'opacity-70'} ${
+                  color === 'blue' ? 'bg-blue-500' : color === 'yellow' ? 'bg-yellow-400' : color === 'green' ? 'bg-emerald-500' : 'bg-purple-500'
+                }`}
+                aria-label={`Set ${color} accent`}
+              />
+            ))}
+          </div>
           <Link to="/login" className="flex items-center gap-2 text-gray-300 hover:text-white transition">
             <User size={18} /> Login
           </Link>
@@ -105,6 +126,21 @@ const Navbar = () => {
                 </Link>
               ))}
               <div className="h-px bg-gray-800 my-2"></div>
+              <div className="flex items-center gap-3">
+                <button onClick={toggleMode} className="text-gray-300 hover:text-white transition p-2 rounded-md bg-black/20 hover:bg-black/30">
+                  {mode === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                </button>
+                {palettes.map((color) => (
+                  <button
+                    key={color}
+                    onClick={() => setPalette(color)}
+                    className={`w-3 h-3 rounded-full border ${palette === color ? 'ring-2 ring-white' : 'opacity-70'} ${
+                      color === 'blue' ? 'bg-blue-500' : color === 'yellow' ? 'bg-yellow-400' : color === 'green' ? 'bg-emerald-500' : 'bg-purple-500'
+                    }`} 
+                    aria-label={`Set ${color} accent`}
+                  />
+                ))}
+              </div>
               <Link to="/login" className="flex items-center gap-2 text-lg font-medium text-gray-300">
                 <User size={20} /> Login
               </Link>

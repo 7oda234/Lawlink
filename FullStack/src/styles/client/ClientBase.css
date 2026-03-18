@@ -1,0 +1,14 @@
+:root {
+  --client-bg: #f1f5f9;
+  --client-text: #0f172a;
+}
+
+.client-dashboard {
+  background: var(--client-bg);
+  color: var(--client-text);
+}
+
+.client-widget {
+  border-radius: 0.75rem;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+}
