@@ -1,0 +1,31 @@
+{
+  "name": "lawlink-backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "arabic-persian-reshaper": "^1.0.1",
+    "axios": "^1.13.6",
+    "bcrypt": "^6.0.0",
+    "bidi-js": "^1.0.3",
+    "config": "^4.4.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.2.1",
+    "express-validator": "^7.3.1",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "jwt-decode": "^4.0.0",
+    "mariadb": "^3.5.1",
+    "morgan": "^1.10.1",
+    "multer": "^2.1.0",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.19.0"
+  }
+}

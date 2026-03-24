@@ -15,7 +15,7 @@ con.connect(function(err) {
   console.log("Connected to MySQL with Arabic support!");
 
   // Now, when you select data, Arabic text will be handled correctly
-  con.query("SELECT * FROM users", function (err, result, fields) {
+  con.query("SELECT * FROM users", function (err, result) {
     if (err) throw err;
     
     // If your 'users' table has Arabic names, they will show up properly here

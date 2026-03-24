@@ -30,7 +30,7 @@ export const bootstrap = () => {
   // -----------------------------
   // Error Handler
   // -----------------------------
-  app.use((err, req, res, next) => {
+  app.use((err, req, res) => {
     console.error(err);
     res.status(err.status || 500).json({
       ok: false,

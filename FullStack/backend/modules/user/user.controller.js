@@ -1,8 +1,6 @@
 // Router bta3 el user
 import { Router } from "express";
-import { addNewuser, getAllUsers, getUserById, updateUserData } from "./user.service.js";
-import { connection } from "../db/connection.js";
-import { bootstrap } from "../app.controller.js";   
+import { addNewuser, getAllUsers, getUserById, updateUserData } from "./user.service.js";   
 const router = Router();
 // INSERT A NEW USER : http://localhost:8080/user/add
 router.post("/add", addNewuser);

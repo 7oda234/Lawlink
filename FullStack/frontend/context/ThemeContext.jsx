@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
 const ThemeContext = createContext({
@@ -8,15 +9,8 @@ const ThemeContext = createContext({
 });
 
 export const ThemeProvider = ({ children }) => {
-  const [mode, setMode] = useState('light');
-  const [palette, setPalette] = useState('blue');
-
-  useEffect(() => {
-    const savedMode = localStorage.getItem('lawlink-theme-mode');
-    const savedPalette = localStorage.getItem('lawlink-theme-palette');
-    if (savedMode) setMode(savedMode);
-    if (savedPalette) setPalette(savedPalette);
-  }, []);
+  const [mode, setMode] = useState(() => localStorage.getItem('lawlink-theme-mode') || 'light');
+  const [palette, setPalette] = useState(() => localStorage.getItem('lawlink-theme-palette') || 'blue');
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', mode === 'dark');
@@ -28,10 +22,11 @@ export const ThemeProvider = ({ children }) => {
     setMode((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
 
-  const palettes = ['blue', 'yellow', 'green', 'purple'];
-
   const value = useMemo(
-    () => ({ mode, palette, toggleMode, setPalette, palettes }),
+    () => {
+      const palettes = ['blue', 'yellow', 'green', 'purple'];
+      return { mode, palette, toggleMode, setPalette, palettes };
+    },
     [mode, palette],
   );
 

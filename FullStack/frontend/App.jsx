@@ -1,9 +1,11 @@
+// ده المكون الرئيسي للتطبيق - This is the main component of the app
 import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ThemeProvider } from './context/ThemeContext';
 import { PageLayoutProvider } from './components/PageLayout';
 
+// استيراد ملفات الستايل - Importing style files
 import './styles/auth/AuthBase.css';
 import './styles/public/PublicBase.css';
 import './styles/client/ClientBase.css';
@@ -13,6 +15,7 @@ import './styles/case/CaseBase.css';
 import './styles/communication/CommunicationBase.css';
 import './styles/utility/UtilityBase.css';
 
+// استيراد الصفحات العامة - Importing public pages
 const HomePage = React.lazy(() => import('./pages/HomePage'));
 const AboutPage = React.lazy(() => import('./pages/AboutPage'));
 const ContactPage = React.lazy(() => import('./pages/ContactPage'));
@@ -22,12 +25,14 @@ const FindLawyerPage = React.lazy(() => import('./pages/Lawyer/FindLawyerPage'))
 const LawyersListPage = React.lazy(() => import('./pages/LawyersListPage'));
 const LawyerProfilePublicPage = React.lazy(() => import('./pages/LawyerProfilePublicPage'));
 
+// استيراد صفحات المصادقة - Importing authentication pages
 const LoginPage = React.lazy(() => import('./pages/auth/LoginPage'));
 const RegisterPage = React.lazy(() => import('./pages/auth/RegisterPage'));
 const ForgotPasswordPage = React.lazy(() => import('./pages/auth/ForgotPasswordPage'));
 const ResetPasswordPage = React.lazy(() => import('./pages/auth/ResetPasswordPage'));
 const EmailVerificationPage = React.lazy(() => import('./pages/auth/EmailVerificationPage'));
 
+// استيراد صفحات العميل - Importing client pages
 const ClientDashboardPage = React.lazy(() => import('./pages/client/ClientDashboardPage'));
 const ClientMyProfilePage = React.lazy(() => import('./pages/client/ClientMyProfilePage'));
 const ClientEditProfilePage = React.lazy(() => import('./pages/client/ClientEditProfilePage'));
@@ -40,6 +45,7 @@ const ClientAppointmentsPage = React.lazy(() => import('./pages/client/ClientApp
 const ClientNotificationsPage = React.lazy(() => import('./pages/client/ClientNotificationsPage'));
 const ClientPaymentPage = React.lazy(() => import('./pages/client/ClientPaymentPage'));
 
+// استيراد صفحات المحامي - Importing lawyer pages
 const LawyerDashboardPage = React.lazy(() => import('./pages/lawyer/LawyerDashboardPage'));
 const LawyerProfileDashboardPage = React.lazy(() => import('./pages/lawyer/LawyerProfileDashboardPage'));
 const LawyerEditProfilePage = React.lazy(() => import('./pages/lawyer/LawyerEditProfilePage'));
@@ -51,6 +57,7 @@ const LawyerClientMessagesPage = React.lazy(() => import('./pages/lawyer/LawyerC
 const LawyerSchedulePage = React.lazy(() => import('./pages/lawyer/LawyerSchedulePage'));
 const LawyerCalendarPage = React.lazy(() => import('./pages/lawyer/LawyerCalendarPage'));
 
+// استيراد صفحات الإدارة - Importing admin pages
 const AdminDashboardPage = React.lazy(() => import('./pages/admin/AdminDashboardPage'));
 const AdminManageUsersPage = React.lazy(() => import('./pages/admin/AdminManageUsersPage'));
 const AdminCreateUserPage = React.lazy(() => import('./pages/admin/AdminCreateUserPage'));
@@ -64,6 +71,7 @@ const AdminCaseMonitoringPage = React.lazy(() => import('./pages/admin/AdminCase
 const AdminReportsPage = React.lazy(() => import('./pages/admin/AdminReportsPage'));
 const AdminSystemLogsPage = React.lazy(() => import('./pages/admin/AdminSystemLogsPage'));
 
+// استيراد صفحات القضايا - Importing case pages
 const CaseAllPage = React.lazy(() => import('./pages/case/CaseAllPage'));
 const CaseCreatePage = React.lazy(() => import('./pages/case/CaseCreatePage'));
 const CaseDetailsPage = React.lazy(() => import('./pages/case/CaseDetailsPage'));
@@ -71,22 +79,26 @@ const CaseTimelinePage = React.lazy(() => import('./pages/case/CaseTimelinePage'
 const CaseDocumentsPage = React.lazy(() => import('./pages/case/CaseDocumentsPage'));
 const CaseStatusTrackingPage = React.lazy(() => import('./pages/case/CaseStatusTrackingPage'));
 
+// استيراد صفحات التواصل - Importing communication pages
 const MessagesInboxPage = React.lazy(() => import('./pages/communication/MessagesInboxPage'));
 const ChatPage = React.lazy(() => import('./pages/communication/ChatPage'));
 const SendMessagePage = React.lazy(() => import('./pages/communication/SendMessagePage'));
 const NotificationsCenterPage = React.lazy(() => import('./pages/communication/NotificationsCenterPage'));
 
+// استيراد صفحات الأدوات - Importing utility pages
 const SettingsPage = React.lazy(() => import('./pages/utility/SettingsPage'));
 const HelpCenterPage = React.lazy(() => import('./pages/utility/HelpCenterPage'));
 const TermsPrivacyPage = React.lazy(() => import('./pages/utility/TermsPrivacyPage'));
 const NotFoundPage = React.lazy(() => import('./pages/utility/NotFoundPage'));
 
+// تعريف المتغيرات للانيميشن - Defining animation variants
 const pageVariants = {
   initial: { opacity: 0, y: 20, scale: 0.98 },
   animate: { opacity: 1, y: 0, scale: 1 },
   exit: { opacity: 0, y: -20, scale: 0.98 },
 };
 
+// مكون لتغليف الصفحات بالانيميشن - Component to wrap pages with animation
 const PageWrapper = ({ children }) => (
   <motion.div
     variants={pageVariants}
@@ -100,6 +112,7 @@ const PageWrapper = ({ children }) => (
   </motion.div>
 );
 
+// إعدادات الروتات - Route configuration
 const routeConfig = [
   { path: '/', Component: HomePage },
   { path: '/about', Component: AboutPage },
@@ -169,6 +182,7 @@ const routeConfig = [
   { path: '/terms', Component: TermsPrivacyPage },
 ];
 
+// مكون الروتات - Routes component
 const AppRoutes = () => {
   const location = useLocation();
 
@@ -187,6 +201,7 @@ const AppRoutes = () => {
           />
         ))}
 
+        // روت للصفحات غير الموجودة - Route for not found pages
         <Route
           path="*"
           element={
@@ -200,6 +215,7 @@ const AppRoutes = () => {
   );
 };
 
+// المكون الرئيسي للتطبيق - Main App component
 function App() {
   return (
     <ThemeProvider>

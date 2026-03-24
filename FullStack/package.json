@@ -2,13 +2,18 @@
   "name": "lawlink",
   "version": "0.1.0",
   "private": true,
-  "description": "This project was bootstrapped with Create React App",
-  "main": "server.js",
+  "description": "Lawlink fullstack application",
+  "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "start": "npm run start:backend",
+    "start:backend": "cd backend && npm start",
+    "check-errors": "./scripts/check-errors.sh",
+    "fix-errors": "./scripts/fix-errors.sh"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -53,7 +58,12 @@
     "yup": "^1.7.1"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "autoprefixer": "^10.4.27",
+    "eslint": "^10.1.0",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.4.0",
     "nodemon": "^3.1.14",
     "postcss": "^8.5.8",
     "tailwindcss": "^4.2.1"

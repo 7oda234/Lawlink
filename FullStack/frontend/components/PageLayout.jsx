@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext } from 'react';
 import Navbar from './Navbar';
 import Footer from './Footer';

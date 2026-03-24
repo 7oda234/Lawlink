@@ -1,6 +1,7 @@
 
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import db from "../../db/Connection.js";
 
 const JWT_SECRET = "lawlink_secret_key";
 

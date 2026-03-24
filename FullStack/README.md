@@ -1,53 +1,63 @@
-# Getting Started with Create React App
+# Lawlink Fullstack Application
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is a fullstack application for lawlink, reorganized into separate frontend and backend folders.
+
+## Project Structure
+
+- `frontend/` - React frontend application
+- `backend/` - Node.js backend with Express
+- `python/` - Python scripts and tests
+- `scripts/` - Utility scripts for error checking and fixing
+
+## Getting Started
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### Backend
+
+```bash
+cd backend
+npm install
+npm start
+```
+
+### Python Scripts
+
+Located in `python/` folder.
+
+### Error Checking
+
+Use scripts in `scripts/` folder:
+
+- `./scripts/check-errors.sh` - Check for errors
+- `./scripts/fix-errors.sh` - Auto-fix linting issues
 
 ## Available Scripts
 
-In the project directory, you can run:
+### Frontend Scripts
 
-### `npm start`
+In the `frontend` directory:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- `npm run dev` - Runs the frontend in development mode
+- `npm run build` - Builds the app for production
+- `npm run preview` - Previews the production build
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Backend Scripts
 
-### `npm test`
+In the `backend` directory:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- `npm start` - Starts the backend server
 
 ## Learn More
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+- React documentation: [https://reactjs.org/](https://reactjs.org/)
+- Express documentation: [https://expressjs.com/](https://expressjs.com/)
 
 ### Analyzing the Bundle Size
 
