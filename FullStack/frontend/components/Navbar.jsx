@@ -1,3 +1,4 @@
+// مكون التنقل الرئيسي - Main navigation component
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Scale, User, Menu, X, Sun, Moon } from 'lucide-react';
@@ -10,7 +11,7 @@ const Navbar = () => {
   const location = useLocation();
   const { mode, palette, toggleMode, setPalette, palettes } = useTheme();
 
-  // Detect scrolling to trigger the glassmorphism effect
+  // كشف التمرير لتفعيل تأثير الزجاج - Detect scrolling to trigger glassmorphism effect
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
@@ -19,12 +20,13 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile menu when the route changes
+  // إغلاق القائمة المحمولة عند تغيير الروت - Close mobile menu when route changes
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMobileMenuOpen(false);
   }, [location.pathname]);
 
+  // روابط التنقل - Navigation links
   const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'Find a Lawyer', path: '/find-lawyer' },

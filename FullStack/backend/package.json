@@ -27,5 +27,8 @@
     "multer": "^2.1.0",
     "mysql": "^2.18.1",
     "mysql2": "^3.19.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
   }
 }
