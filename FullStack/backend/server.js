@@ -26,14 +26,45 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath, pathToFileURL } from 'url';
+
 // Import routes
-// Assuming routes are exported from modules
-// For example, import authRoutes from './modules/auth/auth.routes.js';
-// app.use('/api/auth', authRoutes);
-// Add all module routes here
+// Automatically register all /modules/*/*.routes.js files
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-const PORT = process.env.PORT || 5000; // eslint-disable-line no-undef
+const modulesDir = path.join(__dirname, 'modules');
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+const registerRoutes = async () => {
+  const moduleItems = fs.readdirSync(modulesDir, { withFileTypes: true }).filter((dirent) => dirent.isDirectory());
+
+  for (const moduleDir of moduleItems) {
+    const routesFile = path.join(modulesDir, moduleDir.name, `${moduleDir.name}.routes.js`);
+    if (fs.existsSync(routesFile)) {
+      try {
+        const mod = await import(pathToFileURL(routesFile).href);
+        if (mod.default) {
+          const routePath = `/api/${moduleDir.name}`;
+          app.use(routePath, mod.default);
+          console.log(`Loaded router ${routePath} from ${routesFile}`);
+        }
+      } catch (err) {
+        console.error(`Failed to load router: ${routesFile}`);
+        console.error(err);
+      }
+    }
+  }
+};
+
+const init = async () => {
+  await registerRoutes();
+
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+};
+
+init();

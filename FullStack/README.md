@@ -11,25 +11,37 @@ This is a fullstack application for lawlink, reorganized into separate frontend 
 
 ## Getting Started
 
-### Frontend
+### Frontend + Backend (monorepo)
 
 ```bash
-cd frontend
 npm install
 npm run dev
 ```
 
-### Backend
+- Frontend: `http://localhost:3000`
+- Backend: `http://localhost:5000`
+
+### If localhost refuses to connect
+
+1. تأكد من أن Node.js و npm مثبتين ومضافين إلى PATH.
+2. افتح الطرفية في مجلد المشروع وأعد تشغيل:
+   - `npm run dev`
+3. إذا كان هناك خطأ في `npm run dev`, راجع الإخراج لتحديد المشكلة والأخطاء.
+
+### Python Frontend Component Tests
 
 ```bash
-cd backend
-npm install
-npm start
+python python/test_frontend_components.py
 ```
 
-### Python Scripts
+- يفحص جميع ملفات `.jsx` في `frontend/` ويتأكد من وجود `export default`
 
-Located in `python/` folder.
+### New Validation Scripts
+
+- `npm run lint` - ESLint for frontend & backend
+- `npm run test` - Jest unit tests (backend logic)
+- `npm run check-errors` - custom error scripts
+- `npm run fix-errors` - auto-fix scripts
 
 ### Error Checking
 
