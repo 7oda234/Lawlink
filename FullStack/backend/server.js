@@ -29,12 +29,14 @@ const PORT = process.env.PORT || 5000; // eslint-disable-line no-undef
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+try {    await connectDB();
+    console.log('✅ Database connected successfully');
 
     } catch (err) {
         console.error('❌ Server failed to start:', err.message);
         // لو الداتابيز مش شغالة، السيرفر مش هيقوم وده الصح
         process.exit(1);
     }
-};
+;
 
 startServer();
