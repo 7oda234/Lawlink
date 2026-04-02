@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3307
--- Generation Time: Apr 02, 2026 at 02:22 PM
+-- Generation Time: Apr 02, 2026 at 02:28 PM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.2.0
 
@@ -20,6 +20,8 @@ SET time_zone = "+00:00";
 --
 -- Database: `lawlink`
 --
+CREATE DATABASE IF NOT EXISTS `lawlink` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `lawlink`;
 
 -- --------------------------------------------------------
 
@@ -27,6 +29,7 @@ SET time_zone = "+00:00";
 -- Table structure for table `activity_log`
 --
 
+DROP TABLE IF EXISTS `activity_log`;
 CREATE TABLE `activity_log` (
   `log_id` bigint(20) NOT NULL,
   `user_id` bigint(20) DEFAULT NULL,
@@ -40,6 +43,7 @@ CREATE TABLE `activity_log` (
 -- Table structure for table `admin`
 --
 
+DROP TABLE IF EXISTS `admin`;
 CREATE TABLE `admin` (
   `user_id` bigint(20) NOT NULL,
   `authority_level` varchar(20) NOT NULL
@@ -60,6 +64,7 @@ INSERT INTO `admin` (`user_id`, `authority_level`) VALUES
 -- Table structure for table `ai_tools`
 --
 
+DROP TABLE IF EXISTS `ai_tools`;
 CREATE TABLE `ai_tools` (
   `ai_id` bigint(20) NOT NULL,
   `confidence_score` decimal(4,2) DEFAULT NULL,
@@ -83,6 +88,7 @@ INSERT INTO `ai_tools` (`ai_id`, `confidence_score`, `input_text`, `response_tex
 -- Table structure for table `appointment`
 --
 
+DROP TABLE IF EXISTS `appointment`;
 CREATE TABLE `appointment` (
   `appointment_id` bigint(20) NOT NULL,
   `appointment_date` datetime DEFAULT NULL,
@@ -98,6 +104,7 @@ CREATE TABLE `appointment` (
 -- Table structure for table `calls`
 --
 
+DROP TABLE IF EXISTS `calls`;
 CREATE TABLE `calls` (
   `call_id` bigint(20) NOT NULL,
   `quality_score` decimal(3,2) DEFAULT NULL,
@@ -111,6 +118,7 @@ CREATE TABLE `calls` (
 -- Table structure for table `cases`
 --
 
+DROP TABLE IF EXISTS `cases`;
 CREATE TABLE `cases` (
   `case_id` bigint(20) NOT NULL,
   `title` varchar(200) NOT NULL,
@@ -129,6 +137,7 @@ CREATE TABLE `cases` (
 -- Table structure for table `client`
 --
 
+DROP TABLE IF EXISTS `client`;
 CREATE TABLE `client` (
   `user_id` bigint(20) NOT NULL,
   `income_level` decimal(12,2) DEFAULT NULL
@@ -150,6 +159,7 @@ INSERT INTO `client` (`user_id`, `income_level`) VALUES
 -- Table structure for table `document`
 --
 
+DROP TABLE IF EXISTS `document`;
 CREATE TABLE `document` (
   `document_id` bigint(20) NOT NULL,
   `file_path` varchar(255) NOT NULL,
@@ -164,6 +174,7 @@ CREATE TABLE `document` (
 -- Table structure for table `feedback`
 --
 
+DROP TABLE IF EXISTS `feedback`;
 CREATE TABLE `feedback` (
   `feedback_id` bigint(20) NOT NULL,
   `rating` int(11) DEFAULT NULL CHECK (`rating` between 1 and 5),
@@ -177,6 +188,7 @@ CREATE TABLE `feedback` (
 --
 -- Triggers `feedback`
 --
+DROP TRIGGER IF EXISTS `update_lawyer_rating`;
 DELIMITER $$
 CREATE TRIGGER `update_lawyer_rating` AFTER INSERT ON `feedback` FOR EACH ROW BEGIN
   UPDATE lawyer
@@ -196,6 +208,7 @@ DELIMITER ;
 -- Table structure for table `installment`
 --
 
+DROP TABLE IF EXISTS `installment`;
 CREATE TABLE `installment` (
   `installment_id` bigint(20) NOT NULL,
   `payment_id` bigint(20) NOT NULL,
@@ -208,6 +221,7 @@ CREATE TABLE `installment` (
 --
 -- Triggers `installment`
 --
+DROP TRIGGER IF EXISTS `update_payment_status`;
 DELIMITER $$
 CREATE TRIGGER `update_payment_status` AFTER UPDATE ON `installment` FOR EACH ROW BEGIN
   IF NOT EXISTS (
@@ -233,6 +247,7 @@ DELIMITER ;
 -- Table structure for table `invoice`
 --
 
+DROP TABLE IF EXISTS `invoice`;
 CREATE TABLE `invoice` (
   `invoice_id` bigint(20) NOT NULL,
   `invoice_number` varchar(100) DEFAULT NULL,
@@ -246,6 +261,7 @@ CREATE TABLE `invoice` (
 -- Table structure for table `knowledge_base`
 --
 
+DROP TABLE IF EXISTS `knowledge_base`;
 CREATE TABLE `knowledge_base` (
   `knowledge_id` bigint(20) NOT NULL,
   `title` varchar(200) DEFAULT NULL,
@@ -261,6 +277,7 @@ CREATE TABLE `knowledge_base` (
 -- Table structure for table `lawyer`
 --
 
+DROP TABLE IF EXISTS `lawyer`;
 CREATE TABLE `lawyer` (
   `user_id` bigint(20) NOT NULL,
   `verified` tinyint(1) DEFAULT 0,
@@ -286,6 +303,7 @@ INSERT INTO `lawyer` (`user_id`, `verified`, `rating_avg`, `specialization`, `li
 -- Table structure for table `lawyer_office`
 --
 
+DROP TABLE IF EXISTS `lawyer_office`;
 CREATE TABLE `lawyer_office` (
   `office_id` bigint(20) NOT NULL,
   `office_address` varchar(255) DEFAULT NULL,
@@ -298,6 +316,7 @@ CREATE TABLE `lawyer_office` (
 -- Table structure for table `message`
 --
 
+DROP TABLE IF EXISTS `message`;
 CREATE TABLE `message` (
   `message_id` bigint(20) NOT NULL,
   `message_text` text NOT NULL,
@@ -311,6 +330,7 @@ CREATE TABLE `message` (
 -- Table structure for table `notification`
 --
 
+DROP TABLE IF EXISTS `notification`;
 CREATE TABLE `notification` (
   `notification_id` bigint(20) NOT NULL,
   `message` text DEFAULT NULL,
@@ -325,6 +345,7 @@ CREATE TABLE `notification` (
 -- Table structure for table `payment`
 --
 
+DROP TABLE IF EXISTS `payment`;
 CREATE TABLE `payment` (
   `payment_id` bigint(20) NOT NULL,
   `status` enum('Pending','Partial','Paid') DEFAULT 'Pending',
@@ -342,6 +363,7 @@ CREATE TABLE `payment` (
 -- Table structure for table `task`
 --
 
+DROP TABLE IF EXISTS `task`;
 CREATE TABLE `task` (
   `task_id` bigint(20) NOT NULL,
   `title` varchar(200) DEFAULT NULL,
@@ -356,6 +378,7 @@ CREATE TABLE `task` (
 -- Table structure for table `users`
 --
 
+DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
   `user_id` bigint(20) NOT NULL,
   `name` varchar(255) DEFAULT NULL,
@@ -389,6 +412,7 @@ INSERT INTO `users` (`user_id`, `name`, `role`, `created_at`, `email`, `password
 --
 -- Triggers `users`
 --
+DROP TRIGGER IF EXISTS `after_user_insert`;
 DELIMITER $$
 CREATE TRIGGER `after_user_insert` AFTER INSERT ON `users` FOR EACH ROW BEGIN
     IF NEW.role = 'lawyer' THEN
@@ -413,6 +437,7 @@ DELIMITER ;
 -- Table structure for table `wallet`
 --
 
+DROP TABLE IF EXISTS `wallet`;
 CREATE TABLE `wallet` (
   `wallet_id` bigint(20) NOT NULL,
   `balance` decimal(12,2) DEFAULT 0.00,
