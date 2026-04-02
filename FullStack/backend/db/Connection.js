@@ -1,19 +1,25 @@
-import mysql from 'mysql';
+import mysql from 'mysql2/promise'; // 👈 لازم mysql2 والـ promise
 
-const connection = mysql.createConnection({
+// إعداد الـ Pool (عشان نقدر نستخدم الـ Transactions والـ getConnection)
+const pool = mysql.createPool({
   host: "localhost",
   user: "root",
   password: "",
   database: "lawlink",
-  port: 3307
+  port: 3307,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
 });
 
-connection.connect(function(err) {
-  if (err) {
-    console.error("Error connecting to MySQL:", err.stack);
-    return;
-  }
-  console.log("Connected to MySQL as id " + connection.threadId);
-});
+// اختبار الاتصال عند بداية التشغيل
+pool.getConnection()
+    .then(conn => {
+        console.log("✅ MariaDB (LawLink) Connected Successfully on Port 3307!");
+        conn.release();
+    })
+    .catch(err => {
+        console.error("❌ Database Connection Failed:", err.message);
+    });
 
-export default connection;
+export default pool; // 👈 تصدير الـ pool عشان الـ Service يشوفه

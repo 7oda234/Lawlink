@@ -1,39 +1,28 @@
-import express from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
-import morgan from 'morgan';
-import cookieParser from 'cookie-parser';
-import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
-
-// Load environment variables
 dotenv.config();
+import { bootstrap } from './App.js'; 
+import pool from './db/Connection.js'; // 👈 استورد الـ Pool اللي عملناه بـ createPool
+const PORT = process.env.PORT || 5000;
 
-const app = express();
+const startServer = async () => {
+    try {
+        // 1. اختبار الاتصال بالـ Pool (مش مجرد connection واحد)
+        const connection = await pool.getConnection();
+        console.log('✅ MariaDB Connected Successfully on Port 3307!');
+        connection.release(); // بنسيب الخط مفتوح للـ Pool بس بنرجعه للخدمة
 
-// Middleware
-app.use(helmet());
-app.use(cors());
-app.use(morgan('combined'));
-app.use(cookieParser());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+        // 2. تشغيل الـ Express App
+        const app = bootstrap(); 
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
-});
-app.use(limiter);
+        app.listen(PORT, () => {
+            console.log(`🚀 LawLink Server is running on: http://localhost:${PORT}`);
+        });
 
-// Import routes
-// Assuming routes are exported from modules
-// For example, import authRoutes from './modules/auth/auth.routes.js';
-// app.use('/api/auth', authRoutes);
-// Add all module routes here
+    } catch (err) {
+        console.error('❌ Server failed to start:', err.message);
+        // لو الداتابيز مش شغالة، السيرفر مش هيقوم وده الصح
+        process.exit(1);
+    }
+};
 
-const PORT = process.env.PORT || 5000; // eslint-disable-line no-undef
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+startServer();
