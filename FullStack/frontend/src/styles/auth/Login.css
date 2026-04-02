@@ -1,0 +1,103 @@
+/* src/styles/auth/Login.css */
+
+.login-container {
+    display: flex;
+    height: 100vh;
+    background-color: #FDFDFD;
+}
+
+/* الجزء الشمال اللي فيه اللوجو والكلام */
+.login-info-section {
+    width: 50%;
+    background-color: #001D4A; /* الكحلي بتاعنا */
+    color: white;
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.back-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    opacity: 0.8;
+    cursor: pointer;
+    margin-bottom: 2.5rem;
+}
+
+.brand-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 5rem;
+}
+
+.brand-icon {
+    padding: 0.6rem;
+    background-color: #BF9B30; /* اللون الدهبي */
+    border-radius: 0.75rem;
+    color: #001D4A;
+}
+
+.brand-name {
+    font-size: 1.875rem;
+    font-weight: 700;
+}
+
+.brand-highlight {
+    color: #BF9B30;
+}
+
+.hero-text {
+    font-size: 2.25rem;
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 1.5rem;
+    max-width: 28rem;
+}
+
+/* الجزء اليمين اللي فيه الفورم */
+.login-form-section {
+    width: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+}
+
+.form-wrapper {
+    width: 100%;
+    max-width: 28rem;
+}
+
+.social-divider {
+    text-align: center;
+    color: #9ca3af;
+    margin: 2.5rem 0 1.25rem;
+    position: relative;
+}
+
+.social-divider::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 1px;
+    background-color: #e5e7eb;
+    z-index: 0;
+}
+
+.social-divider span {
+    background-color: white;
+    padding: 0 0.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.social-buttons {
+    display: flex;
+    gap: 1rem;
+}

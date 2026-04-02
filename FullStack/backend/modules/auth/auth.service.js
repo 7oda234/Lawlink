@@ -9,10 +9,10 @@ const JWT_SECRET = "lawlink_secret_key";
 // Helpers
 // ------------------------------------
 
-const normalizeEmail = (email) =>
+export const normalizeEmail = (email) =>
   String(email || "").trim().toLowerCase();
 
-const sanitizeUser = (row) => {
+export const sanitizeUser = (row) => {
   if (!row) return null;
 
   return {
@@ -88,7 +88,7 @@ export const register = async (req, res, next) => {
     // Insert user
     const insertRes = await runQuery(
       `INSERT INTO users (full_name, email, password, phone)
-       VALUES (?, ?, ?, ?)`,
+      VALUES (?, ?, ?, ?)`,
       [fullName, email, hashedPassword, phone]
     );
 
