@@ -1,42 +1,38 @@
+// 1. استدعاء مكتبة البيئة (لازم تكون أول سطر)
 import dotenv from 'dotenv';
-dotenv.config();
+dotenv.config(); 
 
-const app = express();
+// 2. استدعاء المكتبات الأساسية
+import { bootstrap } from './App.js'; 
+import pool from './db/Connection.js'; 
 
-// Middleware
-app.use(helmet());
-app.use(cors());
-app.use(morgan('combined'));
-app.use(cookieParser());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// 3. تحديد البورت من الـ .env أو افتراضي 5000
+const PORT = process.env.PORT || 5000;
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
-});
-app.use(limiter);
+const startServer = async () => {
+    try {
+        console.log('⏳ جاري فحص الاتصال بالبيانات...');
 
-// Import routes
-// Assuming routes are exported from modules
-// For example, import authRoutes from './modules/auth/auth.routes.js';
-// app.use('/api/auth', authRoutes);
-// Add all module routes here
+        // 4. اختبار الاتصال بقاعدة البيانات (MariaDB/MySQL)
+        const connection = await pool.getConnection();
+        console.log('✅ MariaDB (LawLink) Connected Successfully on Port 3307!');
+        connection.release(); // إعادة الخط للـ Pool بعد التأكد من الاتصال
 
-const PORT = process.env.PORT || 5000; // eslint-disable-line no-undef
+        // 5. تشغيل تطبيق Express (الـ Routes والميدلوير)
+        const app = bootstrap(); 
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
-try {    await connectDB();
-    console.log('✅ Database connected successfully');
+        // 6. فتح السيرفر للاستماع للطلبات
+        app.listen(PORT, () => {
+            console.log(`🚀 LawLink Server is running on: http://localhost:${PORT}`);
+            console.log(`📝 Environment loaded: (${Object.keys(process.env).filter(k => !k.startsWith('NODE')).length}) variables detected.`);
+        });
 
     } catch (err) {
-        console.error('❌ Server failed to start:', err.message);
-        // لو الداتابيز مش شغالة، السيرفر مش هيقوم وده الصح
+        console.error('❌ فشل في تشغيل السيرفر:', err.message);
+        // لو الداتابيز فيها مشكلة، السيرفر مش هيقوم عشان نصلح العيب فوراً
         process.exit(1);
     }
-;
+};
 
+// تشغيل المحرك
 startServer();
