@@ -5,7 +5,6 @@ import '../../styles/auth/AuthBase.css';
 import logo from '../../Assets/logo/logo canvas.png';
 
 // Importing assets 
-import logo from "../../../assets/logo.png";
 
 const LoginPage = () => {
   // State to toggle between Client and Lawyer
@@ -25,7 +24,7 @@ const [userType, setUserType] = useState('client');
 // 2. In your JSX, just use the direct path:
 
 <div className="logo-container">
-  <img src="/logo.png" alt="LawLink Logo" />
+  <img src={logo} alt="LawLink Logo" />
 </div>
 
         <h2 className="form-title">Welcome Back</h2>
