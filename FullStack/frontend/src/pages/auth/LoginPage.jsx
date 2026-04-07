@@ -1,19 +1,44 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaLock, FaEnvelope, FaGavel, FaUser } from 'react-icons/fa'; 
-import '../../styles/auth/AuthBase.css';
+import { FaLock, FaEnvelope, FaGavel, FaUser } from 'react-icons/fa';
+import '../../styles/auth/Login.css';
 
-// Importing assets 
-import logo from "../../../assets/logo.png";
+// Ensure this path is correct based on your folder structure
+import logo from '../../assets/logo/logo.png';
 
 const LoginPage = () => {
-  // State to toggle between Client and Lawyer
-  const [userType, setUserType] = useState('client'); 
+  const [userType, setUserType] = useState('client'); // 'client' or 'lawyer'
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    rememberMe: false
+  });
 
-  const handleSubmit = (e) => {
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(`Logging in as ${userType}`);
-    // Future: Add your Axios/Fetch call to Node.js here
+    
+    const payload = {
+      ...formData,
+      role: userType
+    };
+
+    console.log('Submitting Login:', payload);
+    
+    // Professional Tip: Implement a loading state here to disable 
+    // the submit button while the API call is in progress.
+    try {
+      // const response = await axios.post('/api/auth/login', payload);
+    } catch (error) {
+      console.error("Login failed", error);
+    }
   };
 
   return (
@@ -21,12 +46,9 @@ const LoginPage = () => {
       <div className="auth-card">
         
         {/* Logo Section */}
-// 1. DELETE the import logo line entirely
-// 2. In your JSX, just use the direct path:
-
-<div className="logo-container">
-  <img src="/logo.png" alt="LawLink Logo" />
-</div>
+        <div className="logo-container">
+          <img src={logo} alt="LawLink Logo" />
+        </div>
 
         <h2 className="form-title">Welcome Back</h2>
         <p className="form-subtitle">Select account type to continue to LawLink</p>
@@ -52,26 +74,36 @@ const LoginPage = () => {
         {/* Login Form */}
         <form className="auth-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Email Address</label>
+            <label htmlFor="email">Email Address</label>
             <div className="input-container">
               <FaEnvelope className="input-icon" />
               <input 
+                id="email"
+                name="email"
                 type="email" 
                 className="law-input" 
                 placeholder="name@example.com" 
+                value={formData.email}
+                onChange={handleInputChange}
+                autoComplete="email"
                 required 
               />
             </div>
           </div>
 
           <div className="form-group">
-            <label>Password</label>
+            <label htmlFor="password">Password</label>
             <div className="input-container">
               <FaLock className="input-icon" />
               <input 
+                id="password"
+                name="password"
                 type="password" 
                 className="law-input" 
                 placeholder="••••••••" 
+                value={formData.password}
+                onChange={handleInputChange}
+                autoComplete="current-password"
                 required 
               />
             </div>
@@ -79,13 +111,18 @@ const LoginPage = () => {
 
           <div className="form-options">
             <label className="remember-me">
-              <input type="checkbox" /> Remember me
+              <input 
+                name="rememberMe"
+                type="checkbox" 
+                checked={formData.rememberMe}
+                onChange={handleInputChange}
+              /> Remember me
             </label>
             <Link to="/forgot-password" id="forgot-link">Forgot Password?</Link>
           </div>
 
           <button type="submit" className="btn-submit">
-            Sign In as {userType === 'client' ? 'Client' : 'Lawyer'} →
+            Sign In as {userType.charAt(0).toUpperCase() + userType.slice(1)} →
           </button>
         </form>
 
