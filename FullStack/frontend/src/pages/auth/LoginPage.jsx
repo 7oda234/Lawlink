@@ -3,8 +3,13 @@ import { Link } from 'react-router-dom';
 import { FaLock, FaEnvelope, FaGavel, FaUser } from 'react-icons/fa'; 
 import '../../styles/auth/AuthBase.css';
 
+
 // Importing assets - Ensure these exist in src/Assets/
 //import logo from '../../assets/logo.png';
+
+// Importing assets 
+//import logo from "../../../assets/logo.png";
+
 
 const LoginPage = () => {
   // State to toggle between Client and Lawyer
@@ -21,9 +26,12 @@ const [userType, setUserType] = useState('client');
       <div className="auth-card">
         
         {/* Logo Section */}
-        <div className="logo-container">
-          <img src="/logo.png" alt="LawLink Logo" />
-        </div>
+// 1. DELETE the import logo line entirely
+// 2. In your JSX, just use the direct path:
+
+<div className="logo-container">
+  <img src="/logo.png" alt="LawLink Logo" />
+</div>
 
         <h2 className="form-title">Welcome Back</h2>
         <p className="form-subtitle">Select account type to continue to LawLink</p>
