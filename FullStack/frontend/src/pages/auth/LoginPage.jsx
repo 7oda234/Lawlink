@@ -4,11 +4,11 @@ import { FaLock, FaEnvelope, FaGavel, FaUser } from 'react-icons/fa';
 import '../../styles/auth/AuthBase.css';
 
 // Importing assets - Ensure these exist in src/Assets/
-import logo from '../../assets/logo.png';
+//import logo from '../../assets/logo.png';
 
 const LoginPage = () => {
   // State to toggle between Client and Lawyer
-  const [userType, setUserType] = useState('client'); 
+const [userType, setUserType] = useState('client'); 
 
   const handleSubmit = (e) => {
     e.preventDefault();
