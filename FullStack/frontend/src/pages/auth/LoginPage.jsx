@@ -20,9 +20,6 @@ const [userType, setUserType] = useState('client');
     <div className="auth-wrapper">
       <div className="auth-card">
         {/* Logo Section */}
-// 1. DELETE the import logo line entirely
-// 2. In your JSX, just use the direct path:
-
 <div className="logo-container">
   <img src={logo} alt="LawLink Logo" />
 </div>
