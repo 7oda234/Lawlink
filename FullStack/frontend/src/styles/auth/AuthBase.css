@@ -38,9 +38,18 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+.logo-container {
+    display: flex;
+    justify-content: center; /* Centers the image horizontally */
+    align-items: center;
+    width: 100%;
+    margin-bottom: 25px; /* Increased space below the logo */
+}
+
 .logo-container img {
-  width: 130px;
-  margin-bottom: 15px;
+    width: 180px; /* Increased from 130px */
+    height: auto; /* Maintains aspect ratio */
+    display: block;
 }
 
 .form-title {
@@ -135,7 +144,6 @@
   align-items: center;
   margin-bottom: 25px;
   font-size: 0.9rem;
-  color : var(--primary-black);
 }
 
 #forgot-link {
