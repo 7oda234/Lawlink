@@ -1,8 +1,15 @@
+// ═══════════════════════════════════════════════════════════════════════════════════
+// Admin Manage Users Page
+// ═══════════════════════════════════════════════════════════════════════════════════
+// صفحة ادارة في لوحة الadmin - Admin Manage Users Page
+// Admin page for managing admin manage users page operations.
+// ───────────────────────────────────────────────────────────────────────────────────
 import React from 'react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 
 const AdminManageUsersPage = () => (
+// 📍 Start page component content
   <div className="min-h-screen flex flex-col bg-gray-50"> 
     <Navbar />
     <main className="flex-grow pt-28 pb-16"> 

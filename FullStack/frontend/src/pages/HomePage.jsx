@@ -1,8 +1,16 @@
+// ═══════════════════════════════════════════════════════════════════════════════════
+// 🏛️ الصفحة الرئيسية - Home Page
+// ═══════════════════════════════════════════════════════════════════════════════════
+// الصفحة الأولى على landing page - فيها testimonials ومعلومات عن المنصة
+// First page users see with platform info, features, and testimonials
+// ─────────────────────────────────────────────────────────────────────────────────────
+
 import React from 'react';
 import PageLayout from '../components/PageLayout';
 import { Link } from 'react-router-dom';
 
 const HomePage = () => (
+// 📍 Start page component content
   <PageLayout
     title="LawLink: Modern Legal Connections"
     subtitle="Find the best lawyers, manage cases, and communicate securely with your legal team."

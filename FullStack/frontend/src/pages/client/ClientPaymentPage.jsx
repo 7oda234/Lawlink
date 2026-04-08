@@ -1,8 +1,15 @@
+// ═══════════════════════════════════════════════════════════════════════════════════
+// Client Payment Page
+// ═══════════════════════════════════════════════════════════════════════════════════
+// صفحة العميل لClient Payment Page - client dashboard/view
+// Client page for client payment page and user interactions.
+// ───────────────────────────────────────────────────────────────────────────────────
 import React from 'react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 
 const ClientPaymentPage = () => (
+// 📍 Start page component content
   <div className="min-h-screen flex flex-col bg-gray-50"> 
     <Navbar />
     <main className="flex-grow pt-28 pb-16"> 

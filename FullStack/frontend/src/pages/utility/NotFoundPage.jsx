@@ -1,8 +1,15 @@
+// ═══════════════════════════════════════════════════════════════════════════════════
+// Not Found Page
+// ═══════════════════════════════════════════════════════════════════════════════════
+// صفحة مساعدة/ادوات لNot Found Page - utility section
+// Utility page for help, settings, or not found flows.
+// ───────────────────────────────────────────────────────────────────────────────────
 import React from 'react';
 import PageLayout from '../../components/PageLayout';
 import { Link } from 'react-router-dom';
 
 const NotFoundPage = () => (
+// 📍 Start page component content
   <PageLayout
     title="404 - Page Not Found"
     subtitle="The resource you requested does not exist or has been moved."

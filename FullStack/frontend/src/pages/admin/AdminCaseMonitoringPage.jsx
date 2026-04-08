@@ -1,8 +1,15 @@
+// ═══════════════════════════════════════════════════════════════════════════════════
+// Admin Case Monitoring Page
+// ═══════════════════════════════════════════════════════════════════════════════════
+// صفحة ادارة في لوحة الadmin - Admin Case Monitoring Page
+// Admin page for managing admin case monitoring page operations.
+// ───────────────────────────────────────────────────────────────────────────────────
 import React from 'react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 
 const AdminCaseMonitoringPage = () => (
+// 📍 Start page component content
   <div className="min-h-screen flex flex-col bg-gray-50"> 
     <Navbar />
     <main className="flex-grow pt-28 pb-16"> 

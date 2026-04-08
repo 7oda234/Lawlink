@@ -1,8 +1,15 @@
+// ═══════════════════════════════════════════════════════════════════════════════════
+// Client Appointments Page
+// ═══════════════════════════════════════════════════════════════════════════════════
+// صفحة العميل لClient Appointments Page - client dashboard/view
+// Client page for client appointments page and user interactions.
+// ───────────────────────────────────────────────────────────────────────────────────
 import React from 'react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 
 const ClientAppointmentsPage = () => (
+// 📍 Start page component content
   <div className="min-h-screen flex flex-col bg-gray-50"> 
     <Navbar />
     <main className="flex-grow pt-28 pb-16"> 

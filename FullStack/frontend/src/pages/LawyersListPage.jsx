@@ -1,3 +1,9 @@
+// ═══════════════════════════════════════════════════════════════════════════════════
+// Lawyers List Page
+// ═══════════════════════════════════════════════════════════════════════════════════
+// صفحة عرض المحامين - Lawyers directory
+// Public page listing lawyers available for clients.
+// ───────────────────────────────────────────────────────────────────────────────────
 import React, { useState } from 'react';
 import PageLayout from '../components/PageLayout';
 import { Link } from 'react-router-dom';
@@ -17,6 +23,7 @@ const LawyersListPage = () => {
     lawyer.specialty.toLowerCase().includes(query.toLowerCase())
   );
 
+  // 📍 Return section starts here
   return (
     <PageLayout
       title="Lawyers Directory"

@@ -1,8 +1,15 @@
+// ═══════════════════════════════════════════════════════════════════════════════════
+// Case Documents Page
+// ═══════════════════════════════════════════════════════════════════════════════════
+// عن Case Documents Page - File overview
+// Case Documents Page component or module.
+// ───────────────────────────────────────────────────────────────────────────────────
 import React from 'react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 
 const CaseDocumentsPage = () => (
+// 📍 Start page component content
   <div className="min-h-screen flex flex-col bg-gray-50"> 
     <Navbar />
     <main className="flex-grow pt-28 pb-16"> 

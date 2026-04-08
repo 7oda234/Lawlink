@@ -1,8 +1,15 @@
+// ═══════════════════════════════════════════════════════════════════════════════════
+// Admin Manage Lawyers Page
+// ═══════════════════════════════════════════════════════════════════════════════════
+// صفحة ادارة في لوحة الadmin - Admin Manage Lawyers Page
+// Admin page for managing admin manage lawyers page operations.
+// ───────────────────────────────────────────────────────────────────────────────────
 import React from 'react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 
 const AdminManageLawyersPage = () => (
+// 📍 Start page component content
   <div className="min-h-screen flex flex-col bg-gray-50"> 
     <Navbar />
     <main className="flex-grow pt-28 pb-16"> 

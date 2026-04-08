@@ -1,8 +1,15 @@
+// ═══════════════════════════════════════════════════════════════════════════════════
+// Client Upload Documents Page
+// ═══════════════════════════════════════════════════════════════════════════════════
+// صفحة العميل لClient Upload Documents Page - client dashboard/view
+// Client page for client upload documents page and user interactions.
+// ───────────────────────────────────────────────────────────────────────────────────
 import React from 'react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 
 const ClientUploadDocumentsPage = () => (
+// 📍 Start page component content
   <div className="min-h-screen flex flex-col bg-gray-50"> 
     <Navbar />
     <main className="flex-grow pt-28 pb-16"> 

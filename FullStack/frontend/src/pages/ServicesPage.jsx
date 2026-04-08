@@ -1,6 +1,10 @@
+// 🚮 الخدمات القانونية - Services Page
+// عرض جميع الخدمات القانونية المقدمة (قانون العمل، قانون العائلة، إلخ)
+// Legal services offered by LawLink lawyers
+
 import React from 'react';
 import PageLayout from '../components/PageLayout';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';  // روابط - links
 
 const services = [
   { title: 'Legal Matching', description: 'AI-powered lawyer matching for your case needs.', icon: '⚖️' },
@@ -12,6 +16,7 @@ const services = [
 ];
 
 const ServicesPage = () => (
+// 📍 Start page component content
   <PageLayout
     title="LawLink Services"
     subtitle="Discover end-to-end legal services built for clients, lawyers, and administrators."

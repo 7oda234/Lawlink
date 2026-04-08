@@ -1,14 +1,20 @@
+// ════════════════════════════════════════════════════════════════════════
+// 🔐 صفحة تسجيل الدخول - Login Page
+// ════════════════════════════════════════════════════════════════════════
+// الصفحة ديت للدخول للتطبيق سواء كعميل أو محامي
+// Users can sign in as either a Client or a Lawyer
+// ────────────────────────────────────────────────────────────────────────
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaLock, FaEnvelope, FaGavel, FaUser } from 'react-icons/fa'; 
-import '../../styles/auth/AuthBase.css';
-import logo from '../../Assets/logo/logo canvas.png';
-
-// Importing assets 
+import { FaLock, FaEnvelope, FaGavel, FaUser } from 'react-icons/fa';  // 🎨 استيراد icons - importing icons
+import '../../styles/auth/AuthBase.css';  // 🎨 استيراد ستايلات المصادقة - auth styles
+import logo from '../../Assets/logo/logo canvas.png';  // 📦 استيراد شعار الشركة - company logo
 
 const LoginPage = () => {
-  // State to toggle between Client and Lawyer
-const [userType, setUserType] = useState('client'); 
+  // 👤 حالة نوع المستخدم - يمكن يكون 'client' أو 'lawyer'
+  // state to track which user type is selected (client or lawyer)
+  const [userType, setUserType] = useState('client'); 
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -16,6 +22,7 @@ const [userType, setUserType] = useState('client');
     // Future: Add your Axios/Fetch call to Node.js here
   };
 
+  // 📍 Return section starts here
   return (
     <div className="auth-wrapper">
       <div className="auth-card">

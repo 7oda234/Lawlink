@@ -1,8 +1,15 @@
+// ═══════════════════════════════════════════════════════════════════════════════════
+// Client Submit Case Page
+// ═══════════════════════════════════════════════════════════════════════════════════
+// صفحة العميل لClient Submit Case Page - client dashboard/view
+// Client page for client submit case page and user interactions.
+// ───────────────────────────────────────────────────────────────────────────────────
 import React from 'react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 
 const ClientSubmitCasePage = () => (
+// 📍 Start page component content
   <div className="min-h-screen flex flex-col bg-gray-50"> 
     <Navbar />
     <main className="flex-grow pt-28 pb-16"> 

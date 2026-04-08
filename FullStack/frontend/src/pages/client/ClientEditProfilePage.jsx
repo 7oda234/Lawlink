@@ -1,8 +1,15 @@
+// ═══════════════════════════════════════════════════════════════════════════════════
+// Client Edit Profile Page
+// ═══════════════════════════════════════════════════════════════════════════════════
+// صفحة العميل لClient Edit Profile Page - client dashboard/view
+// Client page for client edit profile page and user interactions.
+// ───────────────────────────────────────────────────────────────────────────────────
 import React from 'react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 
 const ClientEditProfilePage = () => (
+// 📍 Start page component content
   <div className="min-h-screen flex flex-col bg-gray-50"> 
     <Navbar />
     <main className="flex-grow pt-28 pb-16"> 

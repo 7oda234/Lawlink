@@ -1,8 +1,13 @@
+// 🔠 كيف يعمل - How It Works Page
+// شرح مفصل عن عمل المنبة والخطوات بالشرح
+// Step-by-step guide explaining how to use LawLink
+
 import React from 'react';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import Navbar from '../components/Navbar';  // شريط علوي - top navbar
+import Footer from '../components/Footer';  // تذييل سفلي - bottom footer
 
 const HowItWorksPage = () => {
+  // 📍 Return section starts here
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar />

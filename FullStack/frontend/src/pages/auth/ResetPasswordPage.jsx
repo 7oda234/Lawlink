@@ -1,7 +1,14 @@
+// ═══════════════════════════════════════════════════════════════════════════════════
+// Reset Password Page
+// ═══════════════════════════════════════════════════════════════════════════════════
+// صفحة اعادة تعيين كلمة السر - Reset Password flow
+// Authentication page for entering a new password.
+// ───────────────────────────────────────────────────────────────────────────────────
 import React from "react";
 import "../../styles/auth/AuthBase.css";
 
 const ResetPasswordPage = () => {
+  // 📍 Return section starts here
   return (
     <div className="auth-container">
       <div className="brand-sidebar">

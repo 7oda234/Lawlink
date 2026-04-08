@@ -1,8 +1,16 @@
+// ═══════════════════════════════════════════════════════════════════════════════════
+// 📈 لوحة التحكم من عميل - Client Dashboard Page
+// ═══════════════════════════════════════════════════════════════════════════════════
+// اللوحة الرئيسية للعميل - يطلع علبي أهم المعلومات
+// Main dashboard for clients to view cases, payments, and notifications
+// ─────────────────────────────────────────═════════════════════════════════════════
+
 import React from 'react';
-import Navbar from '../../components/Navbar';
-import Footer from '../../components/Footer';
+import Navbar from '../../components/Navbar';  // الشريط العلوي - navbar at top
+import Footer from '../../components/Footer';  // الظهير سفلي - footer at bottom
 
 const ClientDashboardPage = () => (
+// 📍 Start page component content
   <div className="min-h-screen flex flex-col bg-gray-50"> 
     <Navbar />
     <main className="flex-grow pt-28 pb-16"> 

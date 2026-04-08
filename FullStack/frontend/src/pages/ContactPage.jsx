@@ -1,11 +1,16 @@
+// 💫 اتصل بنا - Contact Page
+// نموذج اتصال حيث يقدر المستخدم يرسل في استفسار أو شكوى
+// Contact form where users can send messages or inquiries
+
 import React, { useState } from 'react';
-import PageLayout from '../components/PageLayout';
+import PageLayout from '../components/PageLayout';  // إطار الصفحة - layout
 
 const ContactPage = () => {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
+  // 📍 Return section starts here
   return (
     <PageLayout
       title="Contact Support"

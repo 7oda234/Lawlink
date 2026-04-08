@@ -1,8 +1,16 @@
+// ═══════════════════════════════════════════════════════════════════════════════════
+// 🔐 لوحة الادارة - Admin Dashboard Page
+// ═══════════════════════════════════════════════════════════════════════════════════
+// لوحة الادمن - عرض إحصائيات النظام، منبهات الأمان
+// System admin dashboard - metrics, alerts, and system management
+// ────────────────────────────────────────═════════════════════════════════════════
+
 import React from 'react';
-import Navbar from '../../components/Navbar';
-import Footer from '../../components/Footer';
+import Navbar from '../../components/Navbar';  // شريط بلتاع - navbar
+import Footer from '../../components/Footer';  // بلتاع سفلي - footer
 
 const AdminDashboardPage = () => (
+// 📍 Start page component content
   <div className="min-h-screen flex flex-col bg-gray-50"> 
     <Navbar />
     <main className="flex-grow pt-28 pb-16"> 

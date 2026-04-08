@@ -1,3 +1,9 @@
+// ═══════════════════════════════════════════════════════════════════════════════════
+// 🧪 إعداد Jest - Jest Configuration File
+// ═══════════════════════════════════════════════════════════════════════════════════
+// ده ملف إعدادات Jest لاختبار مكونات React داخل بيئة jsdom
+// This is the Jest setup file for running React tests in a jsdom environment
+// ───────────────────────────────────────────────────────────────────────────────────
 export default {
   testEnvironment: 'jsdom',
   transform: {

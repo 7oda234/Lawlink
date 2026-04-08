@@ -1,8 +1,15 @@
+// ═══════════════════════════════════════════════════════════════════════════════════
+// Lawyer Case Details Page
+// ═══════════════════════════════════════════════════════════════════════════════════
+// صفحة المحامي لLawyer Case Details Page - lawyer workflow
+// Lawyer page for lawyer case details page management.
+// ───────────────────────────────────────────────────────────────────────────────────
 import React from 'react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 
 const LawyerCaseDetailsPage = () => (
+// 📍 Start page component content
   <div className="min-h-screen flex flex-col bg-gray-50"> 
     <Navbar />
     <main className="flex-grow pt-28 pb-16"> 

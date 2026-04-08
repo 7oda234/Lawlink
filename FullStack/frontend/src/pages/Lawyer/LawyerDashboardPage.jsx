@@ -1,8 +1,16 @@
+// ═══════════════════════════════════════════════════════════════════════════════════
+// ⚡️ لوحة تحكم المحامي - Lawyer Dashboard Page
+// ═══════════════════════════════════════════════════════════════════════════════════
+// لوحة المحامي - عرض قضايا معالذة، رسالب من أعملاء
+// Lawyer's main dashboard - view pending cases and client messages
+// ────────────────────────────────────────═════════════════════════════════════════
+
 import React from 'react';
-import Navbar from '../../components/Navbar';
-import Footer from '../../components/Footer';
+import Navbar from '../../components/Navbar';  // الشريط العلوي - navbar
+import Footer from '../../components/Footer';  // الظهير - footer
 
 const LawyerDashboardPage = () => (
+// 📍 Start page component content
   <div className="min-h-screen flex flex-col bg-gray-50"> 
     <Navbar />
     <main className="flex-grow pt-28 pb-16"> 

@@ -34,6 +34,7 @@ const Navbar = () => {
     { name: 'About Us', path: '/about' },
   ];
 
+  // 📍 Return section starts here
   return (
     <header 
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
@@ -52,6 +53,7 @@ const Navbar = () => {
         <nav className="hidden md:flex gap-8 text-sm font-medium">
           {navLinks.map((link) => {
             const isActive = location.pathname === link.path;
+            // 📍 Return section starts here
             return (
               <Link 
                 key={link.name}

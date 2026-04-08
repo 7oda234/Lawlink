@@ -1,8 +1,15 @@
+// ═══════════════════════════════════════════════════════════════════════════════════
+// Forgot Password Page
+// ═══════════════════════════════════════════════════════════════════════════════════
+// صفحة استرجاع كلمة السر - Forgot Password flow
+// Authentication page for password recovery.
+// ───────────────────────────────────────────────────────────────────────────────────
 import React from "react";
 import { Link } from "react-router-dom";
 import "../../styles/auth/AuthBase.css";
 
 const ForgotPasswordPage = () => {
+  // 📍 Return section starts here
   return (
     <div className="auth-container">
       <div className="brand-sidebar">

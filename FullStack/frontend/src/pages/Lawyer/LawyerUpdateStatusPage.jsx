@@ -1,8 +1,15 @@
+// ═══════════════════════════════════════════════════════════════════════════════════
+// Lawyer Update Status Page
+// ═══════════════════════════════════════════════════════════════════════════════════
+// صفحة المحامي لLawyer Update Status Page - lawyer workflow
+// Lawyer page for lawyer update status page management.
+// ───────────────────────────────────────────────────────────────────────────────────
 import React from 'react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 
 const LawyerUpdateStatusPage = () => (
+// 📍 Start page component content
   <div className="min-h-screen flex flex-col bg-gray-50"> 
     <Navbar />
     <main className="flex-grow pt-28 pb-16"> 

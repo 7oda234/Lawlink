@@ -1,8 +1,17 @@
+// ═══════════════════════════════════════════════════════════════════════════════════
+// 📱 مكون اللياوت - Page Layout Component
+// ═══════════════════════════════════════════════════════════════════════════════════
+// المكون الأساسي - Navbar + Footer + Hero Header
+// بتحزر مع المظاهر (بار عرلو ورجل سفلي) لكޚ بالصفات
+// Wrapper component that provides Navbar, Hero Header, and Footer to all pages
+// Handles theme and layout persistence
+// ─────────────────────────────────────────═════════════════════════════════════════
+
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext } from 'react';
-import Navbar from './Navbar';
-import Footer from './Footer';
-import { useTheme } from '../context/ThemeContext';
+import Navbar from './Navbar'  // شريط الملاح ﷽ - navigation bar component
+import Footer from './Footer'  // التذييل بتاع الصفحة - footer component
+import { useTheme } from '../context/ThemeContext'  // المظهر والألوان - theme colors and mode
 
 export const PageLayoutContext = createContext({ persistent: false });
 
@@ -20,6 +29,7 @@ const PageLayout = ({ title, subtitle, children, heroImage }) => {
   const themeClass = mode === 'dark' ? 'bg-slate-900 text-gray-100' : 'bg-gray-50 text-gray-900';
   const accentClass = palette === 'yellow' ? 'text-amber-400' : palette === 'green' ? 'text-emerald-400' : palette === 'purple' ? 'text-violet-400' : 'text-blue-400';
 
+  // 📍 Return section starts here
   return (
     <div className={`min-h-screen flex flex-col ${themeClass}`}>
       {showChrome && <Navbar />}

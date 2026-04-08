@@ -1,8 +1,16 @@
+// ═══════════════════════════════════════════════════════════════════════════════════
+// 📄 صفحة التسجيل - Register Page
+// ═══════════════════════════════════════════════════════════════════════════════════
+// حيث يقدر المستخدم (عميل أو محامي) ينشئ حساب جديد
+// Users can create a new account with name, email, and password
+// ─────────────────────────────────────────────────────────────────────────────────────
+
 import React from "react";
 import { Link } from "react-router-dom";
-import "../../styles/auth/AuthBase.css";
+import "../../styles/auth/AuthBase.css"  // سا الملف - CSS for auth pages
 
 const RegisterPage = () => {
+  // 📍 Return section starts here
   return (
     <div className="auth-container">
       <div className="brand-sidebar">

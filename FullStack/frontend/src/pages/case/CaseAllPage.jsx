@@ -1,8 +1,16 @@
+// ═══════════════════════════════════════════════════════════════════════════════════
+// 📊 قائمة كل القضايا - All Cases Page
+// ═══════════════════════════════════════════════════════════════════════════════════
+// عرض كل القضايا بالنظام مع خيارات الثلاثة
+// Global case registry for legal tracking of all cases
+// ────────────────────────────────────────═════════════════════════════════════════
+
 import React from 'react';
-import Navbar from '../../components/Navbar';
-import Footer from '../../components/Footer';
+import Navbar from '../../components/Navbar';  // شريط - navbar
+import Footer from '../../components/Footer';  // طالع - footer
 
 const CaseAllPage = () => (
+// 📍 Start page component content
   <div className="min-h-screen flex flex-col bg-gray-50"> 
     <Navbar />
     <main className="flex-grow pt-28 pb-16"> 

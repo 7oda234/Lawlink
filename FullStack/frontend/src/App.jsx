@@ -187,6 +187,7 @@ const routeConfig = [
 const AppRoutes = () => {
   const location = useLocation();
 
+  // 📍 Return section starts here
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
@@ -218,6 +219,7 @@ const AppRoutes = () => {
 
 // المكون الرئيسي للتطبيق - Main App component
 function App() {
+  // 📍 Return section starts here
   return (
     <ThemeProvider>
       <Router>

@@ -1,8 +1,15 @@
+// ═══════════════════════════════════════════════════════════════════════════════════
+// Lawyer Schedule Page
+// ═══════════════════════════════════════════════════════════════════════════════════
+// صفحة المحامي لLawyer Schedule Page - lawyer workflow
+// Lawyer page for lawyer schedule page management.
+// ───────────────────────────────────────────────────────────────────────────────────
 import React from 'react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 
 const LawyerSchedulePage = () => (
+// 📍 Start page component content
   <div className="min-h-screen flex flex-col bg-gray-50"> 
     <Navbar />
     <main className="flex-grow pt-28 pb-16"> 

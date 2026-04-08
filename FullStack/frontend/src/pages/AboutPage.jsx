@@ -1,7 +1,12 @@
+// 🏚️ صفحة معلومات عنا - About Page
+// عرض معلومات عن الشركة، قيمها، رسالتها وفريقها
+// Company information, mission, values, and team members
+
 import React from 'react';
-import PageLayout from '../components/PageLayout';
+import PageLayout from '../components/PageLayout';  // الإطار العام
 
 const AboutPage = () => (
+// 📍 Start page component content
   <PageLayout
     title="About LawLink"
     subtitle="Trusted by thousands of clients and law firms for seamless legal case management."

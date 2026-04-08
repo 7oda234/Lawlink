@@ -1,6 +1,14 @@
+// ═══════════════════════════════════════════════════════════════════════════════════
+// ✉️ تعرف البريد الإلكتروني - Email Verification Page  
+// ═══════════════════════════════════════════════════════════════════════════════════
+// المستخدم بخِ وارد رمز التياقق ذات الرسله للبريد
+// User verifies their email using a code sent to their mailbox
+// ────────────────────────────────────────═════════════════════════════════════════
+
 import React from 'react';
 
 const EmailVerificationPage = () => {
+  // 📍 Return section starts here
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-xl shadow-sm border border-gray-200 p-10 text-center">

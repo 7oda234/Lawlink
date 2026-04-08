@@ -1,3 +1,9 @@
+// ═══════════════════════════════════════════════════════════════════════════════════
+// Find Lawyer Page
+// ═══════════════════════════════════════════════════════════════════════════════════
+// صفحة المحامي لFind Lawyer Page - lawyer workflow
+// Lawyer page for find lawyer page management.
+// ───────────────────────────────────────────────────────────────────────────────────
 import React, { useState } from 'react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
@@ -62,6 +68,7 @@ const FindLawyerPage = () => {
     return matchesSearch && matchesCategory;
   });
 
+  // 📍 Return section starts here
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar />

@@ -1,3 +1,9 @@
+// ═══════════════════════════════════════════════════════════════════════════════════
+// Lawyer Profile Public Page
+// ═══════════════════════════════════════════════════════════════════════════════════
+// صفحة ملف المحامي العامة - Public lawyer profile
+// Public lawyer profile page for browsing lawyer details.
+// ───────────────────────────────────────────────────────────────────────────────────
 import React from 'react';
 import PageLayout from '../components/PageLayout';
 import { Link, useParams } from 'react-router-dom';
@@ -25,6 +31,7 @@ const LawyerProfilePublicPage = () => {
   const { id } = useParams();
   const lawyer = lawyerData[id] || lawyerData[1];
 
+  // 📍 Return section starts here
   return (
     <PageLayout
       title={lawyer.name}
