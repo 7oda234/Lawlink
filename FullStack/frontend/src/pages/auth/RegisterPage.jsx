@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "../../styles/auth/AuthBase.css";
 import { FaLock, FaEnvelope, FaGavel, FaUser } from 'react-icons/fa';
 import { useAuth } from "../../context/AuthContext";
+import logo from '../../Assets/logo/logo canvas.png'; 
 
 /**
  * صفحة التسجيل - Register Page
@@ -128,7 +129,7 @@ const RegisterPage = () => {
           <div className="auth-card">
             <>
               <div className="logo-container">
-                <img src="/logo.png" alt="LawLink Logo" />
+                <img src={logo} alt="LawLink Logo" />
               </div>
               <h2 className="form-title">Create Account</h2>
               <p className="form-subtitle">Start your professional legal journey today</p>
