@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "../../styles/auth/AuthBase.css";
 import { FaPhone, FaCalendar, FaVenusMars, FaLock, FaMoneyBill } from 'react-icons/fa';
 import { useAuth } from "../../context/AuthContext";
-
+import logo from '../../Assets/logo/logo canvas.png'; 
 /**
  * صفحة استكمال تسجيل العميل - Client Registration Continue Page
  * بتكمل بيانات العميل بعد التسجيل الأولي
@@ -143,7 +143,7 @@ const RegisterClientContinuePage = () => {
           <div className="auth-card">
             <>
               <div className="logo-container">
-                <img src="/logo.png" alt="LawLink Logo" />
+                <img src={logo} alt="LawLink Logo" />
               </div>
               <h2 className="form-title">Client Information</h2>
               <p className="form-subtitle">Please provide additional details to complete your registration</p>
