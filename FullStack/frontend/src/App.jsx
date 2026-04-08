@@ -3,6 +3,7 @@ import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ThemeProvider } from './context/ThemeContext';
+import { AuthProvider } from './context/AuthContext';
 import { PageLayoutProvider } from './components/PageLayout';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
@@ -29,6 +30,8 @@ const LawyerProfilePublicPage = React.lazy(() => import('./pages/LawyerProfilePu
 // استيراد صفحات المصادقة - Importing authentication pages
 const LoginPage = React.lazy(() => import('./pages/auth/LoginPage'));
 const RegisterPage = React.lazy(() => import('./pages/auth/RegisterPage'));
+const RegisterClientContinuePage = React.lazy(() => import('./pages/auth/RegisterClientContinuePage'));
+const RegisterLawyerContinuePage = React.lazy(() => import('./pages/auth/RegisterLawyerContinuePage'));
 const ForgotPasswordPage = React.lazy(() => import('./pages/auth/ForgotPasswordPage'));
 const ResetPasswordPage = React.lazy(() => import('./pages/auth/ResetPasswordPage'));
 const EmailVerificationPage = React.lazy(() => import('./pages/auth/EmailVerificationPage'));
@@ -126,6 +129,8 @@ const routeConfig = [
 
   { path: '/login', Component: LoginPage },
   { path: '/register', Component: RegisterPage },
+  { path: '/register/client/continue', Component: RegisterClientContinuePage },
+  { path: '/register/lawyer/continue', Component: RegisterLawyerContinuePage },
   { path: '/forgot-password', Component: ForgotPasswordPage },
   { path: '/reset-password', Component: ResetPasswordPage },
   { path: '/verify-email', Component: EmailVerificationPage },
@@ -222,17 +227,19 @@ function App() {
   // 📍 Return section starts here
   return (
     <ThemeProvider>
-      <Router>
-        <PageLayoutProvider persistent={true}>
-          <div className="font-sans antialiased min-h-screen bg-gray-50 dark:bg-slate-950 dark:text-gray-100">
-            <ErrorBoundary>
-              <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading... 🌀</div>}>
-                <AppRoutes />
-              </Suspense>
-            </ErrorBoundary>
-          </div>
-        </PageLayoutProvider>
-      </Router>
+      <AuthProvider>
+        <Router>
+          <PageLayoutProvider persistent={true}>
+            <div className="font-sans antialiased min-h-screen bg-gray-50 dark:bg-slate-950 dark:text-gray-100">
+              <ErrorBoundary>
+                <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading... 🌀</div>}>
+                  <AppRoutes />
+                </Suspense>
+              </ErrorBoundary>
+            </div>
+          </PageLayoutProvider>
+        </Router>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

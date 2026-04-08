@@ -7,11 +7,8 @@
 
 // 📌 Props: label (الوصف التوضيحي), value (القيمة الرقمية)
 const StatItem = ({ label, value }) => (
-    {/* 📋 حاوية إحصائية - Statistics container */}
     <div className="stat-item">
-      {/* 📊 قيمة الإحصائية بخط غليظ - Statistics value in large font */}
       <h2 className="stat-value">{value}</h2>
-      {/* 📁 وصف الإحصائية - Statistics label description */}
       <p className="stat-label">{label}</p>
     </div>
 );

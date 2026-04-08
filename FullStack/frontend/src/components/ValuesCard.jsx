@@ -21,13 +21,10 @@ const ValuesCard = ({ title, description }) => {
 
   // 📍 Return section starts here
   return (
-    {/* 📋 حاوية بطاقة القيمة - Values card container */}
     <div className="value-card-container flex flex-col items-center text-center p-10 bg-white border border-gray-100 rounded-xl shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-2">
-      {/* 💬 ايقون القيمة - Icon for the value */}
       <div className="value-icon-wrapper text-5xl mb-6 drop-shadow-sm">
         {icon}
       </div>
-      {/* 📊 اسم القيمة - Title of the value */}
       <h4 className="text-2xl font-bold mb-4 text-gray-900">
         {title}
       </h4>

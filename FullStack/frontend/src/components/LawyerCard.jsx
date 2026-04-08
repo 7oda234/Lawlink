@@ -1,11 +1,3 @@
-// ═══════════════════════════════════════════════════════════════════════════════════
-// ⚡️ بطاقة المحامي - Lawyer Card Component
-// ═══════════════════════════════════════════════════════════════════════════════════
-// تعرض معلومات محامي جميلة (الاسم، الصورة، التقييم، الخبرة)
-// وغاية مهمة بحزر موعد أو عرض الملف الرسلي
-// Displays lawyer info with ratings, experience, and action buttons
-// ─────────────────────────────────────────────────────────────────────────────────────
-
 import React from 'react';
 import { MapPin, Star, Briefcase } from 'lucide-react';
 
@@ -13,11 +5,10 @@ import { MapPin, Star, Briefcase } from 'lucide-react';
 const LawyerCard = ({ lawyer }) => {
   // 📍 Return section starts here
   return (
-    {/* 📋 حاوية البطاقة الرئيسية - Main card container */}
     <div className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col sm:flex-row group">
-      {/* 🞨 صورة الملف الشخصي - Profile Image */}
+      
+      {/* 🖼️ صورة الملف الشخصي - Profile Image */}
       <div className="w-full sm:w-48 h-48 sm:h-auto shrink-0 overflow-hidden bg-gray-100">
-        {/* 🞨 الصورة بتبقا في hover - Image with hover zoom effect */}
         <img 
           src={lawyer.image} 
           alt={lawyer.name} 
@@ -28,7 +19,7 @@ const LawyerCard = ({ lawyer }) => {
       {/* 📝 تفاصيل المحامي - Lawyer Details Section */}
       <div className="p-6 flex flex-col flex-grow justify-between">
         <div>
-          {/* 📊 رأس البصلة (الاسم والتقييم) - Header with name and rating */}
+          {/* 📊 رأس الكارت (الاسم والتقييم) - Header with name and rating */}
           <div className="flex justify-between items-start mb-2">
             <div>
               <h3 className="text-xl font-bold text-gray-900 group-hover:text-yellow-600 transition-colors">
@@ -55,7 +46,7 @@ const LawyerCard = ({ lawyer }) => {
           </div>
         </div>
 
-        {/* 🔘 الازرار الفعلية - Action Buttons */}
+        {/* 🔘 الأزرار الفعلية - Action Buttons */}
         <div className="flex gap-3 mt-auto pt-4 border-t border-gray-100">
           <button className="flex-1 bg-black text-white py-2 rounded-lg text-sm font-bold hover:bg-gray-800 transition shadow-sm">
             View Profile

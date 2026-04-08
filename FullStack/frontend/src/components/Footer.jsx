@@ -1,21 +1,13 @@
-// ═══════════════════════════════════════════════════════════════════════════════════
-// 🔗 تذييل الصفحة - Footer Component
-// ═══════════════════════════════════════════════════════════════════════════════════
-// يظهر في نهاية كل صفحة ويحتوي على روابط مهمة، معلومات عن الشركة، وسوشيال ميديا
-// It appears at the bottom of every page with links, company info, and social media
-// ─────────────────────────────────────────────────────────────────────────────────────
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Scale, Facebook, Linkedin } from 'lucide-react';
 
 const Footer = () => {
-  // 📍 Return section starts here
   return (
-    {/* 🖥️ عنصر التذييل الرئيسي - Main Footer Element */}
     <footer className="bg-black text-white px-6 py-12 border-t border-gray-800">
-        {/* 📋 الخسم الأساسي - Main content grid section */}
+        {/* 📋 القسم الأساسي - Main content grid section */}
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+          
           {/* 🏢 معلومات عن الشركة - Company Information */}
           <div className="col-span-1 md:col-span-2">
             {/* 📍 الشعار - Logo section */}
@@ -56,6 +48,7 @@ const Footer = () => {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center pt-8 border-t border-gray-800 text-sm text-gray-400">
           {/* 📋 حقوق النشر - Copyright */}
           <p>© 2026 LawLink Inc. All rights reserved</p>
+          
           {/* 📱 روابط السوشيال ميديا - Social Media Links */}
           <div className="flex gap-4 mt-4 md:mt-0">
             <a href="#" className="hover:text-white"><Facebook size={18} /></a>

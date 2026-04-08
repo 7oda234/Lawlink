@@ -9,13 +9,12 @@ import React from 'react';
 
 // 📌 Props: children (محتوى الزرار), type (نوع الزرار), className (تصاميم إضافية), onClick (دالة الضغط)
 const Button = ({ children, type = 'button', className = '', onClick }) => (
-  {/* 🖱️ عنصر الزرار الفعلي - Actual button element */}
   <button
-    type={type}  {/* 📝 نوع الزرار - button, submit, reset */}
-    onClick={onClick}  {/* 🔄 دالة بتتنفذ لما يضغط على الزرار */}
-    className={`rounded-lg px-4 py-2 font-semibold transition ${className}`}  {/* 🎨 التصاميم مع تأثيرات سلسة */}
+    type={type}
+    onClick={onClick}
+    className={`rounded-lg px-4 py-2 font-semibold transition ${className}`}
   >
-    {children}  {/* 📌 محتوى الزرار - نص أو icons */}
+    {children}
   </button>
 );
 
