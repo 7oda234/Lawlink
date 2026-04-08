@@ -1,8 +1,31 @@
 {
-    "chat.tools.terminal.autoApprove": {
-        "/^cd \"c:\\\\Users\\\\Mohamed\\\\OneDrive\\\\Documents\\\\GitHub\\\\Lawlink\\\\FullStack\\\\frontend\"; python -c \"import glob,os; root='src'; files=glob\\.glob\\(os\\.path\\.join\\(root,'\\*\\*','\\*\\.\\*'\\), recursive=True\\); files=\\[f for f in files if f\\.endswith\\(\\('\\.jsx','\\.js'\\)\\)\\]; print\\('MISSING_TOP_COMMENT:'\\); import itertools; from itertools import islice; import codecs; \nfor f in sorted\\(files\\):\n    with open\\(f,'r',encoding='utf-8'\\) as fh:\n        lines=\\[next\\(fh\\) for _ in range\\(10\\)\\]\n    if not any\\(l\\.strip\\(\\)\\.startswith\\('//'\\) for l in lines\\):\n        print\\(f\\)\"$/": {
-            "approve": true,
-            "matchCommandLine": true
-        }
+"cSpell.language": "en",
+"cSpell.ignorePaths": [
+    "**/*.css",
+    "**/ThemeContext.jsx"
+],
+"cSpell.ignoreRegExpList": [
+    "[\\u0600-\\u06FF]+"
+],
+"cSpell.words": [
+    "Amina",
+    "Avenir",
+    "Axios",
+    "larr",
+    "Lawlink",
+    "Linecap",
+    "Linejoin",
+    "lucide",
+    "Maadi",
+    "rarr",
+    "Sayed",
+    "Thorne",
+    "VITE"
+],
+"chat.tools.terminal.autoApprove": {
+    "/^cd \"c:\\\\Users\\\\Mohamed\\\\OneDrive\\\\Documents\\\\GitHub\\\\Lawlink\\\\FullStack\\\\frontend\"; python -c .../": {
+    "approve": true,
+    "matchCommandLine": true
     }
+}
 }
