@@ -6,7 +6,11 @@ const pool = mysql.createPool({
     user: 'root',
     password: '', // سيبها فاضية لو xampp
     database: 'lawlink',
+<<<<<<< HEAD
     port: 3307,   // البورت اللي أنت أكدت عليه
+=======
+    port: 3306,   // البورت اللي أنت أكدت عليه
+>>>>>>> backend-repo/Back-end
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
@@ -25,4 +29,8 @@ const testConnection = async () => {
 
 testConnection();
 
+<<<<<<< HEAD
 export default pool;
+=======
+export default pool;
+>>>>>>> backend-repo/Back-end

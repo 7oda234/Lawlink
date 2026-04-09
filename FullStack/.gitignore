@@ -4,7 +4,10 @@
 /node_modules
 /.pnp
 .pnp.js
+<<<<<<< HEAD
 dist/
+=======
+>>>>>>> backend-repo/Back-end
 
 # testing
 /coverage
