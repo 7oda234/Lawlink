@@ -1,16 +1,22 @@
 import OpenAI from "openai";
 import userRouter from "../modules/user/user.routes.js";
 import aiRouter from "../modules/Ai_tools/ai_tools.routes.js";
+import authRouter from "../modules/auth/auth.controller.js"; // 👈 الربط مع نظام المصادقة
 
-// 1. الموزع القديم (setupAppRoutes) - عشان السيرفر يقوم وما يديش Error
+/**
+ * إعداد كافة مسارات التطبيق (Routing Hub)
+ */
 export const setupAppRoutes = (app) => {
-    // مسار المستخدمين
+    // 🔐 مسارات الدخول والتسجيل (يوسف وكل المستخدمين)
+    app.use("/api/auth", authRouter); 
+    
+    // 👥 مسارات إدارة المستخدمين
     app.use("/api/users", userRouter);
     
-    // مسار الـ AI
+    // 🤖 مسارات أدوات الذكاء الاصطناعي
     app.use("/ai", aiRouter);
     
-    // الـ 404 Handler
+    // ⚠️ معالج المسارات غير الموجودة (404 Error Handler)
     app.use((req, res) => {
         res.status(404).json({ 
             ok: false, 
@@ -19,23 +25,20 @@ export const setupAppRoutes = (app) => {
     });
 };
 
-// 2. دالة الـ AI المدمجة (handleChat)
+/**
+ * محرك الدردشة الذكي (Legal AI Assistant)
+ */
 export const handleChat = async (req, res) => {
     try {
         const { message } = req.body;
-        
-        // استلام بيانات المستخدم من الـ Token (القديم)
-        const userId = req.user?.userId; 
-        const userRole = req.user?.role;
+        const userId = req.user?.id; 
+        const userRole = req.user?.role || 'user';
 
         if (!message) {
             return res.status(400).json({ success: false, message: "يرجى كتابة سؤالك القانوني أولاً." });
         }
 
-        // تهيئة الـ OpenAI جوه الدالة لضمان قراءة الـ env صح بعد ما السيرفر يقوم
-        const openai = new OpenAI({
-            apiKey: process.env.OPENAI_API_KEY, 
-        });
+        const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
         const completion = await openai.chat.completions.create({
             model: "gpt-3.5-turbo",
@@ -48,22 +51,16 @@ export const handleChat = async (req, res) => {
             ],
         });
 
-        // الرد النهائي المدمج (البيانات القديمة + رد الـ AI)
         res.status(200).json({ 
             success: true, 
-            user: { id: userId, role: userRole }, 
             reply: completion.choices[0].message.content 
         });
 
     } catch (error) {
-        // 🔥 ده اللي هيعرفك العيب فين بالظبط وأنت شغال
-        console.error("❌ OpenAI Error Details:", error.message);
-        
+        console.error("❌ OpenAI Error:", error.message);
         res.status(500).json({ 
             success: false, 
-            message: error.message.includes("insufficient_quota") 
-                ? "عفواً، رصيد الـ API خلص.. محتاج تشحن حساب OpenAI" 
-                : "نظام الـ AI غير متاح حالياً." 
+            message: "نظام الـ AI غير متاح حالياً." 
         });
     }
 };

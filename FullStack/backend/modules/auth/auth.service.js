@@ -1,29 +1,10 @@
-
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import db from "../../db/Connection.js";
 
 const JWT_SECRET = "lawlink_secret_key";
 
-// ------------------------------------
-// Helpers
-// ------------------------------------
-
-export const normalizeEmail = (email) =>
-  String(email || "").trim().toLowerCase();
-
-export const sanitizeUser = (row) => {
-  if (!row) return null;
-
-  return {
-    id: row.id,
-    fullName: row.full_name,
-    email: row.email,
-    phone: row.phone,
-    isActive: !!row.is_active,
-    createdAt: row.created_at,
-  };
-};
+const normalizeEmail = (email) => String(email || "").trim().toLowerCase();
 
 const runQuery = (sql, params = []) =>
   new Promise((resolve, reject) => {
@@ -33,192 +14,83 @@ const runQuery = (sql, params = []) =>
     });
   });
 
-
 // ------------------------------------
-// REGISTER
-// POST /auth/register
+// 📝 REGISTER
 // ------------------------------------
-
 export const register = async (req, res, next) => {
   try {
-    let { fullName, email, password, phone } = req.body;
+    const { name, email, password, role, Phone_no1, gender, Date_of_Birth, specialization, license_number } = req.body;
+    const hashedPassword = await bcrypt.hash(String(password), 10);
 
-    fullName = String(fullName || "").trim();
-    email = normalizeEmail(email);
-    password = String(password || "");
-    phone = phone ? String(phone).trim() : null;
-
-    if (!fullName || fullName.length < 2) {
-      return res.status(400).json({
-        ok: false,
-        message: "Full name is required.",
-      });
-    }
-
-    if (!email || !email.includes("@")) {
-      return res.status(400).json({
-        ok: false,
-        message: "Valid email is required.",
-      });
-    }
-
-    if (!password || password.length < 6) {
-      return res.status(400).json({
-        ok: false,
-        message: "Password must be at least 6 characters.",
-      });
-    }
-
-    // Check if email exists
-    const existing = await runQuery(
-      "SELECT id FROM users WHERE email = ? LIMIT 1",
-      [email]
+    const userRes = await runQuery(
+      `INSERT INTO users (name, role, email, password, gender, Phone_no1, Date_of_Birth) 
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [name, role || 'Lawyer', normalizeEmail(email), hashedPassword, gender || 'ذكر', Phone_no1, Date_of_Birth]
     );
 
-    if (existing.length) {
-      return res.status(409).json({
-        ok: false,
-        message: "Email already exists.",
-      });
+    const userId = userRes.insertId;
+
+    if (role?.toLowerCase() === 'lawyer') {
+      await runQuery(
+        `UPDATE lawyer SET specialization = ?, license_number = ? WHERE user_id = ?`,
+        [specialization, license_number, userId]
+      );
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Insert user
-    const insertRes = await runQuery(
-      `INSERT INTO users (full_name, email, password, phone)
-      VALUES (?, ?, ?, ?)`,
-      [fullName, email, hashedPassword, phone]
-    );
-
-    const userRows = await runQuery(
-      "SELECT * FROM users WHERE id = ? LIMIT 1",
-      [insertRes.insertId]
-    );
-
-    const user = sanitizeUser(userRows[0]);
-
-    const token = jwt.sign({ id: user.id }, JWT_SECRET, {
-      expiresIn: "7d",
-    });
-
-    return res.status(201).json({
-      ok: true,
-      message: "Registered successfully",
-      token,
-      data: { user },
-    });
+    return res.status(201).json({ ok: true, message: "User registered successfully" });
   } catch (err) {
     return next(err);
   }
 };
 
-
 // ------------------------------------
-// LOGIN
-// POST /auth/login
+// 🔐 LOGIN
 // ------------------------------------
-
 export const login = async (req, res, next) => {
   try {
     let { email, password } = req.body;
-
     email = normalizeEmail(email);
-    password = String(password || "");
 
-    if (!email || !email.includes("@")) {
-      return res.status(400).json({
-        ok: false,
-        message: "Valid email is required",
-      });
-    }
+    const users = await runQuery("SELECT * FROM users WHERE email = ? LIMIT 1", [email]);
+    if (!users.length) return res.status(401).json({ ok: false, message: "بيانات الدخول غير صحيحة" });
 
-    if (!password) {
-      return res.status(400).json({
-        ok: false,
-        message: "Password is required",
-      });
-    }
+    const userRow = users[0];
+    const isMatch = await bcrypt.compare(String(password), userRow.password);
+    if (!isMatch) return res.status(401).json({ ok: false, message: "بيانات الدخول غير صحيحة" });
 
-    const rows = await runQuery(
-      "SELECT * FROM users WHERE email = ? LIMIT 1",
-      [email]
-    );
+    const fullProfile = await runQuery(`
+      SELECT u.user_id, u.name, u.role, u.email, u.gender, u.Phone_no1, u.Date_of_Birth,
+             l.specialization, l.license_number, l.rating_avg, l.verified
+      FROM users u
+      LEFT JOIN lawyer l ON u.user_id = l.user_id
+      WHERE u.user_id = ?`, [userRow.user_id]);
 
-    if (!rows.length) {
-      return res.status(401).json({
-        ok: false,
-        message: "Invalid email or password",
-      });
-    }
+    const token = jwt.sign({ id: userRow.user_id, role: userRow.role }, JWT_SECRET, { expiresIn: "7d" });
 
-    const userRow = rows[0];
-
-    if (!userRow.is_active) {
-      return res.status(403).json({
-        ok: false,
-        message: "Account is disabled",
-      });
-    }
-
-    const passwordMatch = await bcrypt.compare(
-      password,
-      userRow.password
-    );
-
-    if (!passwordMatch) {
-      return res.status(401).json({
-        ok: false,
-        message: "Invalid email or password",
-      });
-    }
-
-    const user = sanitizeUser(userRow);
-
-    const token = jwt.sign({ id: user.id }, JWT_SECRET, {
-      expiresIn: "7d",
-    });
-
-    return res.status(200).json({
-      ok: true,
-      message: "Logged in successfully",
-      token,
-      data: { user },
-    });
+    return res.status(200).json({ ok: true, token, data: { user: fullProfile[0] } });
   } catch (err) {
     return next(err);
   }
 };
 
-
 // ------------------------------------
-// ME
-// GET /auth/me
+// ✅ ME (الدالة اللي كانت ناقصة وعاملة Error)
 // ------------------------------------
-
 export const me = async (req, res, next) => {
   try {
-    const userId = req.user.id;
+    // req.user بييجي من الـ Middleware بتاع الـ Protect/Auth
+    const userId = req.user.id; 
 
-    const rows = await runQuery(
-      "SELECT * FROM users WHERE id = ? LIMIT 1",
-      [userId]
-    );
+    const fullProfile = await runQuery(`
+      SELECT u.user_id, u.name, u.role, u.email, u.gender, u.Phone_no1, u.Date_of_Birth,
+             l.specialization, l.license_number, l.rating_avg, l.verified
+      FROM users u
+      LEFT JOIN lawyer l ON u.user_id = l.user_id
+      WHERE u.user_id = ?`, [userId]);
 
-    if (!rows.length) {
-      return res.status(404).json({
-        ok: false,
-        message: "User not found",
-      });
-    }
+    if (!fullProfile.length) return res.status(404).json({ ok: false, message: "User not found" });
 
-    return res.status(200).json({
-      ok: true,
-      data: {
-        user: sanitizeUser(rows[0]),
-      },
-    });
+    return res.status(200).json({ ok: true, data: { user: fullProfile[0] } });
   } catch (err) {
     return next(err);
   }

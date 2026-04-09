@@ -1,29 +1,36 @@
 import jwt from "jsonwebtoken";
 
-// 👈 لازم الكلمة دي تكون مطابقة للي في ملف الـ User Controller (وقت اللوجين)
+// 🔑 المفتاح السري (يجب أن يكون مطابقاً لملف auth.service.js)
 const JWT_SECRET = "lawlink_secret_key"; 
 
-export const verifyToken = (req, res, next) => {
+/**
+ * ميدلوير التحقق من الهوية (Authentication Middleware)
+ */
+export const authMiddleware = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ ok: false, message: "Access denied" });
+    return res.status(401).json({ 
+      ok: false, 
+      message: "Access denied. No token provided." 
+    });
   }
 
   const token = authHeader.split(" ")[1];
 
   try {
-    // هنا بنفك التوكن بالمفتاح
     const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded;
-    next();
+    req.user = decoded; 
+    next(); 
   } catch (error) {
-    // 💡 ضيف السطر ده عشان تشوف المشكلة في الـ Terminal عندك
     console.log("JWT Verify Error:", error.message); 
-    
     return res.status(401).json({ 
       ok: false, 
       message: "Invalid or expired token" 
     });
   }
 };
+
+// 🔄 تصدير إضافي بنفس الاسم القديم لدعم ملفات الـ AI والملفات الأخرى
+// This ensures backward compatibility with modules searching for 'verifyToken'
+export const verifyToken = authMiddleware;
