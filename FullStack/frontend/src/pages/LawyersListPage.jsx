@@ -5,7 +5,6 @@
 // Public page listing lawyers available for clients.
 // ───────────────────────────────────────────────────────────────────────────────────
 import React, { useState } from 'react';
-import PageLayout from '../components/PageLayout';
 import { Link } from 'react-router-dom';
 
 const lawyers = [
@@ -25,11 +24,7 @@ const LawyersListPage = () => {
 
   // 📍 Return section starts here
   return (
-    <PageLayout
-      title="Lawyers Directory"
-      subtitle="Discover top-rated lawyers with proven expertise in your area."
-      heroImage="https://images.unsplash.com/photo-1448932252197-d19750584e9c?auto=format&fit=crop&w=1400&q=80"
-    >
+  <>
       <div className="mb-6">
         <input
           value={query}
@@ -40,6 +35,7 @@ const LawyersListPage = () => {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {filtered.map((l) => (
+  <>
           <article key={l.id} className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
             <div className="flex items-start justify-between gap-4">
               <div>
@@ -56,10 +52,11 @@ const LawyersListPage = () => {
               View Profile
             </Link>
           </article>
-        ))}
+        
+  </>))}
       </div>
-    </PageLayout>
-  );
+  
+  </>);
 };
 
 export default LawyersListPage;

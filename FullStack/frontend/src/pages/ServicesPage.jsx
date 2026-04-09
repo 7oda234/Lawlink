@@ -3,7 +3,6 @@
 // Legal services offered by LawLink lawyers
 
 import React from 'react';
-import PageLayout from '../components/PageLayout';
 import { Link } from 'react-router-dom';  // روابط - links
 
 const services = [
@@ -16,12 +15,8 @@ const services = [
 ];
 
 const ServicesPage = () => (
+  <>
 // 📍 Start page component content
-  <PageLayout
-    title="LawLink Services"
-    subtitle="Discover end-to-end legal services built for clients, lawyers, and administrators."
-    heroImage="https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?auto=format&fit=crop&w=1400&q=80"
-  >
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       {services.map((service) => (
         <article key={service.title} className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
@@ -39,7 +34,8 @@ const ServicesPage = () => (
         Create Account
       </Link>
     </div>
-  </PageLayout>
+  </>
+
 );
 
 export default ServicesPage;

@@ -5,8 +5,6 @@
 // Lawyer page for find lawyer page management.
 // ───────────────────────────────────────────────────────────────────────────────────
 import React, { useState } from 'react';
-import Navbar from '../../components/Navbar';
-import Footer from '../../components/Footer';
 import LawyerCard from '../../components/LawyerCard';
 import { Search, Filter } from 'lucide-react';
 
@@ -70,8 +68,8 @@ const FindLawyerPage = () => {
 
   // 📍 Return section starts here
   return (
+  <>
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Navbar />
 
       <main className="flex-grow pt-28 pb-16">
         {/* Page Header */}
@@ -99,6 +97,7 @@ const FindLawyerPage = () => {
                 <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4">Practice Area</h3>
                 <div className="space-y-3">
                   {categories.map(category => (
+  <>
                     <label key={category} className="flex items-center gap-3 cursor-pointer group">
                       <input 
                         type="radio" 
@@ -111,7 +110,8 @@ const FindLawyerPage = () => {
                         {category}
                       </span>
                     </label>
-                  ))}
+                  
+  </>))}
                 </div>
               </div>
             </div>
@@ -146,8 +146,10 @@ const FindLawyerPage = () => {
             <div className="space-y-4">
               {filteredLawyers.length > 0 ? (
                 filteredLawyers.map(lawyer => (
+  <>
                   <LawyerCard key={lawyer.id} lawyer={lawyer} />
-                ))
+                
+  </>))
               ) : (
                 <div className="bg-white border border-gray-200 rounded-xl p-12 text-center">
                   <p className="text-gray-500 text-lg">No legal professionals found matching your criteria.</p>
@@ -165,9 +167,9 @@ const FindLawyerPage = () => {
         </div>
       </main>
 
-      <Footer />
     </div>
-  );
+  
+  </>);
 };
 
 export default FindLawyerPage;

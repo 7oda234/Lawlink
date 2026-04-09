@@ -3,15 +3,10 @@
 // Company information, mission, values, and team members
 
 import React from 'react';
-import PageLayout from '../components/PageLayout';  // الإطار العام
 
 const AboutPage = () => (
+  <>
 // 📍 Start page component content
-  <PageLayout
-    title="About LawLink"
-    subtitle="Trusted by thousands of clients and law firms for seamless legal case management."
-    heroImage="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1400&q=80"
-  >
     <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
       <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
         <h3 className="text-xl font-bold mb-2">Our Mission</h3>
@@ -41,7 +36,8 @@ const AboutPage = () => (
         <li>Review results and provide feedback.</li>
       </ol>
     </section>
-  </PageLayout>
+  </>
+
 );
 
 export default AboutPage;

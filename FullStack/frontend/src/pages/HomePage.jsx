@@ -6,16 +6,11 @@
 // ─────────────────────────────────────────────────────────────────────────────────────
 
 import React from 'react';
-import PageLayout from '../components/PageLayout';
 import { Link } from 'react-router-dom';
 
 const HomePage = () => (
+  <>
 // 📍 Start page component content
-  <PageLayout
-    title="LawLink: Modern Legal Connections"
-    subtitle="Find the best lawyers, manage cases, and communicate securely with your legal team."
-    heroImage="https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=1400&q=80"
-  >
     <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div className="rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
         <h2 className="text-2xl font-bold text-black mb-3">Search Top-Rated Lawyers</h2>
@@ -71,7 +66,8 @@ const HomePage = () => (
         </blockquote>
       </div>
     </section>
-  </PageLayout>
+  </>
+
 );
 
 export default HomePage;
