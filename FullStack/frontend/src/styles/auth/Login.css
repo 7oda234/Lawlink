@@ -1,0 +1,135 @@
+/* src/styles/auth/Login.css */
+
+:root {
+    --primary-blue: #001D4A;
+    --accent-gold: #BF9B30;
+    --bg-light: #FDFDFD;
+    --text-light: #FFFFFF;
+    --text-muted: #9CA3AF;
+    --border-gray: #E5E7EB;
+}
+
+.login-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--bg-light);
+}
+
+/* Left Section: Branding & Info */
+.login-info-section {
+    width: 50%;
+    background-color: var(--primary-blue);
+    /* Changed color to white/light for better contrast against dark blue */
+    color: var(--text-light); 
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.back-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    opacity: 0.8;
+    cursor: pointer;
+    margin-bottom: 2.5rem;
+    transition: opacity 0.2s;
+}
+
+.back-link:hover {
+    opacity: 1;
+}
+
+.brand-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 5rem;
+}
+
+.brand-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem;
+    background-color: var(--accent-gold);
+    border-radius: 0.75rem;
+    color: var(--primary-blue);
+}
+
+.brand-name {
+    font-size: 1.875rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+}
+
+.brand-highlight {
+    color: var(--accent-gold);
+}
+
+.hero-text {
+    font-size: 2.25rem;
+    font-weight: 600;
+    line-height: 1.2;
+    margin-top: auto; /* Pushes text towards middle/bottom */
+    margin-bottom: 1.5rem;
+    max-width: 28rem;
+}
+
+/* Right Section: Form */
+.login-form-section {
+    width: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.form-wrapper {
+    width: 100%;
+    max-width: 24rem; /* Slightly tighter for better readability */
+}
+
+/* Social Divider Logic */
+.social-divider {
+    text-align: center;
+    color: var(--text-muted);
+    margin: 2rem 0;
+    position: relative;
+    font-size: 0.875rem;
+}
+
+.social-divider::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 1px;
+    background-color: var(--border-gray);
+    z-index: 0;
+}
+
+.social-divider span {
+    background-color: var(--bg-light);
+    padding: 0 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+.social-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+/* Responsive Handling */
+@media (max-width: 1024px) {
+    .login-info-section {
+        display: none; /* Hide branding on small tablets/mobile */
+    }
+    .login-form-section {
+        width: 100%;
+    }
+}

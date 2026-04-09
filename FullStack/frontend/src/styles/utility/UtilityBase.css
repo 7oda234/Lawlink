@@ -1,0 +1,15 @@
+:root {
+  --util-bg: #f8fafc;
+  --util-text: #0f172a;
+}
+
+.utility-page {
+  background: var(--util-bg);
+  color: var(--util-text);
+}
+
+.utility-panel {
+  border: 1px solid #cbd5e1;
+  border-radius: 0.75rem;
+  padding: 1rem;
+}

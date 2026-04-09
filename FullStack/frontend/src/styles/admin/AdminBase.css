@@ -1,0 +1,20 @@
+:root {
+  --admin-bg: #f8fafc;
+  --admin-text: #0f172a;
+}
+
+.admin-dashboard {
+  background: var(--admin-bg);
+  color: var(--admin-text);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+  border: 1px solid #cbd5e1;
+  padding: 0.75rem;
+}

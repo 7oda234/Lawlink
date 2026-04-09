@@ -1,0 +1,15 @@
+[{
+  "_id": {
+    "$oid": "699a06206d9a448fdcab2843"
+  },
+  "Lawyer_ID": "LAW-001",
+  "License_Number": "EGY-987654321",
+  "specialization": "Corporate Law",
+  "Verified": true,
+  "rating_avg": 4.8,
+  "Profile": {
+    "firstName": "Mahmoud",
+    "bio": "Specializing in corporate law."
+  },
+  "Office": "Cairo, Egypt"
+}]

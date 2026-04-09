@@ -1,0 +1,15 @@
+:root {
+  --case-bg: #f0f9ff;
+  --case-text: #0c4a6e;
+}
+
+.case-overview {
+  background: var(--case-bg);
+  color: var(--case-text);
+}
+
+.case-milestone {
+  border: 1px solid #bae6fd;
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
