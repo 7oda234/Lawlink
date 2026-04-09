@@ -3,7 +3,7 @@
 // Step-by-step guide explaining how to use LawLink
 
 import React from 'react';
-import { useLanguage } from '../context/LanguageContext';
+import { useLanguage } from '../context/useLanguage';
 
 const HowItWorksPage = () => {
   const { t } = useLanguage();

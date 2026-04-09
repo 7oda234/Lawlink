@@ -1,10 +1,10 @@
 // مكون التنقل الرئيسي - Main navigation component
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { User, Menu, X, Sun, Moon, Scale } from 'lucide-react';
+import { User, Menu, X, Sun, Moon, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
-import { useLanguage } from '../context/LanguageContext';
+import { useLanguage } from '../context/useLanguage';
 import logoImage from '../Assets/logo/logo lawlink.png';
 
 const Navbar = () => {
@@ -78,10 +78,27 @@ const Navbar = () => {
 
         {/* Desktop Auth, Theme and Language Controls */}
         <div className="hidden md:flex items-center gap-3 text-sm">
+          <div className="relative inline-flex items-center rounded-full border border-white/15 bg-white/10 px-3 py-2 shadow-sm shadow-slate-950/10 backdrop-blur-sm transition hover:border-white/30 focus-within:border-white">
+            <label htmlFor="navbar-language-select" className="sr-only">{t('layout.language')}</label>
+            <select
+              id="navbar-language-select"
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              className="appearance-none min-w-[9rem] bg-transparent pr-8 text-sm font-semibold text-white outline-none"
+              aria-label={t('layout.language')}
+            >
+              {languages.map((lang) => (
+                <option key={lang.code} value={lang.code} className="bg-slate-950 text-white">
+                  {lang.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown size={16} className="pointer-events-none absolute right-3 text-slate-300" />
+          </div>
           <button
             onClick={toggleMode}
-            className="text-gray-300 hover:text-white transition p-2 rounded-md bg-black/20 hover:bg-black/30"
-            aria-label="Toggle theme mode"
+            className="inline-flex items-center justify-center rounded-full border border-white/15 bg-white/10 p-2 text-slate-100 shadow-sm shadow-slate-950/20 transition hover:border-white/30 hover:bg-white/15"
+            aria-label={t('layout.mode')}
           >
             {mode === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
           </button>
@@ -134,20 +151,39 @@ const Navbar = () => {
                 </Link>
               ))}
               <div className="h-px bg-gray-800 my-2"></div>
-              <div className="flex items-center gap-3">
-                <button onClick={toggleMode} className="text-gray-300 hover:text-white transition p-2 rounded-md bg-black/20 hover:bg-black/30">
-                  {mode === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-                </button>
-                {palettes.map((color) => (
-                  <button
-                    key={color}
-                    onClick={() => setPalette(color)}
-                    className={`w-3 h-3 rounded-full border ${palette === color ? 'ring-2 ring-white' : 'opacity-70'} ${
-                      color === 'blue' ? 'bg-blue-500' : color === 'yellow' ? 'bg-yellow-400' : color === 'green' ? 'bg-emerald-500' : 'bg-purple-500'
-                    }`} 
-                    aria-label={`Set ${color} accent`}
-                  />
-                ))}
+              <div className="flex flex-col gap-3">
+                <div className="relative inline-flex items-center rounded-full border border-white/10 bg-slate-950/90 px-3 py-2 shadow-sm shadow-slate-950/20">
+                  <label htmlFor="mobile-language-select" className="sr-only">{t('layout.language')}</label>
+                  <select
+                    id="mobile-language-select"
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value)}
+                    className="appearance-none min-w-[9rem] bg-transparent pr-8 text-sm font-semibold text-white outline-none"
+                    aria-label={t('layout.language')}
+                  >
+                    {languages.map((lang) => (
+                      <option key={lang.code} value={lang.code} className="bg-slate-950 text-white">
+                        {lang.label}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown size={16} className="pointer-events-none absolute right-3 text-slate-300" />
+                </div>
+                <div className="flex items-center gap-3">
+                  <button onClick={toggleMode} className="inline-flex items-center justify-center rounded-full border border-white/15 bg-white/10 p-2 text-slate-100 shadow-sm shadow-slate-950/20 transition hover:border-white/30 hover:bg-white/15">
+                    {mode === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                  </button>
+                  {palettes.map((color) => (
+                    <button
+                      key={color}
+                      onClick={() => setPalette(color)}
+                      className={`w-3 h-3 rounded-full border ${palette === color ? 'ring-2 ring-white' : 'opacity-70'} ${
+                        color === 'blue' ? 'bg-blue-500' : color === 'yellow' ? 'bg-yellow-400' : color === 'green' ? 'bg-emerald-500' : 'bg-purple-500'
+                      }`}
+                      aria-label={`Set ${color} accent`}
+                    />
+                  ))}
+                </div>
               </div>
               <Link to="/login" className="flex items-center gap-2 text-lg font-medium text-gray-300">
                 <User size={20} /> {t('nav.login')}

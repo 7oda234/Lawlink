@@ -6,7 +6,7 @@
 // ───────────────────────────────────────────────────────────────────────────────────
 import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
-import { useLanguage } from '../../context/LanguageContext';
+import { useLanguage } from '../../context/useLanguage';
 import "../../styles/auth/AuthBase.css";
 import AuthShell from '../../components/AuthShell';
 

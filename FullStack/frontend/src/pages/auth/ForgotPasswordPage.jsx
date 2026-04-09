@@ -6,7 +6,7 @@
 // ───────────────────────────────────────────────────────────────────────────────────
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useLanguage } from '../../context/LanguageContext';
+import { useLanguage } from '../../context/useLanguage';
 import "../../styles/auth/AuthBase.css";
 import AuthShell from '../../components/AuthShell';
 const ForgotPasswordPage = () => {

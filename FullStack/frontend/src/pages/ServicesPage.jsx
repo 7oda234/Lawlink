@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';  // روابط - links
-import { useLanguage } from '../context/LanguageContext';
+import { useLanguage } from '../context/useLanguage';
 
 const ServicesPage = () => {
   const { t } = useLanguage();

@@ -5,7 +5,8 @@
 // This context provides language selection across the app
 // ─────────────────────────────────────────────────────────────────────────────────────
 
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { LanguageContext } from './LanguageContextObject';
 
 const translations = {
   en: {
@@ -901,13 +902,6 @@ const translations = {
   },
 };
 
-const LanguageContext = createContext({
-  language: 'en',
-  setLanguage: () => {},
-  languages: [],
-  t: (key, fallback) => fallback || key,
-});
-
 export const LanguageProvider = ({ children }) => {
   const [language, setLanguage] = useState(() => localStorage.getItem('lawlink-language') || 'en');
 
@@ -946,4 +940,3 @@ export const LanguageProvider = ({ children }) => {
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
 };
-export const Languagecontext = () => useContext(LanguageContext);

@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { LanguageContext } from './LanguageContext'; // تأكد من المسار صح
+import { LanguageContext } from './LanguageContextObject'; // تأكد من المسار صح
 
 export const useLanguage = () => {
   const context = useContext(LanguageContext);

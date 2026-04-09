@@ -12,9 +12,8 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Navbar from './Navbar'; // شريط الملاح - navigation bar component
 import Footer from './Footer'; // التذييل بتاع الصفحة - footer component
-import PageControls from './PageControls';
 import { useTheme } from '../context/ThemeContext'; // المظهر والألوان - theme colors and mode
-import { useLanguage } from '../context/LanguageContext';
+import { useLanguage } from '../context/useLanguage';
 import dataService from '../services/DataService'; // service لإدارة الAPI
 
 export const PageLayoutContext = createContext({ persistent: false });
@@ -70,7 +69,7 @@ const PageLayout = ({ title, subtitle, children, heroImage }) => {
         }
 
         setSummary({ label: 'LawLink Ready', value: 'Live', description: 'Your workspace is prepared for action' });
-      } catch (error) {
+      } catch {
         if (!active) return;
         setSummary({ label: 'Offline mode', value: 'Unavailable', description: 'API data cannot be loaded now' });
       }
@@ -85,7 +84,6 @@ const PageLayout = ({ title, subtitle, children, heroImage }) => {
   // 📍 Return section starts here
   return (
     <div className={`min-h-screen flex flex-col bg-page ${mode === 'dark' ? 'text-gray-100' : 'text-slate-900'}`}>
-      {showChrome && <PageControls />}
       {showChrome && <Navbar />}
       {showHero && (
         <header

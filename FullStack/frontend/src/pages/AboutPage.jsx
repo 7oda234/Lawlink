@@ -3,7 +3,7 @@
 // Company information, mission, values, and team members
 
 import React from 'react';
-import { useLanguage } from '../context/LanguageContext';
+import { useLanguage } from '../context/useLanguage';
 
 const AboutPage = () => {
   const { t } = useLanguage();

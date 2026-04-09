@@ -7,7 +7,7 @@
 import React, { useState } from 'react';
 import LawyerCard from '../../components/LawyerCard';
 import { Search, Filter } from 'lucide-react';
-import { useLanguage } from '../../context/LanguageContext';
+import { useLanguage } from '../../context/useLanguage';
 
 const FindLawyerPage = () => {
   const { t } = useLanguage();

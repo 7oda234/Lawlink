@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../../styles/auth/AuthBase.css";
 import { FaPhone, FaCalendar, FaVenusMars, FaLock, FaMoneyBill } from 'react-icons/fa';
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from '../../context/useAuth';
 import logo from '../../Assets/logo/logo canvas.png'; 
 import AuthShell from '../../components/AuthShell';
 /**

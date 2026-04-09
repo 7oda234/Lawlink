@@ -6,7 +6,7 @@
 // ───────────────────────────────────────────────────────────────────────────────────
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useLanguage } from '../context/LanguageContext';
+import { useLanguage } from '../context/useLanguage';
 
 const lawyers = [
   { id: 1, name: 'Robert M. Hughes', specialty: 'Corporate Law', rating: 4.9, cases: 180 },

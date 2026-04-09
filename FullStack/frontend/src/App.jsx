@@ -4,7 +4,8 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { AnimatePresence, motion } from 'framer-motion';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
-import { LanguageProvider, useLanguage } from './context/LanguageContext';
+import { LanguageProvider } from './context/LanguageContext';
+import { useLanguage } from './context/useLanguage';
 import PageLayout, { PageLayoutProvider } from './components/PageLayout';
 import { ErrorBoundary } from './components/ErrorBoundary';
 

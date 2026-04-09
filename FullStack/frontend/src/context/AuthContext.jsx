@@ -1,10 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { AuthContext } from './AuthContextObject';
 
 /**
  * سياق المصادقة - Authentication Context
  * يدير حالة المستخدم والمصادقة في التطبيق
  */
-const AuthContext = createContext();
 
 /**
  * مزود سياق المصادقة - Auth Context Provider
@@ -210,12 +210,3 @@ export const AuthProvider = ({ children }) => {
 /**
  * استخدام سياق المصادقة - Use auth context hook
  */
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
-
-export default AuthContext;

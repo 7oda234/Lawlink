@@ -6,7 +6,7 @@
 // ───────────────────────────────────────────────────────────────────────────────────
 import React from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { useLanguage } from '../context/LanguageContext';
+import { useLanguage } from '../context/useLanguage';
 
 const lawyerData = {
   1: {
