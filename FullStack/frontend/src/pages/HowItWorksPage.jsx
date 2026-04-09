@@ -1,11 +1,13 @@
 import React from 'react';
+<<<<<<< Updated upstream
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+=======
+>>>>>>> Stashed changes
 
 const HowItWorksPage = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Navbar />
       <main className="flex-grow pt-28 pb-16">
         <section className="max-w-6xl mx-auto px-6 py-16">
           <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-10">
@@ -30,7 +32,6 @@ const HowItWorksPage = () => {
           </div>
         </section>
       </main>
-      <Footer />
     </div>
   );
 };

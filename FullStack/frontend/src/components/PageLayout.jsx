@@ -41,7 +41,7 @@ const PageLayout = ({ title, subtitle, children, heroImage }) => {
           </div>
         </div>
       </header>
-      <main className="flex-grow pt-12 pb-16">
+      <main className="flex-grow pt-12 pb-16 bg-white/10 dark:bg-slate-950/90 transition-colors duration-300">
         <div className="max-w-6xl mx-auto px-6">
           {children}
         </div>

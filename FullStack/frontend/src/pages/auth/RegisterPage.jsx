@@ -1,6 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "../../styles/auth/AuthBase.css";
+<<<<<<< Updated upstream
+=======
+import { FaLock, FaEnvelope, FaGavel, FaUser } from 'react-icons/fa';
+import { useAuth } from "../../context/useAuth";
+import logo from '../../Assets/logo/logo canvas.png'; 
+>>>>>>> Stashed changes
 
 const RegisterPage = () => {
   return (

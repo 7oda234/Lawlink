@@ -13,7 +13,15 @@ export const ThemeProvider = ({ children }) => {
   const [palette, setPalette] = useState(() => localStorage.getItem('lawlink-theme-palette') || 'blue');
 
   useEffect(() => {
+<<<<<<< Updated upstream
     document.documentElement.classList.toggle('dark', mode === 'dark');
+=======
+    // 🖥️ تطبيق حالة الوضع الليلي بشكل واضح على الـ HTML و body
+    document.documentElement.classList.toggle('dark', mode === 'dark');
+    document.body.classList.toggle('dark', mode === 'dark');
+
+    // 💾 حفظ الإعدادات في localStorage
+>>>>>>> Stashed changes
     localStorage.setItem('lawlink-theme-mode', mode);
     localStorage.setItem('lawlink-theme-palette', palette);
   }, [mode, palette]);

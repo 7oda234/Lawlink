@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import PageLayout from '../components/PageLayout';
 import { Link } from 'react-router-dom';
 
 const lawyers = [
@@ -18,11 +17,7 @@ const LawyersListPage = () => {
   );
 
   return (
-    <PageLayout
-      title="Lawyers Directory"
-      subtitle="Discover top-rated lawyers with proven expertise in your area."
-      heroImage="https://images.unsplash.com/photo-1448932252197-d19750584e9c?auto=format&fit=crop&w=1400&q=80"
-    >
+    <>
       <div className="mb-6">
         <input
           value={query}
@@ -51,7 +46,7 @@ const LawyersListPage = () => {
           </article>
         ))}
       </div>
-    </PageLayout>
+    </>
   );
 };
 

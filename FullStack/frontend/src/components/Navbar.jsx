@@ -1,15 +1,18 @@
 // مكون التنقل الرئيسي - Main navigation component
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Scale, User, Menu, X, Sun, Moon } from 'lucide-react';
+import { User, Menu, X, Sun, Moon, Languages } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import LogoImage from '../Assets/logo/logo lawlink.png';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const { mode, palette, toggleMode, setPalette, palettes } = useTheme();
+  const { toggleLanguage, t } = useLanguage();
 
   // كشف التمرير لتفعيل تأثير الزجاج - Detect scrolling to trigger glassmorphism effect
   useEffect(() => {
@@ -28,10 +31,10 @@ const Navbar = () => {
 
   // روابط التنقل - Navigation links
   const navLinks = [
-    { name: 'Home', path: '/' },
-    { name: 'Find a Lawyer', path: '/find-lawyer' },
-    { name: 'How it works', path: '/how-it-works' },
-    { name: 'About Us', path: '/about' },
+    { name: t('navbar.home'), path: '/' },
+    { name: t('navbar.findLawyer'), path: '/find-lawyer' },
+    { name: t('navbar.howItWorks'), path: '/how-it-works' },
+    { name: t('navbar.about'), path: '/about' },
   ];
 
   return (
@@ -43,8 +46,8 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
         
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 font-bold text-xl tracking-wider hover:text-gray-300 transition group">
-          <Scale size={28} className="text-yellow-500 group-hover:scale-110 transition-transform" />
+        <Link to="/" className="flex items-center gap-3 font-bold text-xl tracking-wider hover:text-gray-300 transition group">
+          <img src={LogoImage} alt="LawLink logo" className="h-10 w-auto object-contain rounded-md bg-white/10 p-1" />
           <span>LAWLINK</span>
         </Link>
 
@@ -74,6 +77,13 @@ const Navbar = () => {
         {/* Desktop Auth and Theme Controls */}
         <div className="hidden md:flex items-center gap-3 text-sm">
           <button
+            onClick={toggleLanguage}
+            className="text-gray-300 hover:text-white transition p-2 rounded-md bg-black/20 hover:bg-black/30"
+            aria-label="Toggle language"
+          >
+            <Languages size={18} />
+          </button>
+          <button
             onClick={toggleMode}
             className="text-gray-300 hover:text-white transition p-2 rounded-md bg-black/20 hover:bg-black/30"
             aria-label="Toggle theme mode"
@@ -93,10 +103,10 @@ const Navbar = () => {
             ))}
           </div>
           <Link to="/login" className="flex items-center gap-2 text-gray-300 hover:text-white transition">
-            <User size={18} /> Login
+            <User size={18} /> {t('navbar.login')}
           </Link>
           <Link to="/login" className="bg-white text-black px-5 py-2.5 rounded-lg font-bold hover:bg-gray-200 transition shadow-sm hover:shadow-md">
-            Sign Up
+            {t('navbar.signUp')}
           </Link>
         </div>
 
@@ -130,6 +140,9 @@ const Navbar = () => {
               ))}
               <div className="h-px bg-gray-800 my-2"></div>
               <div className="flex items-center gap-3">
+                <button onClick={toggleLanguage} className="text-gray-300 hover:text-white transition p-2 rounded-md bg-black/20 hover:bg-black/30">
+                  <Languages size={18} />
+                </button>
                 <button onClick={toggleMode} className="text-gray-300 hover:text-white transition p-2 rounded-md bg-black/20 hover:bg-black/30">
                   {mode === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
                 </button>
@@ -145,10 +158,10 @@ const Navbar = () => {
                 ))}
               </div>
               <Link to="/login" className="flex items-center gap-2 text-lg font-medium text-gray-300">
-                <User size={20} /> Login
+                <User size={20} /> {t('navbar.login')}
               </Link>
               <Link to="/login" className="bg-white text-black text-center px-4 py-3 rounded-lg font-bold mt-2">
-                Create Account
+                {t('navbar.signUp')}
               </Link>
             </div>
           </motion.div>

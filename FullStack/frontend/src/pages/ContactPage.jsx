@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
+<<<<<<< Updated upstream
 import PageLayout from '../components/PageLayout';
+=======
+>>>>>>> Stashed changes
 
 const ContactPage = () => {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
@@ -7,11 +10,7 @@ const ContactPage = () => {
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   return (
-    <PageLayout
-      title="Contact Support"
-      subtitle="We’re here to help. Send your message and we’ll respond within one business day."
-      heroImage="https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1400&q=80"
-    >
+    <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8">
           <h2 className="text-2xl font-bold mb-4">Office Information</h2>
@@ -60,7 +59,7 @@ const ContactPage = () => {
         <h3 className="text-xl font-bold mb-2">Frequently Asked Questions</h3>
         <p className="text-gray-600">Check our help center for quick answers on onboarding, billing and case workflow.</p>
       </div>
-    </PageLayout>
+    </>
   );
 };
 

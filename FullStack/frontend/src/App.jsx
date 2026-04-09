@@ -2,9 +2,18 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
+<<<<<<< Updated upstream
 import { ThemeProvider } from './context/ThemeContext';
 import { PageLayoutProvider } from './components/PageLayout';
 import { ErrorBoundary } from './components/ErrorBoundary';
+=======
+import { ThemeProvider, useTheme } from './context/ThemeContext'; // 🎨 مزود المظهر - Theme provider
+import { LanguageProvider } from './context/LanguageContext'; // 🌐 مزود اللغة - Language provider
+import { AuthProvider } from './context/AuthContext'; // 🔐 مزود المصادقة - Auth provider
+import { PageLayoutProvider } from './components/PageLayout'; // 📄 مزود تخطيط الصفحة - Page layout provider
+import { ErrorBoundary } from './components/ErrorBoundary'; // ⚠️ حاجز الأخطاء - Error boundary
+import PageLayout from './components/PageLayout'; // 📄 مكون تخطيط الصفحة - Page layout component
+>>>>>>> Stashed changes
 
 // استيراد ملفات الستايل - Importing style files
 import './styles/auth/AuthBase.css';
@@ -184,30 +193,164 @@ const routeConfig = [
 ];
 
 // مكون الروتات - Routes component
+const authPaths = new Set([
+  '/login',
+  '/register',
+  '/register/client/continue',
+  '/register/lawyer/continue',
+  '/forgot-password',
+  '/reset-password',
+  '/verify-email',
+]);
+
+const getPageMeta = (path) => {
+  if (path === '/') {
+    return {
+      title: 'مرحباً في LawLink',
+      subtitle: 'منصة قانونية رقمية لإدارة القضايا، المحامين، والتواصل بمرونة.',
+      heroImage: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=1400&q=80',
+    };
+  }
+
+  if (path === '/about') {
+    return {
+      title: 'عن LawLink',
+      subtitle: 'حل مبتكر لإدارة القضايا القانونية والاتصال المباشر بين العملاء والمحامين.',
+      heroImage: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1400&q=80',
+    };
+  }
+
+  if (path === '/contact') {
+    return {
+      title: 'اتصل بفريق الدعم',
+      subtitle: 'نحن هنا لمساعدتك في أي سؤال أو مشكلة تواجهها أثناء استخدام المنصة.',
+      heroImage: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1400&q=80',
+    };
+  }
+
+  if (path === '/services') {
+    return {
+      title: 'خدمات LawLink',
+      subtitle: 'اكتشف خدماتنا القانونية الشاملة للأفراد والشركات والمحامين.',
+      heroImage: 'https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?auto=format&fit=crop&w=1400&q=80',
+    };
+  }
+
+  if (path === '/how-it-works') {
+    return {
+      title: 'كيف تعمل المنصة',
+      subtitle: 'خطوات بسيطة لتقديم القضية والتواصل ومتابعة النتائج القانونية.',
+      heroImage: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1400&q=80',
+    };
+  }
+
+  if (path.startsWith('/client')) {
+    return {
+      title: 'لوحة العميل',
+      subtitle: 'أدوات متقدمة لإدارة القضايا، المواعيد، الرسائل والمدفوعات.',
+      heroImage: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1400&q=80',
+    };
+  }
+
+  if (path.startsWith('/lawyer')) {
+    return {
+      title: 'لوحة المحامي',
+      subtitle: 'تتبع الحالات، الرسائل، وجدولة المواعيد من لوحة تحكم واحدة.',
+      heroImage: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1400&q=80',
+    };
+  }
+
+  if (path.startsWith('/admin')) {
+    return {
+      title: 'لوحة الإدارة',
+      subtitle: 'إدارة المستخدمين، القضايا والتقارير من واجهة عملية واحدة.',
+      heroImage: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1400&q=80',
+    };
+  }
+
+  if (path.startsWith('/cases')) {
+    return {
+      title: 'إدارة القضايا',
+      subtitle: 'عرض حالة القضايا، الملفات، وخط سير الإجراءات القانونية.',
+      heroImage: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1400&q=80',
+    };
+  }
+
+  if (path.startsWith('/messages') || path.startsWith('/notifications')) {
+    return {
+      title: 'التواصل والرسائل',
+      subtitle: 'ابقَ على اتصال مع فريقك القانوني داخل المنصة بسهولة.',
+      heroImage: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1400&q=80',
+    };
+  }
+
+  if (path.startsWith('/settings') || path === '/help' || path === '/terms') {
+    return {
+      title: 'الإعدادات والمساعدة',
+      subtitle: 'ضبط حسابك والعثور على الموارد القانونية بسرعة.',
+      heroImage: 'https://images.unsplash.com/photo-1581091870627-3f66fb0ee9f8?auto=format&fit=crop&w=1400&q=80',
+    };
+  }
+
+  if (path === '/find-lawyer' || path === '/lawyers') {
+    return {
+      title: 'البحث عن محامي',
+      subtitle: 'اعثر على المحامي المناسب لقضيتك وابدأ التواصل بسرعة.',
+      heroImage: 'https://images.unsplash.com/photo-1448932252197-d19750584e9c?auto=format&fit=crop&w=1400&q=80',
+    };
+  }
+
+  return {
+    title: 'LawLink',
+    subtitle: 'منصة قانونية موثوقة لإدارة القضايا والعملاء.',
+    heroImage: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=1400&q=80',
+  };
+};
+
 const AppRoutes = () => {
   const location = useLocation();
 
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        {routeConfig.map(({ path, Component }) => (
-          <Route
-            key={path}
-            path={path}
-            element={
-              <PageWrapper>
-                <Component />
-              </PageWrapper>
-            }
-          />
-        ))}
+        {routeConfig.map(({ path, Component }) => {
+          const pageMeta = getPageMeta(path);
+          const routeElement = authPaths.has(path) ? (
+            <Component />
+          ) : (
+            <PageLayout
+              title={pageMeta.title}
+              subtitle={pageMeta.subtitle}
+              heroImage={pageMeta.heroImage}
+            >
+              <Component />
+            </PageLayout>
+          );
 
-        // روت للصفحات غير الموجودة - Route for not found pages
+          return (
+            <Route
+              key={path}
+              path={path}
+              element={
+                <PageWrapper>
+                  {routeElement}
+                </PageWrapper>
+              }
+            />
+          );
+        })}
+
         <Route
           path="*"
           element={
             <PageWrapper>
-              <NotFoundPage />
+              <PageLayout
+                title="404 - الصفحة غير موجودة"
+                subtitle="الموارد التي تبحث عنها غير موجودة أو تم نقلها."
+                heroImage="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1400&q=80"
+              >
+                <NotFoundPage />
+              </PageLayout>
             </PageWrapper>
           }
         />
@@ -217,9 +360,25 @@ const AppRoutes = () => {
 };
 
 // المكون الرئيسي للتطبيق - Main App component
+const AppContent = () => {
+  const { mode } = useTheme();
+  const pageThemeClass = mode === 'dark' ? 'bg-slate-950 text-gray-100' : 'bg-gray-50 text-gray-900';
+
+  return (
+    <div className={`font-sans antialiased min-h-screen transition-colors duration-300 ${pageThemeClass}`}>
+      <ErrorBoundary>
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading... 🌀</div>}>
+          <AppRoutes />
+        </Suspense>
+      </ErrorBoundary>
+    </div>
+  );
+};
+
 function App() {
   return (
     <ThemeProvider>
+<<<<<<< Updated upstream
       <Router>
         <PageLayoutProvider persistent={true}>
           <div className="font-sans antialiased min-h-screen bg-gray-50 dark:bg-slate-950 dark:text-gray-100">
@@ -231,6 +390,17 @@ function App() {
           </div>
         </PageLayoutProvider>
       </Router>
+=======
+      <LanguageProvider>
+        <AuthProvider>
+          <Router>
+            <PageLayoutProvider>
+              <AppContent />
+            </PageLayoutProvider>
+          </Router>
+        </AuthProvider>
+      </LanguageProvider>
+>>>>>>> Stashed changes
     </ThemeProvider>
   );
 }

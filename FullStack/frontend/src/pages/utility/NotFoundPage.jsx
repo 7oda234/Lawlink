@@ -1,5 +1,4 @@
 import React from 'react';
-import PageLayout from '../../components/PageLayout';
 import { Link } from 'react-router-dom';
 
 const NotFoundPage = () => (
@@ -17,7 +16,7 @@ const NotFoundPage = () => (
         Back to Home
       </Link>
     </div>
-  </PageLayout>
+  </>
 );
 
 export default NotFoundPage;

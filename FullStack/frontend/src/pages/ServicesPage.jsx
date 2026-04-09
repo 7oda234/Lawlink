@@ -1,6 +1,10 @@
 import React from 'react';
+<<<<<<< Updated upstream
 import PageLayout from '../components/PageLayout';
 import { Link } from 'react-router-dom';
+=======
+import { Link } from 'react-router-dom';  // روابط - links
+>>>>>>> Stashed changes
 
 const services = [
   { title: 'Legal Matching', description: 'AI-powered lawyer matching for your case needs.', icon: '⚖️' },
@@ -12,11 +16,15 @@ const services = [
 ];
 
 const ServicesPage = () => (
+<<<<<<< Updated upstream
   <PageLayout
     title="LawLink Services"
     subtitle="Discover end-to-end legal services built for clients, lawyers, and administrators."
     heroImage="https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?auto=format&fit=crop&w=1400&q=80"
   >
+=======
+  <>
+>>>>>>> Stashed changes
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       {services.map((service) => (
         <article key={service.title} className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
@@ -34,7 +42,7 @@ const ServicesPage = () => (
         Create Account
       </Link>
     </div>
-  </PageLayout>
+  </>
 );
 
 export default ServicesPage;

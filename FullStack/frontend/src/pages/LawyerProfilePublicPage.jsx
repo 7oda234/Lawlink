@@ -1,5 +1,4 @@
 import React from 'react';
-import PageLayout from '../components/PageLayout';
 import { Link, useParams } from 'react-router-dom';
 
 const lawyerData = {
@@ -26,11 +25,7 @@ const LawyerProfilePublicPage = () => {
   const lawyer = lawyerData[id] || lawyerData[1];
 
   return (
-    <PageLayout
-      title={lawyer.name}
-      subtitle={`${lawyer.specialty} | ${lawyer.location}`}
-      heroImage="https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1400&q=80"
-    >
+    <>
       <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
         <div className="md:flex md:items-start md:gap-8">
           <div className="rounded-lg bg-gray-100 p-5 w-full md:w-2/3">
@@ -52,7 +47,7 @@ const LawyerProfilePublicPage = () => {
           </aside>
         </div>
       </div>
-    </PageLayout>
+    </>
   );
 };
 
