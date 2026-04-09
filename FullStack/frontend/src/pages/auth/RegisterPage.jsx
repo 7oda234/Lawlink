@@ -3,7 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import "../../styles/auth/AuthBase.css";
 import { FaLock, FaEnvelope, FaGavel, FaUser } from 'react-icons/fa';
 import { useAuth } from "../../context/AuthContext";
+import { useLanguage } from '../../context/LanguageContext';
 import logo from '../../Assets/logo/logo canvas.png'; 
+import AuthShell from '../../components/AuthShell';
 
 /**
  * صفحة التسجيل - Register Page
@@ -28,6 +30,7 @@ const RegisterPage = () => {
 
   // 🧭 التنقل - navigation
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   // 🔐 سياق المصادقة - auth context
   const { register } = useAuth();
@@ -114,7 +117,8 @@ const RegisterPage = () => {
 
   return (
     // Wrapper الأساسي اللي بيعمل الخلفية الـ Dark
-    <div className="auth-wrapper">
+    <AuthShell>
+      <div className="auth-wrapper">
       <div className="auth-container">
         {/* الجزء اللي على الشمال - Brand Sidebar */}
         <div className="brand-sidebar">
@@ -131,8 +135,8 @@ const RegisterPage = () => {
               <div className="logo-container">
                 <img src={logo} alt="LawLink Logo" />
               </div>
-              <h2 className="form-title">Create Account</h2>
-              <p className="form-subtitle">Start your professional legal journey today</p>
+              <h2 className="form-title">{t('auth.register.title')}</h2>
+              <p className="form-subtitle">{t('auth.register.subtitle')}</p>
 
               {/* User Type Toggle */}
               <div className="user-toggle">
@@ -154,14 +158,14 @@ const RegisterPage = () => {
 
               <form className="auth-form" onSubmit={handleSubmit}>
                 <div className="form-group">
-                  <label>Full Name</label>
+                  <label>{t('auth.register.fullName')}</label>
                   <div className="input-container">
                     <FaUser className="input-icon" />
                     <input
                       type="text"
                       name="fullName"
                       className="law-input"
-                      placeholder="John Doe"
+                      placeholder={t('auth.register.placeholderFullName')}
                       value={formData.fullName}
                       onChange={handleChange}
                       required
@@ -171,14 +175,14 @@ const RegisterPage = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Email Address</label>
+                  <label>{t('auth.register.email')}</label>
                   <div className="input-container">
                     <FaEnvelope className="input-icon" />
                     <input
                       type="email"
                       name="email"
                       className="law-input"
-                      placeholder="name@example.com"
+                      placeholder={t('auth.register.placeholderEmail')}
                       value={formData.email}
                       onChange={handleChange}
                       required
@@ -188,14 +192,14 @@ const RegisterPage = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Password</label>
+                  <label>{t('auth.register.password')}</label>
                   <div className="input-container">
                     <FaLock className="input-icon" />
                     <input
                       type="password"
                       name="password"
                       className="law-input"
-                      placeholder="Create a strong password"
+                      placeholder={t('auth.register.placeholderPassword')}
                       value={formData.password}
                       onChange={handleChange}
                       required
@@ -209,17 +213,18 @@ const RegisterPage = () => {
 
                 {/* استخدمنا btn-submit عشان التنسيق يبان */}
                 <button type="submit" className="btn-submit" disabled={loading}>
-                  {loading ? 'Creating Account...' : 'Register →'}
+                  {loading ? t('auth.register.createAccountButton') : t('auth.register.createAccountButton')}
                 </button>
               </form>
 
               <p className="footer-link">
-                Already have an account? <Link to="/login">Sign In</Link>
+                {t('auth.register.alreadyHaveAccount')} <Link to="/login">{t('auth.register.signIn')}</Link>
               </p>
             </>
           </div>
       </div>
     </div>
+    </AuthShell>
   );
 };
 

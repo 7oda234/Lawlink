@@ -6,6 +6,7 @@
 // ───────────────────────────────────────────────────────────────────────────────────
 import React from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
 
 const lawyerData = {
   1: {
@@ -27,6 +28,7 @@ const lawyerData = {
 };
 
 const LawyerProfilePublicPage = () => {
+  const { t } = useLanguage();
   const { id } = useParams();
   const lawyer = lawyerData[id] || lawyerData[1];
 
@@ -36,20 +38,20 @@ const LawyerProfilePublicPage = () => {
       <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
         <div className="md:flex md:items-start md:gap-8">
           <div className="rounded-lg bg-gray-100 p-5 w-full md:w-2/3">
-            <h2 className="text-2xl font-bold mb-2">About</h2>
+            <h2 className="text-2xl font-bold mb-2">{t('page.lawyerProfile.aboutTitle')}</h2>
             <p className="text-gray-700 mb-4">{lawyer.bio}</p>
             <p className="text-gray-700">{lawyer.description}</p>
           </div>
 
           <aside className="mt-6 md:mt-0 w-full md:w-1/3 bg-gray-50 border border-gray-200 rounded-lg p-5">
-            <p className="text-gray-500"><strong>Rating:</strong> {lawyer.rating} ★</p>
-            <p className="text-gray-500"><strong>Location:</strong> {lawyer.location}</p>
-            <p className="text-gray-500"><strong>Cases Closed:</strong> 120+</p>
+            <p className="text-gray-500"><strong>{t('page.lawyerProfile.ratingLabel')}:</strong> {lawyer.rating} ★</p>
+            <p className="text-gray-500"><strong>{t('page.lawyerProfile.locationLabel')}:</strong> {lawyer.location}</p>
+            <p className="text-gray-500"><strong>{t('page.lawyerProfile.casesClosedLabel')}:</strong> 120+</p>
             <Link
               to="/client/cases/new"
               className="mt-4 inline-block w-full text-center py-2 bg-black text-white rounded-lg font-bold hover:bg-gray-800"
             >
-              Hire this Lawyer
+              {t('page.lawyerProfile.hireButton')}
             </Link>
           </aside>
         </div>

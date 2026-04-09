@@ -1,6 +1,45 @@
 @import "tailwindcss";
 
-/* If you have custom base styles, they go here */
 :root {
-font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  color-scheme: light;
+  background-color: var(--page-bg, #f8fafc);
+  color: var(--text-color, #0f172a);
+  --accent-color: #3b82f6;
+  --page-bg: #f8fafc;
+  --surface-bg: rgba(255, 255, 255, 0.92);
+  --surface-border: #e2e8f0;
+  --text-color: #0f172a;
+  --muted-text: #475569;
+}
+
+html.dark {
+  color-scheme: dark;
+  background-color: var(--page-bg, #020617);
+  color: var(--text-color, #f8fafc);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--page-bg);
+  color: var(--text-color);
+}
+
+body, input, button, textarea, select {
+  font-family: inherit;
+}
+
+.page-surface {
+  background-color: var(--surface-bg);
+  border-color: var(--surface-border);
+  color: var(--text-color);
+}
+
+.page-accent {
+  color: var(--accent-color) !important;
+}
+
+.bg-page {
+  background-image: linear-gradient(135deg, rgba(59,130,246,0.12), rgba(249,115,22,0.08));
 }

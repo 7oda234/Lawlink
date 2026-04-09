@@ -5,12 +5,28 @@
 // User verifies their email using a code sent to their mailbox
 // ────────────────────────────────────────═════════════════════════════════════════
 
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../../context/LanguageContext';
+import AuthShell from '../../components/AuthShell';
 
 const EmailVerificationPage = () => {
+  const [message, setMessage] = useState('');
+  const navigate = useNavigate();
+  const { t } = useLanguage();
+
+  const handleInbox = () => {
+    navigate('/login');
+  };
+
+  const handleResend = () => {
+    setMessage('Verification link resent. Please check your email.');
+  };
+
   // 📍 Return section starts here
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <AuthShell>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-xl shadow-sm border border-gray-200 p-10 text-center">
         <div className="mx-auto w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-6">
           <svg className="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -18,20 +34,21 @@ const EmailVerificationPage = () => {
           </svg>
         </div>
         
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Verify your email</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('auth.emailVerification.title')}</h2>
         <p className="text-gray-500 mb-8 text-sm leading-relaxed">
-          We've sent a verification link to your email address. Please click the link to activate your account.
+          {t('auth.emailVerification.description')}
         </p>
         
-        <button className="w-full bg-black text-white py-3 rounded-lg font-bold hover:bg-gray-800 mb-4 transition">
-          Go to Inbox
+        <button type="button" onClick={handleInbox} className="w-full bg-black text-white py-3 rounded-lg font-bold hover:bg-gray-800 mb-4 transition">
+          {t('auth.emailVerification.goToInbox')}
         </button>
-        
+        {message && <div className="success-text mb-4">{message}</div>}
         <p className="text-sm text-gray-500 mt-4">
-          Didn't receive an email? <button className="text-black font-bold hover:underline">Resend link</button>
+          {t('auth.emailVerification.didntReceive')} <button type="button" className="text-black font-bold hover:underline" onClick={handleResend}>{t('auth.emailVerification.resendLink')}</button>
         </p>
       </div>
     </div>
+    </AuthShell>
   );
 };
 

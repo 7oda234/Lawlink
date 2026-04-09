@@ -7,10 +7,12 @@
 import React, { useState } from 'react';
 import LawyerCard from '../../components/LawyerCard';
 import { Search, Filter } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
 
 const FindLawyerPage = () => {
+  const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeCategory, setActiveCategory] = useState('All');
+  const [activeCategory, setActiveCategory] = useState('all');
 
   // Dummy Data for the directory
   const lawyers = [
@@ -56,13 +58,20 @@ const FindLawyerPage = () => {
     }
   ];
 
-  const categories = ["All", "Corporate", "Family", "Criminal", "Real Estate", "Intellectual Property"];
+  const categories = ['all', 'corporate', 'family', 'criminal', 'realEstate', 'intellectualProperty'];
+  const categoryMap = {
+    corporate: 'Corporate',
+    family: 'Family',
+    criminal: 'Criminal',
+    realEstate: 'Real Estate',
+    intellectualProperty: 'Intellectual Property',
+  };
 
   // Basic filtering logic
   const filteredLawyers = lawyers.filter(lawyer => {
     const matchesSearch = lawyer.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           lawyer.specialty.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = activeCategory === 'All' || lawyer.category === activeCategory;
+    const matchesCategory = activeCategory === 'all' || lawyer.category === categoryMap[activeCategory];
     return matchesSearch && matchesCategory;
   });
 
@@ -75,9 +84,9 @@ const FindLawyerPage = () => {
         {/* Page Header */}
         <div className="bg-black text-white py-12 mb-8">
           <div className="max-w-7xl mx-auto px-6">
-            <h1 className="text-3xl md:text-5xl font-bold mb-4">Find the Right Legal Expert</h1>
+            <h1 className="text-3xl md:text-5xl font-bold mb-4">{t('page.findLawyer.heading')}</h1>
             <p className="text-gray-400 max-w-2xl text-lg">
-              Browse our verified network of top-tier attorneys. Filter by specialty, location, and experience to secure the best representation.
+              {t('page.findLawyer.subheading')}
             </p>
           </div>
         </div>
@@ -89,29 +98,30 @@ const FindLawyerPage = () => {
             <div className="bg-white p-6 rounded-xl border border-gray-200 sticky top-28 shadow-sm">
               <div className="flex items-center gap-2 font-bold text-lg mb-6 text-gray-900 border-b border-gray-100 pb-4">
                 <Filter size={20} />
-                Filters
+                {t('page.findLawyer.filtersLabel')}
               </div>
 
               {/* Practice Areas */}
               <div className="mb-8">
-                <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4">Practice Area</h3>
+                <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4">{t('page.findLawyer.practiceArea')}</h3>
                 <div className="space-y-3">
-                  {categories.map(category => (
-  <>
-                    <label key={category} className="flex items-center gap-3 cursor-pointer group">
-                      <input 
-                        type="radio" 
-                        name="category"
-                        checked={activeCategory === category}
-                        onChange={() => setActiveCategory(category)}
-                        className="w-4 h-4 text-black focus:ring-black border-gray-300" 
-                      />
-                      <span className={`text-sm transition-colors ${activeCategory === category ? 'text-black font-semibold' : 'text-gray-600 group-hover:text-black'}`}>
-                        {category}
-                      </span>
-                    </label>
-                  
-  </>))}
+                  {categories.map((category) => {
+                    const label = t(`page.findLawyer.categories.${category}`);
+                    return (
+                      <label key={category} className="flex items-center gap-3 cursor-pointer group">
+                        <input 
+                          type="radio" 
+                          name="category"
+                          checked={activeCategory === category}
+                          onChange={() => setActiveCategory(category)}
+                          className="w-4 h-4 text-black focus:ring-black border-gray-300" 
+                        />
+                        <span className={`text-sm transition-colors ${activeCategory === category ? 'text-black font-semibold' : 'text-gray-600 group-hover:text-black'}`}>
+                          {label}
+                        </span>
+                      </label>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -125,7 +135,7 @@ const FindLawyerPage = () => {
               <Search className="text-gray-400 ml-4 mr-2 shrink-0" size={20} />
               <input 
                 type="text" 
-                placeholder="Search by name, firm, or specialty..." 
+                placeholder={t('page.findLawyer.searchPlaceholder')}
                 className="w-full py-3 px-2 outline-none text-gray-800 bg-transparent"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -138,7 +148,7 @@ const FindLawyerPage = () => {
             {/* Results Header */}
             <div className="mb-6 flex justify-between items-center">
               <h2 className="text-xl font-bold text-gray-900">
-                {filteredLawyers.length} {filteredLawyers.length === 1 ? 'Result' : 'Results'} Found
+                {filteredLawyers.length} {filteredLawyers.length === 1 ? t('page.findLawyer.resultsFoundOne') : t('page.findLawyer.resultsFoundMany')}
               </h2>
             </div>
 
@@ -152,12 +162,12 @@ const FindLawyerPage = () => {
   </>))
               ) : (
                 <div className="bg-white border border-gray-200 rounded-xl p-12 text-center">
-                  <p className="text-gray-500 text-lg">No legal professionals found matching your criteria.</p>
+                  <p className="text-gray-500 text-lg">{t('page.findLawyer.noResults')}</p>
                   <button 
-                    onClick={() => { setSearchTerm(''); setActiveCategory('All'); }}
+                    onClick={() => { setSearchTerm(''); setActiveCategory('all'); }}
                     className="mt-4 text-yellow-600 font-bold hover:underline"
                   >
-                    Clear all filters
+                    {t('page.findLawyer.clearFilters')}
                   </button>
                 </div>
               )}

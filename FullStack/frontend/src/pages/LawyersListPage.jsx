@@ -6,6 +6,7 @@
 // ───────────────────────────────────────────────────────────────────────────────────
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
 
 const lawyers = [
   { id: 1, name: 'Robert M. Hughes', specialty: 'Corporate Law', rating: 4.9, cases: 180 },
@@ -15,6 +16,7 @@ const lawyers = [
 ];
 
 const LawyersListPage = () => {
+  const { t } = useLanguage();
   const [query, setQuery] = useState('');
 
   const filtered = lawyers.filter((lawyer) =>
@@ -29,7 +31,7 @@ const LawyersListPage = () => {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search by name or specialty"
+          placeholder={t('page.lawyersList.searchPlaceholder')}
           className="w-full md:w-1/2 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black"
         />
       </div>
@@ -44,12 +46,12 @@ const LawyersListPage = () => {
               </div>
               <span className="text-sm bg-yellow-200 text-black px-3 py-1 rounded-full font-semibold">{l.rating} ★</span>
             </div>
-            <p className="text-gray-500 mt-2">Cases handled: {l.cases}</p>
+            <p className="text-gray-500 mt-2">{t('page.lawyersList.casesHandledPrefix')}: {l.cases}</p>
             <Link
               to={`/lawyers/${l.id}`}
               className="inline-block mt-4 px-4 py-2 bg-black text-white font-bold rounded-lg hover:bg-gray-800 transition"
             >
-              View Profile
+              {t('page.lawyersList.viewProfile')}
             </Link>
           </article>
         

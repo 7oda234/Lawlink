@@ -1,7 +1,3 @@
-// If using dotenv for environment variables
-import 'dotenv/config';
-
-// Since you are ALREADY in the src folder, use "./"
 // DataService for API calls
 import axios from 'axios';
 

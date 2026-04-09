@@ -4,6 +4,7 @@ import "../../styles/auth/AuthBase.css";
 import { FaPhone, FaCalendar, FaVenusMars, FaLock, FaIdCard, FaStar, FaBriefcase } from 'react-icons/fa';
 import { useAuth } from "../../context/AuthContext";
 import logo from '../../Assets/logo/logo canvas.png'; 
+import AuthShell from '../../components/AuthShell';
 
 /**
  * صفحة استكمال تسجيل المحامي - Lawyer Registration Continue Page
@@ -184,7 +185,8 @@ const RegisterLawyerContinuePage = () => {
   };
 
   return (
-    <div className="auth-wrapper">
+    <AuthShell>
+      <div className="auth-wrapper">
       <div className="auth-container">
         {/* الجزء اللي على الشمال - Brand Sidebar */}
         <div className="brand-sidebar">
@@ -391,6 +393,7 @@ const RegisterLawyerContinuePage = () => {
         </div>
       </div>
     </div>
+    </AuthShell>
   );
 };
 

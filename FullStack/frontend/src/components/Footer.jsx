@@ -1,18 +1,22 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Scale, Facebook, Linkedin } from 'lucide-react';
+import { Facebook, Linkedin } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
+import logoImage from '../Assets/logo/logo lawlink.png';
 
 const Footer = () => {
+  const { t } = useLanguage();
+
   return (
-    <footer className="bg-black text-white px-6 py-12 border-t border-gray-800">
+    <footer className="border-t border-slate-900/70 bg-slate-950 text-slate-200 px-6 py-12">
         {/* 📋 القسم الأساسي - Main content grid section */}
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
           
           {/* 🏢 معلومات عن الشركة - Company Information */}
           <div className="col-span-1 md:col-span-2">
             {/* 📍 الشعار - Logo section */}
-            <div className="flex items-center gap-2 font-bold text-xl tracking-wider mb-4">
-              <Scale size={24} />
+            <div className="flex items-center gap-3 font-bold text-xl tracking-wider mb-4">
+              <img src={logoImage} alt="LawLink" className="h-10 w-auto rounded-full bg-white/10 p-1" />
               <span>LAWLINK</span>
             </div>
             {/* 📝 وصف الشركة - Company description */}
@@ -23,7 +27,7 @@ const Footer = () => {
           
           {/* 🛠️ قسم الخدمات - Services Section */}
           <div>
-            <h4 className="font-bold mb-4">Services</h4>
+            <h4 className="font-bold mb-4">{t('footer.services')}</h4>
             <ul className="space-y-3 text-sm text-gray-400">
               <li><a href="#" className="hover:text-white">Find a Lawyer</a></li>
               <li><a href="#" className="hover:text-white">Corporate Law</a></li>
@@ -34,12 +38,12 @@ const Footer = () => {
 
           {/* 🏛️ قسم الشركة - Company Section */}
           <div>
-            <h4 className="font-bold mb-4">Company</h4>
+            <h4 className="font-bold mb-4">{t('footer.company')}</h4>
             <ul className="space-y-3 text-sm text-gray-400">
-              <li><Link to="/about" className="hover:text-white">About</Link></li>
-              <li><Link to="/contact" className="hover:text-white">Contact</Link></li>
-              <li><Link to="/help" className="hover:text-white">Help</Link></li>
-              <li><Link to="/terms" className="hover:text-white">Privacy</Link></li>
+              <li><Link to="/about" className="hover:text-white">{t('footer.about')}</Link></li>
+              <li><Link to="/contact" className="hover:text-white">{t('footer.contact')}</Link></li>
+              <li><Link to="/help" className="hover:text-white">{t('footer.help')}</Link></li>
+              <li><Link to="/terms" className="hover:text-white">{t('footer.privacy')}</Link></li>
             </ul>
           </div>
         </div>

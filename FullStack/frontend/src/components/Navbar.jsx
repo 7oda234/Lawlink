@@ -1,15 +1,18 @@
 // مكون التنقل الرئيسي - Main navigation component
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Scale, User, Menu, X, Sun, Moon } from 'lucide-react';
+import { User, Menu, X, Sun, Moon, Scale } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
+import logoImage from '../Assets/logo/logo lawlink.png';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const { mode, palette, toggleMode, setPalette, palettes } = useTheme();
+  const { language, setLanguage, languages, t } = useLanguage();
 
   // كشف التمرير لتفعيل تأثير الزجاج - Detect scrolling to trigger glassmorphism effect
   useEffect(() => {
@@ -28,10 +31,10 @@ const Navbar = () => {
 
   // روابط التنقل - Navigation links
   const navLinks = [
-    { name: 'Home', path: '/' },
-    { name: 'Find a Lawyer', path: '/find-lawyer' },
-    { name: 'How it works', path: '/how-it-works' },
-    { name: 'About Us', path: '/about' },
+    { name: t('nav.home'), path: '/' },
+    { name: t('nav.findLawyer'), path: '/find-lawyer' },
+    { name: t('nav.howItWorks'), path: '/how-it-works' },
+    { name: t('nav.about'), path: '/about' },
   ];
 
   // 📍 Return section starts here
@@ -44,8 +47,8 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
         
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 font-bold text-xl tracking-wider hover:text-gray-300 transition group">
-          <Scale size={28} className="text-yellow-500 group-hover:scale-110 transition-transform" />
+        <Link to="/" className="flex items-center gap-3 font-bold text-xl tracking-wider hover:text-gray-300 transition group">
+          <img src={logoImage} alt="LawLink" className="h-10 w-auto rounded-full bg-white/10 p-1" />
           <span>LAWLINK</span>
         </Link>
 
@@ -73,7 +76,7 @@ const Navbar = () => {
           })}
         </nav>
 
-        {/* Desktop Auth and Theme Controls */}
+        {/* Desktop Auth, Theme and Language Controls */}
         <div className="hidden md:flex items-center gap-3 text-sm">
           <button
             onClick={toggleMode}
@@ -95,10 +98,10 @@ const Navbar = () => {
             ))}
           </div>
           <Link to="/login" className="flex items-center gap-2 text-gray-300 hover:text-white transition">
-            <User size={18} /> Login
+            <User size={18} /> {t('nav.login')}
           </Link>
           <Link to="/login" className="bg-white text-black px-5 py-2.5 rounded-lg font-bold hover:bg-gray-200 transition shadow-sm hover:shadow-md">
-            Sign Up
+            {t('nav.signUp')}
           </Link>
         </div>
 
@@ -147,10 +150,10 @@ const Navbar = () => {
                 ))}
               </div>
               <Link to="/login" className="flex items-center gap-2 text-lg font-medium text-gray-300">
-                <User size={20} /> Login
+                <User size={20} /> {t('nav.login')}
               </Link>
               <Link to="/login" className="bg-white text-black text-center px-4 py-3 rounded-lg font-bold mt-2">
-                Create Account
+                {t('nav.createAccount')}
               </Link>
             </div>
           </motion.div>

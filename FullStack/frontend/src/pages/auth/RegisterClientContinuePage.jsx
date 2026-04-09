@@ -4,6 +4,7 @@ import "../../styles/auth/AuthBase.css";
 import { FaPhone, FaCalendar, FaVenusMars, FaLock, FaMoneyBill } from 'react-icons/fa';
 import { useAuth } from "../../context/AuthContext";
 import logo from '../../Assets/logo/logo canvas.png'; 
+import AuthShell from '../../components/AuthShell';
 /**
  * صفحة استكمال تسجيل العميل - Client Registration Continue Page
  * بتكمل بيانات العميل بعد التسجيل الأولي
@@ -127,7 +128,8 @@ const RegisterClientContinuePage = () => {
   };
 
   return (
-    <div className="auth-wrapper">
+    <AuthShell>
+      <div className="auth-wrapper">
       <div className="auth-container">
         {/* الجزء اللي على الشمال - Brand Sidebar */}
         <div className="brand-sidebar">
@@ -295,6 +297,7 @@ const RegisterClientContinuePage = () => {
         </div>
       </div>
     </div>
+    </AuthShell>
   );
 };
 

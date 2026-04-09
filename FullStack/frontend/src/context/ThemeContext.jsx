@@ -31,7 +31,21 @@ export const ThemeProvider = ({ children }) => {
   useEffect(() => {
     // 🖥️ بنضيف أو بنشيل 'dark' class من الـ HTML element
     document.documentElement.classList.toggle('dark', mode === 'dark');
-    
+
+    // 🎨 نضبط متغيرات CSS للعناصر المشتركة زي الخلفية والنص والaccent
+    const paletteMap = {
+      blue: '#3b82f6',
+      yellow: '#f59e0b',
+      green: '#10b981',
+      purple: '#8b5cf6',
+    };
+    document.documentElement.style.setProperty('--accent-color', paletteMap[palette] || paletteMap.blue);
+    document.documentElement.style.setProperty('--page-bg', mode === 'dark' ? '#020617' : '#f8fafc');
+    document.documentElement.style.setProperty('--surface-bg', mode === 'dark' ? 'rgba(15, 23, 42, 0.92)' : 'rgba(255, 255, 255, 0.92)');
+    document.documentElement.style.setProperty('--surface-border', mode === 'dark' ? '#334155' : '#e2e8f0');
+    document.documentElement.style.setProperty('--text-color', mode === 'dark' ? '#f8fafc' : '#0f172a');
+    document.documentElement.style.setProperty('--muted-text', mode === 'dark' ? '#cbd5e1' : '#475569');
+
     // 💾 بنخزّن الاختيار في الـ localStorage عشان لما يفتح الـ user التطبيق ثاني، ييجي معاه الإعداد
     localStorage.setItem('lawlink-theme-mode', mode);
     localStorage.setItem('lawlink-theme-palette', palette);

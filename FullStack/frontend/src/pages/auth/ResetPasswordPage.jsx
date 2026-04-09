@@ -4,13 +4,40 @@
 // صفحة اعادة تعيين كلمة السر - Reset Password flow
 // Authentication page for entering a new password.
 // ───────────────────────────────────────────────────────────────────────────────────
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../../context/LanguageContext';
 import "../../styles/auth/AuthBase.css";
+import AuthShell from '../../components/AuthShell';
 
 const ResetPasswordPage = () => {
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const { t } = useLanguage();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (!password || !confirmPassword) {
+      setError('Please fill in both password fields.');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+
+    navigate('/verify-email');
+  };
+
   // 📍 Return section starts here
   return (
-    <div className="auth-container">
+    <AuthShell>
+      <div className="auth-container">
       <div className="brand-sidebar">
         <div className="brand-content">
           <h1 className="brand-logo">LawLink</h1>
@@ -19,21 +46,38 @@ const ResetPasswordPage = () => {
       </div>
       <div className="form-section">
         <div className="auth-card">
-          <h2 className="form-title">New Password</h2>
-          <form className="auth-form">
+          <h2 className="form-title">{t('auth.resetPassword.title')}</h2>
+          <p className="form-subtitle">{t('auth.resetPassword.subtitle')}</p>
+          <form className="auth-form" onSubmit={handleSubmit}>
             <div className="form-group">
-              <label>New Password</label>
-              <input type="password" className="law-input" placeholder="••••••••" />
+              <label>{t('auth.resetPassword.newPassword')}</label>
+              <input
+                type="password"
+                className="law-input"
+                placeholder={t('auth.resetPassword.newPassword')}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
             </div>
             <div className="form-group">
-              <label>Confirm Password</label>
-              <input type="password" className="law-input" placeholder="••••••••" />
+              <label>{t('auth.resetPassword.confirmPassword')}</label>
+              <input
+                type="password"
+                className="law-input"
+                placeholder={t('auth.resetPassword.confirmPassword')}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
             </div>
-            <button type="submit" className="btn-law">Update Password &rarr;</button>
+            {error && <div className="error-text">{error}</div>}
+            <button type="submit" className="btn-law">{t('auth.resetPassword.updatePassword')}</button>
           </form>
         </div>
       </div>
     </div>
+    </AuthShell>
   );
 };
 

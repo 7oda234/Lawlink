@@ -3,41 +3,42 @@
 // Company information, mission, values, and team members
 
 import React from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
-const AboutPage = () => (
-  <>
-// 📍 Start page component content
-    <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-        <h3 className="text-xl font-bold mb-2">Our Mission</h3>
-        <p className="text-gray-600">Deliver accessible, transparent, and efficient legal services through technology and verified expertise.</p>
-      </div>
-      <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-        <h3 className="text-xl font-bold mb-2">Our Vision</h3>
-        <p className="text-gray-600">A future where anyone can secure legal support anytime, with confidence and control.</p>
-      </div>
-      <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-        <h3 className="text-xl font-bold mb-2">Our Values</h3>
-        <ul className="text-gray-600 list-disc pl-5 mt-2 space-y-1">
-          <li>Integrity</li>
-          <li>Excellence</li>
-          <li>Security</li>
-          <li>Support</li>
-        </ul>
-      </div>
-    </section>
+const AboutPage = () => {
+  const { t } = useLanguage();
 
-    <section className="mt-8 bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-      <h2 className="text-2xl font-bold mb-3">How We Work</h2>
-      <ol className="list-decimal list-inside text-gray-700 space-y-2">
-        <li>Register and verify your profile.</li>
-        <li>Use smart matching to identify ideal lawyers.</li>
-        <li>Track case progress and communicate directly.</li>
-        <li>Review results and provide feedback.</li>
-      </ol>
-    </section>
-  </>
+  return (
+    <>
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+          <h3 className="text-xl font-bold mb-2">{t('page.about.missionTitle')}</h3>
+          <p className="text-gray-600">{t('page.about.missionCopy')}</p>
+        </div>
+        <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+          <h3 className="text-xl font-bold mb-2">{t('page.about.visionTitle')}</h3>
+          <p className="text-gray-600">{t('page.about.visionCopy')}</p>
+        </div>
+        <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+          <h3 className="text-xl font-bold mb-2">{t('page.about.valuesTitle')}</h3>
+          <ul className="text-gray-600 list-disc pl-5 mt-2 space-y-1">
+            {t('page.about.valuesList').map((value) => (
+              <li key={value}>{value}</li>
+            ))}
+          </ul>
+        </div>
+      </section>
 
-);
+      <section className="mt-8 bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+        <h2 className="text-2xl font-bold mb-3">{t('page.about.workTitle')}</h2>
+        <ol className="list-decimal list-inside text-gray-700 space-y-2">
+          {t('page.about.steps').map((step) => (
+            <li key={step}>{step}</li>
+          ))}
+        </ol>
+      </section>
+    </>
+  );
+};
 
 export default AboutPage;

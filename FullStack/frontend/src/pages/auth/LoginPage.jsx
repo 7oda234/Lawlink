@@ -6,33 +6,57 @@
 // ────────────────────────────────────────────────────────────────────────
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaLock, FaEnvelope, FaGavel, FaUser } from 'react-icons/fa';  // 🎨 استيراد icons - importing icons
 import '../../styles/auth/AuthBase.css';  // 🎨 استيراد ستايلات المصادقة - auth styles
+import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import logo from '../../Assets/logo/logo canvas.png';  // 📦 استيراد شعار الشركة - company logo
+import AuthShell from '../../components/AuthShell';
 
 const LoginPage = () => {
   // 👤 حالة نوع المستخدم - يمكن يكون 'client' أو 'lawyer'
   // state to track which user type is selected (client or lawyer)
-  const [userType, setUserType] = useState('client'); 
+  const [userType, setUserType] = useState('client');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { login } = useAuth();
+  const { t } = useLanguage();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(`Logging in as ${userType}`);
-    // Future: Add your Axios/Fetch call to Node.js here
+    setError('');
+    setLoading(true);
+
+    const result = await login(email, password);
+    setLoading(false);
+
+    if (result.success) {
+      if (userType === 'client') {
+        navigate('/client/dashboard');
+      } else {
+        navigate('/lawyer/dashboard');
+      }
+    } else {
+      setError(result.error || 'Login failed. Please try again.');
+    }
   };
 
   // 📍 Return section starts here
   return (
-    <div className="auth-wrapper">
+    <AuthShell>
+      <div className="auth-wrapper">
       <div className="auth-card">
         {/* Logo Section */}
 <div className="logo-container">
   <img src={logo} alt="LawLink Logo" />
 </div>
 
-        <h2 className="form-title">Welcome Back</h2>
-        <p className="form-subtitle">Select account type to continue to LawLink</p>
+        <h2 className="form-title">{t('auth.login.title')}</h2>
+        <p className="form-subtitle">{t('auth.login.subtitle')}</p>
 
         {/* User Type Toggle */}
         <div className="user-toggle">
@@ -41,40 +65,44 @@ const LoginPage = () => {
             className={`toggle-btn ${userType === 'client' ? 'active' : ''}`}
             onClick={() => setUserType('client')}
           >
-            <FaUser /> Client Portal
+            <FaUser /> {t('auth.login.clientPortal')}
           </button>
           <button 
             type="button"
             className={`toggle-btn ${userType === 'lawyer' ? 'active' : ''}`}
             onClick={() => setUserType('lawyer')}
           >
-            <FaGavel /> Lawyer Portal
+            <FaGavel /> {t('auth.login.lawyerPortal')}
           </button>
         </div>
 
         {/* Login Form */}
         <form className="auth-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Email Address</label>
+            <label>{t('auth.login.email')}</label>
             <div className="input-container">
               <FaEnvelope className="input-icon" />
               <input 
                 type="email" 
                 className="law-input" 
-                placeholder="name@example.com" 
+                placeholder={t('auth.login.email')} 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required 
               />
             </div>
           </div>
 
           <div className="form-group">
-            <label>Password</label>
+            <label>{t('auth.login.password')}</label>
             <div className="input-container">
               <FaLock className="input-icon" />
               <input 
                 type="password" 
                 className="law-input" 
-                placeholder="••••••••" 
+                placeholder={t('auth.login.password')} 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required 
               />
             </div>
@@ -82,21 +110,24 @@ const LoginPage = () => {
 
           <div className="form-options">
             <label className="remember-me">
-              <input type="checkbox" /> Remember me
+              <input type="checkbox" /> {t('auth.login.remember')}
             </label>
-            <Link to="/forgot-password" id="forgot-link">Forgot Password?</Link>
+            <Link to="/forgot-password" id="forgot-link">{t('auth.login.forgotPassword')}</Link>
           </div>
 
-          <button type="submit" className="btn-submit">
-            Sign In as {userType === 'client' ? 'Client' : 'Lawyer'} →
+          {error && <div className="error-text" style={{ textAlign: 'center', marginBottom: '12px' }}>{error}</div>}
+
+          <button type="submit" className="btn-submit" disabled={loading}>
+            {loading ? t('auth.login.signInAsClient') : userType === 'client' ? t('auth.login.signInAsClient') : t('auth.login.signInAsLawyer')}
           </button>
         </form>
 
         <p className="footer-link">
-          New to LawLink? <Link to="/register">Create an Account</Link>
+          {t('auth.login.noAccount')} <Link to="/register">{t('auth.login.createAccount')}</Link>
         </p>
       </div>
     </div>
+    </AuthShell>
   );
 };
 
