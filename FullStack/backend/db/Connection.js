@@ -6,7 +6,7 @@ const pool = mysql.createPool({
     user: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD || '',
     database: process.env.DB_NAME || 'lawlink',
-    port: 3306,
+    port: 3307,
     waitForConnections: true,    // 👈 مهم جداً عشان ما يعلقش
     connectionLimit: 10,         // أقصى عدد اتصالات
     queueLimit: 0,
