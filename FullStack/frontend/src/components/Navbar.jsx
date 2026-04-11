@@ -27,10 +27,10 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // إغلاق القائمة المحمولة عند تغيير الروت
-  useEffect(() => {
+  // إغلاق القائمة المحمولة عند الضغط على رابط
+  const handleNavLinkClick = () => {
     setIsMobileMenuOpen(false);
-  }, [location.pathname]);
+  };
 
   // 📍 روابط التنقل - تأكد أنها مطابقة للـ App.jsx
   const navLinks = [
@@ -61,7 +61,8 @@ const Navbar = () => {
             return (
               <Link 
                 key={link.name}
-                to={link.path} 
+                to={link.path}
+                onClick={handleNavLinkClick}
                 className={`relative transition-colors hover:text-white ${isActive ? 'text-white' : 'text-gray-400'}`}
               >
                 {link.name}
@@ -146,7 +147,8 @@ const Navbar = () => {
               {navLinks.map((link) => (
                 <Link 
                   key={link.name}
-                  to={link.path} 
+                  to={link.path}
+                  onClick={handleNavLinkClick}
                   className={`text-lg font-medium ${location.pathname === link.path ? 'text-yellow-500' : 'text-gray-300'}`}
                 >
                   {link.name}

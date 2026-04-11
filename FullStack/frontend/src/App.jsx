@@ -37,7 +37,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
       return <Navigate to="/" replace />;
     }
     return children;
-  } catch (error) {
+  } catch {
     localStorage.removeItem('user');
     return <Navigate to="/login" replace />;
   }
@@ -53,6 +53,10 @@ const RegisterPage = React.lazy(() => import('./pages/auth/RegisterPage'));
 const ClientDashboardPage = React.lazy(() => import('./pages/client/ClientDashboardPage'));
 const LawyerDashboardPage = React.lazy(() => import('./pages/lawyer/LawyerDashboardPage'));
 const AdminDashboardPage = React.lazy(() => import('./pages/admin/AdminDashboardPage'));
+// 📄 الصفحات العامة (Public Pages)
+const AboutPage = React.lazy(() => import('./pages/AboutPage'));
+const HowItWorksPage = React.lazy(() => import('./pages/HowItWorksPage'));
+const LawyersListPage = React.lazy(() => import('./pages/LawyersListPage'));
 
 const NotFoundPage = React.lazy(() => import('./pages/utility/NotFoundPage'));
 
@@ -69,12 +73,26 @@ const PageWrapper = ({ children }) => (
   </motion.div>
 );
 
-// 📍 قائمة الروتات مع الكومنتات التوضيحية لكل مسار
 const routeConfig = [
   { 
     path: '/',                 // رابط "الرئيسية"
     Component: HomePage, 
     meta: { title: "LawLink Platform", subtitle: "Connecting lawyers and clients." } 
+  },
+  { 
+    path: '/about',            // رابط "عن الموقع"
+    Component: AboutPage, 
+    meta: { title: "About Us", subtitle: "Learn more about LawLink" } 
+  },
+  { 
+    path: '/how-it-works',     // رابط "كيفية العمل"
+    Component: HowItWorksPage, 
+    meta: { title: "How It Works", subtitle: "Discover how LawLink connects you" } 
+  },
+  { 
+    path: '/find-lawyer',      // رابط "البحث عن محام"
+    Component: LawyersListPage, 
+    meta: { title: "Find a Lawyer", subtitle: "Browse our professional lawyers" } 
   },
   { 
     path: '/login',            // رابط "دخول"

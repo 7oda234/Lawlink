@@ -928,7 +928,7 @@ export const LanguageProvider = ({ children }) => {
           return fallback || key;
         }
       }
-      return typeof current === 'string' ? current : fallback || key;
+      return current !== undefined ? current : fallback || key;
     },
     [language],
   );
