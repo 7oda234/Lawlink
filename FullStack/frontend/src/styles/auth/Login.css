@@ -1,133 +1,214 @@
 /* src/styles/auth/Login.css */
 
 :root {
-    --primary-blue: #001D4A;
-    --accent-gold: #BF9B30;
-    --bg-light: #FDFDFD;
+    --primary-blue: #001D4A;      /* الأزرق الداكن للبراند */
+    --accent-gold: #BF9B30;       /* الذهبي للأيقونات واللمسات */
+    --bg-light: #FDFDFD;          /* خلفية بيضاء مريحة */
     --text-light: #FFFFFF;
     --text-muted: #9CA3AF;
     --border-gray: #E5E7EB;
+    --error-red: #DC2626;         /* أحمر صريح للأخطاء */
 }
 
+/* Container الأساسي - تقسيم الشاشة نصين */
 .login-container {
     display: flex;
     min-height: 100vh;
     background-color: var(--bg-light);
+    overflow: hidden;             /* منع أي سكرول ملوش لازمة */
 }
 
-/* Left Section: Branding & Info */
+/* 🔵 الجزء الأيسر: البراندينج (المعلومات) */
 .login-info-section {
     width: 50%;
     background-color: var(--primary-blue);
-    /* Changed color to white/light for better contrast against dark blue */
     color: var(--text-light); 
-    padding: 3rem;
+    padding: 5rem;                /* مساحة واسعة لراحة العين */
     display: flex;
     flex-direction: column;
-}
-
-.back-link {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    opacity: 0.8;
-    cursor: pointer;
-    margin-bottom: 2.5rem;
-    transition: opacity 0.2s;
-}
-
-.back-link:hover {
-    opacity: 1;
+    justify-content: center;      /* سنترة المحتوى طولياً */
 }
 
 .brand-container {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 5rem;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
 }
 
-.brand-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.6rem;
-    background-color: var(--accent-gold);
-    border-radius: 0.75rem;
-    color: var(--primary-blue);
-}
-
-.brand-name {
-    font-size: 1.875rem;
-    font-weight: 700;
-    letter-spacing: -0.025em;
-}
-
-.brand-highlight {
-    color: var(--accent-gold);
+/* لوجو البراند الصغير في الجانب الأيسر */
+.brand-icon img {
+    width: 60px;                  /* حجم متناسق للوجو الجانبي */
+    height: auto;
 }
 
 .hero-text {
-    font-size: 2.25rem;
-    font-weight: 600;
+    font-size: 2.5rem;
+    font-weight: 700;
     line-height: 1.2;
-    margin-top: auto; /* Pushes text towards middle/bottom */
-    margin-bottom: 1.5rem;
-    max-width: 28rem;
+    max-width: 32rem;
 }
 
-/* Right Section: Form */
+/* ⚪ الجزء الأيمن: الفورم (منطقة تسجيل الدخول) */
 .login-form-section {
     width: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
+    padding: 3rem;
+    background-color: var(--bg-light);
 }
 
 .form-wrapper {
     width: 100%;
-    max-width: 24rem; /* Slightly tighter for better readability */
-}
-
-/* Social Divider Logic */
-.social-divider {
-    text-align: center;
-    color: var(--text-muted);
-    margin: 2rem 0;
-    position: relative;
-    font-size: 0.875rem;
-}
-
-.social-divider::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 50%;
-    width: 100%;
-    height: 1px;
-    background-color: var(--border-gray);
-    z-index: 0;
-}
-
-.social-divider span {
-    background-color: var(--bg-light);
-    padding: 0 1rem;
-    position: relative;
-    z-index: 1;
-}
-
-.social-buttons {
+    max-width: 420px;             /* عرض مثالي للفورم */
     display: flex;
-    gap: 1rem;
-    margin-top: 1.5rem;
+    flex-direction: column;
 }
 
-/* Responsive Handling */
+/* 🏛️ الهيدر داخل الفورم (Welcome Back) */
+.form-header {
+    text-align: center;
+    margin-bottom: 2.5rem;        /* مسافة كافية قبل الحقول */
+}
+
+/* 💡 تصغير اللوجو الأساسي في صفحة الدخول */
+.form-header img {
+    width: 110px;                 /* تصغير اللوجو عشان يبقى شيك وسمبل */
+    height: auto;
+    margin-bottom: 20px;          /* مسافة تحت اللوجو */
+}
+
+.form-header h2 {
+    font-size: 1.8rem;            /* حجم خط متناسق مع اللوجو الصغير */
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    color: var(--primary-blue);
+}
+
+.form-header p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+/* 🔘 أزرار التبديل (Tabs) بين المحامي والعميل */
+.user-toggle {
+    display: flex;
+    background: #f3f4f6;
+    border-radius: 12px;
+    padding: 6px;
+    margin-bottom: 2rem;
+}
+
+.toggle-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: 0.3s;
+    color: var(--text-muted);
+}
+
+.toggle-btn.active {
+    background: var(--primary-blue);
+    color: white;
+    border-radius: 8px;
+}
+
+/* ⌨️ حقول الإدخال ومنع التداخل مع الأيقونات */
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    margin-bottom: 1.5rem;
+}
+
+.input-group label {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--primary-blue);
+    text-align: left;             /* محاذاة النص لليسار */
+}
+
+.input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: 1.2rem;                 /* تثبيت الأيقونة على اليسار */
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    z-index: 10;
+}
+
+.law-input {
+    width: 100%;
+    /* 💡 التعديل السحري: 3.5rem عشان النص يبعد عن الأيقونة تماماً */
+    padding: 1rem 1rem 1rem 3.5rem !important; 
+    border: 1.5px solid var(--border-gray);
+    border-radius: 10px;
+    font-size: 1rem;
+    background: #f9fafb;
+    transition: all 0.3s ease;
+}
+
+.law-input:focus {
+    border-color: var(--accent-gold);
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(191, 155, 48, 0.1);
+    outline: none;
+}
+
+/* ❌ رسالة الخطأ المنسقة (تظهر في الـ Box) */
+.error-message {
+    color: var(--error-red);
+    background-color: #FEF2F2;
+    padding: 1rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    border: 1px solid #FCA5A5;
+    line-height: 1.5;
+}
+
+/* 🚀 زرار الدخول */
+.login-btn {
+    width: 100%;
+    padding: 1.1rem;
+    background-color: var(--primary-blue);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.login-btn:hover:not(:disabled) {
+    background-color: #002d72;
+    transform: translateY(-1px);
+}
+
+.login-btn:disabled {
+    background-color: #94a3b8;
+    cursor: not-allowed;
+}
+
+/* 📱 Responsive للموبايل */
 @media (max-width: 1024px) {
     .login-info-section {
-        display: none; /* Hide branding on small tablets/mobile */
+        display: none;            /* إخفاء الجزء الأزرق في الشاشات الصغيرة */
     }
     .login-form-section {
         width: 100%;

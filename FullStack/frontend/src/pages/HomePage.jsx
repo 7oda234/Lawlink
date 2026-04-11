@@ -29,6 +29,7 @@ const HomePage = () => {
         <div className="rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
           <h2 className="text-2xl font-bold text-black mb-3">{t('page.home.feature2Title')}</h2>
           <p className="text-gray-600 mb-6">{t('page.home.feature2Copy')}</p>
+          {/* تم التأكد من أن هذا المسار (/client/cases) معرف في ملف App.jsx */}
           <Link
             to="/client/cases"
             className="inline-flex items-center justify-center px-6 py-3 bg-yellow-500 text-black font-bold rounded-lg hover:bg-yellow-400 transition"

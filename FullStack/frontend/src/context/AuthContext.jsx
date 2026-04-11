@@ -6,16 +6,12 @@ import { AuthContext } from './AuthContextObject';
  * يدير حالة المستخدم والمصادقة في التطبيق
  */
 
-/**
- * مزود سياق المصادقة - Auth Context Provider
- */
 export const AuthProvider = ({ children }) => {
-  // حالة المستخدم - User state
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // تحقق من التوكن عند بدء التطبيق - Check token on app start
+  // تحقق من التوكن عند بدء التطبيق
   useEffect(() => {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
@@ -31,14 +27,13 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('user');
       }
     }
-
     setLoading(false);
   }, []);
 
   /**
-   * تسجيل الدخول - Login function
+   * 🔐 تسجيل الدخول - تم التعديل ليدعم الـ Role
    */
-  const login = async (email, password) => {
+  const login = async (email, password, role) => { // 👈 أضفنا الـ role كمعامل ثالث
     try {
       setLoading(true);
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'}/auth/login`, {
@@ -46,7 +41,11 @@ export const AuthProvider = ({ children }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ 
+          email, 
+          password, 
+          role // 👈 السطر ده هو اللي هيفتح لك بوابات المحامي
+        }),
       });
 
       const data = await response.json();
@@ -55,14 +54,16 @@ export const AuthProvider = ({ children }) => {
         throw new Error(data.message || 'فشل في تسجيل الدخول');
       }
 
-      // حفظ التوكن والبيانات - Save token and user data
+      // حفظ التوكن والبيانات - اتأكدنا إن الـ role متسيف جوه الـ user object
       localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
+      
+      const userToStore = data.data?.user || data.user;
+      localStorage.setItem('user', JSON.stringify(userToStore));
 
-      setUser(data.user);
+      setUser(userToStore);
       setIsAuthenticated(true);
 
-      return { success: true };
+      return { success: true, role: userToStore.role, token: data.token, data: data };
     } catch (error) {
       console.error('خطأ في تسجيل الدخول:', error);
       return { success: false, error: error.message };
@@ -72,26 +73,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   /**
-   * تسجيل الخروج - Logout function
-   */
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setUser(null);
-    setIsAuthenticated(false);
-  };
-
-  /**
-   * تحديث بيانات المستخدم - Update user data
-   */
-  const updateUser = (userData) => {
-    const updatedUser = { ...user, ...userData };
-    setUser(updatedUser);
-    localStorage.setItem('user', JSON.stringify(updatedUser));
-  };
-
-  /**
-   * تسجيل مستخدم جديد - Register new user
+   * 📝 تسجيل مستخدم جديد
    */
   const register = async (userData) => {
     try {
@@ -101,7 +83,7 @@ export const AuthProvider = ({ children }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(userData),
+        body: JSON.stringify(userData), // الـ role موجود جوه الـ userData أصلاً
       });
 
       const data = await response.json();
@@ -119,75 +101,19 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  /**
-   * إكمال تسجيل العميل - Complete client registration
-   */
-  const completeClientRegistration = async (clientData) => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'}/auth/complete-client`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(clientData),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'فشل في إكمال التسجيل');
-      }
-
-      // تحديث بيانات المستخدم - Update user data
-      updateUser(data.user);
-
-      return { success: true, data };
-    } catch (error) {
-      console.error('خطأ في إكمال تسجيل العميل:', error);
-      return { success: false, error: error.message };
-    } finally {
-      setLoading(false);
-    }
+  const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+    setIsAuthenticated(false);
   };
 
-  /**
-   * إكمال تسجيل المحامي - Complete lawyer registration
-   */
-  const completeLawyerRegistration = async (lawyerData) => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'}/auth/complete-lawyer`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(lawyerData),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'فشل في إكمال التسجيل');
-      }
-
-      // تحديث بيانات المستخدم - Update user data
-      updateUser(data.user);
-
-      return { success: true, data };
-    } catch (error) {
-      console.error('خطأ في إكمال تسجيل المحامي:', error);
-      return { success: false, error: error.message };
-    } finally {
-      setLoading(false);
-    }
+  const updateUser = (userData) => {
+    const updatedUser = { ...user, ...userData };
+    setUser(updatedUser);
+    localStorage.setItem('user', JSON.stringify(updatedUser));
   };
 
-  // قيم السياق - Context values
   const value = {
     user,
     loading,
@@ -196,8 +122,6 @@ export const AuthProvider = ({ children }) => {
     logout,
     register,
     updateUser,
-    completeClientRegistration,
-    completeLawyerRegistration,
   };
 
   return (
@@ -206,7 +130,3 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
-
-/**
- * استخدام سياق المصادقة - Use auth context hook
- */
