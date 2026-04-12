@@ -1,73 +1,159 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { FaLock, FaEnvelope, FaGavel, FaUser } from 'react-icons/fa';
-import { useAuth } from '../../context/useAuth';
-import logo from '../../Assets/logo/logo canvas.png';
+import { useNavigate, Link } from 'react-router-dom';
+import { FaLock, FaEnvelope, FaExclamationCircle, FaGavel, FaUser } from 'react-icons/fa';
+import axios from 'axios';
 
 const LoginPage = () => {
-  const [userType, setUserType] = useState('Client');
+  const [selectedRole, setSelectedRole] = useState('Lawyer'); 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { login, loading } = useAuth();
+  const [validationErrors, setValidationErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
-    const result = await login(email, password, userType);
-    if (result.success) {
-      navigate(userType === 'Lawyer' ? '/lawyer/dashboard' : '/client/dashboard');
-    } else {
-      setError(result.error);
+    setValidationErrors({});
+
+    // 1. Validation فوري قبل إرسال الطلب
+    if (!email || !password) {
+      setValidationErrors({
+        email: !email ? "يرجى إدخال البريد الإلكتروني" : "",
+        password: !password ? "يرجى إدخال كلمة المرور" : ""
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // 🚀 2. محاولة تسجيل الدخول من السيرفر
+      const response = await axios.post('http://localhost:5000/api/auth/login', {
+        email: email.trim().toLowerCase(),
+        password: password
+      });
+
+      const user = response.data.user; 
+      const token = response.data.token;
+
+      // 🔍 3. فحص البوابة (بعد التأكد إن البيانات صحيحة)
+      const userRoleFromDB = user.role.toLowerCase();
+      const currentSelectedPortal = selectedRole.toLowerCase();
+
+      if (userRoleFromDB !== 'admin' && userRoleFromDB !== currentSelectedPortal) {
+        // ⚠️ الرسالة دي بتظهر لما البيانات تكون صح بس المكان غلط
+        setError(`⚠️ الحساب مسجل كـ [${user.role}]؛ يرجى الدخول من بوابة ${user.role === 'Lawyer' ? 'المحامي' : 'العميل'}.`);
+        setLoading(false);
+        return; 
+      }
+
+      // ✅ 4. الدخول الناجح
+      localStorage.setItem('token', token);
+      localStorage.setItem('userRole', user.role);
+
+      if (userRoleFromDB === 'admin') navigate('/admin/dashboard');
+      else if (currentSelectedPortal === 'lawyer') navigate('/lawyer/dashboard');
+      else navigate('/client/dashboard');
+
+    } catch (err) {
+      // ❌ التعامل مع أخطاء السيرفر والبيانات
+      if (err.response) {
+        // السيرفر رد (غالباً 401 أو 404) -> يعني البيانات غلط
+        setError("❌ البريد الإلكتروني أو كلمة المرور غير صحيحة. حاول مرة أخرى.");
+      } else {
+        // السيرفر مش بيرد أصلاً
+        setError("🔌 عذراً، تعذر الاتصال بالسيرفر. تأكد من تشغيل الـ Backend.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="auth-wrapper">
-      <div className="auth-card">
-        {/* هيدر اللوجو والكلام جنب بعض */}
-        <div className="logo-header-inline">
-          <img src={logo} alt="LawLink Logo" className="auth-logo-small" />
-          <div className="header-text-group">
-            <h2>Welcome Back</h2>
-            <p>your Law Simplified</p>
-          </div>
+    <div className="min-h-screen flex items-center justify-center bg-slate-950 p-6 text-white" dir="rtl">
+      <div className="max-w-md w-full p-10 rounded-[40px] bg-slate-900 border border-white/5 shadow-2xl">
+        
+        <div className="flex flex-col items-center mb-8 text-center">
+          <h2 className="text-3xl font-black mb-2 tracking-tight italic">Login Portal</h2>
+          <p className="text-yellow-500 font-bold text-sm uppercase tracking-widest italic underline decoration-2 underline-offset-8">LAWLINK SYSTEM</p>
         </div>
 
-        {/* التبديل بين محامي وعميل */}
-        <div className="user-toggle">
-          <button type="button" className={`toggle-btn ${userType === 'Client' ? 'active' : ''}`} onClick={() => setUserType('Client')}>
-            <FaUser /> Client
+        {/* اختيار البوابة */}
+        <div className="flex p-1.5 rounded-2xl mb-8 bg-slate-950 border border-white/5 shadow-inner">
+          <button 
+            type="button"
+            onClick={() => { setSelectedRole('Client'); setError(''); }}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm transition-all duration-300 ${
+              selectedRole === 'Client' ? 'bg-yellow-500 text-slate-950 shadow-lg' : 'text-gray-500 hover:text-white'
+            }`}
+          >
+            <FaUser size={14} /> بوابة العميل
           </button>
-          <button type="button" className={`toggle-btn ${userType === 'Lawyer' ? 'active' : ''}`} onClick={() => setUserType('Lawyer')}>
-            <FaGavel /> Lawyer
+          <button 
+            type="button"
+            onClick={() => { setSelectedRole('Lawyer'); setError(''); }}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm transition-all duration-300 ${
+              selectedRole === 'Lawyer' ? 'bg-yellow-500 text-slate-950 shadow-lg' : 'text-gray-500 hover:text-white'
+            }`}
+          >
+            <FaGavel size={14} /> بوابة المحامي
           </button>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Email Address</label>
-            <div className="input-container">
-              <FaEnvelope className="input-icon" />
-              <input type="email" className="law-input" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            </div>
+        <form className="space-y-5" onSubmit={handleLogin}>
+          {/* Email */}
+          <div className="relative flex items-center group">
+            <FaEnvelope className={`absolute right-5 transition-colors ${validationErrors.email ? 'text-red-500' : 'text-gray-500 group-focus-within:text-yellow-500'}`} size={16} />
+            <input 
+              type="email" 
+              placeholder="البريد الإلكتروني" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={`w-full pr-14 pl-6 py-4 rounded-2xl bg-slate-950 border outline-none transition-all font-bold text-left text-white ${
+                validationErrors.email ? 'border-red-500' : 'border-white/10 focus:border-yellow-500'
+              }`}
+            />
           </div>
 
-          <div className="form-group">
-            <label>Password</label>
-            <div className="input-container">
-              <FaLock className="input-icon" />
-              <input type="password" className="law-input" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
-            </div>
+          {/* Password */}
+          <div className="relative flex items-center group">
+            <FaLock className={`absolute right-5 transition-colors ${validationErrors.password ? 'text-red-500' : 'text-gray-500 group-focus-within:text-yellow-500'}`} size={16} />
+            <input 
+              type="password" 
+              placeholder="كلمة المرور" 
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={`w-full pr-14 pl-6 py-4 rounded-2xl bg-slate-950 border outline-none transition-all font-bold text-left text-white ${
+                validationErrors.password ? 'border-red-500' : 'border-white/10 focus:border-yellow-500'
+              }`}
+            />
           </div>
 
-          {error && <div className="error-text">{error}</div>}
+          {/* Error Message Display */}
+          {error && (
+            <div className={`p-4 rounded-xl border flex items-center gap-3 animate-pulse ${
+              error.includes('⚠️') ? 'bg-orange-500/10 text-orange-500 border-orange-500/20' : 'bg-red-500/10 text-red-500 border-red-500/20'
+            }`}>
+              <FaExclamationCircle className="shrink-0" />
+              <span className="text-[11px] font-bold text-right flex-1 leading-relaxed">{error}</span>
+            </div>
+          )}
 
-          <button type="submit" className="btn-submit" disabled={loading}>
-            {loading ? "Checking..." : `Sign In as ${userType}`}
+          <button 
+            type="submit"
+            disabled={loading}
+            className="w-full bg-yellow-500 text-slate-950 py-5 rounded-2xl font-black text-xl shadow-xl hover:bg-yellow-400 active:scale-95 transition-all disabled:opacity-50"
+          >
+            {loading ? "جاري التحقق..." : `دخول كـ ${selectedRole === 'Lawyer' ? 'محامي' : 'عميل'}`}
           </button>
         </form>
+
+        <p className="mt-8 text-center text-gray-500 font-bold text-sm">
+          ليس لديك حساب؟ <Link to="/register" className="text-yellow-500 hover:underline ms-1">سجل الآن</Link>
+        </p>
       </div>
     </div>
   );

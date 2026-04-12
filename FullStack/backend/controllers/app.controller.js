@@ -1,13 +1,15 @@
 import OpenAI from "openai";
 import userRouter from "../modules/user/user.routes.js";
 import aiRouter from "../modules/Ai_tools/ai_tools.routes.js";
-import authRouter from "../modules/auth/auth.controller.js"; // 👈 الربط مع نظام المصادقة
+// ✅ الربط الصحيح مع الـ Router بتاع الـ Auth (تأكد من وجود الامتداد .js)
+import authRouter from "../modules/auth/auth.controller.js"; 
 
 /**
- * إعداد كافة مسارات التطبيق (Routing Hub)
+ * 🛠️ إعداد كافة مسارات التطبيق (Routing Hub)
  */
 export const setupAppRoutes = (app) => {
     // 🔐 مسارات الدخول والتسجيل (يوسف وكل المستخدمين)
+    // هنا app.use هتاخد الـ router اللي إحنا عملنا له export default من ملف auth.controller
     app.use("/api/auth", authRouter); 
     
     // 👥 مسارات إدارة المستخدمين
@@ -26,7 +28,7 @@ export const setupAppRoutes = (app) => {
 };
 
 /**
- * محرك الدردشة الذكي (Legal AI Assistant)
+ * 🤖 محرك الدردشة الذكي (Legal AI Assistant)
  */
 export const handleChat = async (req, res) => {
     try {

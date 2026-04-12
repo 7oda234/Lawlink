@@ -1,6 +1,12 @@
-// في آخر ملف auth.routes.js
-const authRouter = express.Router();
+import express from "express";
+import { registerController, loginController, getMeController } from "../controllers/auth.controller.js";
+import { authMiddleware } from "../../middleware/authMiddleware.js";
 
-// ... الـ Routes بتاعتك (login, register, إلخ)
+const router = express.Router();
 
-export default authRouter; // 👈 لازم السطر ده يكون موجود عشان الـ import يشتغل
+// مسارات التحقق
+router.post("/register", registerController);
+router.post("/login", loginController);
+router.get("/me", authMiddleware, getMeController);
+
+export default router;

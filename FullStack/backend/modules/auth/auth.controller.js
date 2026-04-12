@@ -1,11 +1,27 @@
 import express from "express";
-import { register, login, me } from "../auth/auth.service.js";
-import { authMiddleware } from "../../middleware/authMiddleware.js";
+import * as authService from "./auth.service.js";
 
-const router = express.Router();
+const authRouter = express.Router();
 
-router.post("/register", register);
-router.post("/login", login);
-router.get("/me", authMiddleware, me);
+authRouter.post("/login", async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    const result = await authService.login(email, password);
 
-export default router;
+    if (!result.ok) {
+      return res.status(401).json({ ok: false, message: result.message });
+    }
+
+    return res.status(200).json({ 
+      ok: true, 
+      token: result.token, 
+      role: result.role, 
+      user: result.user 
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ✅ السطر ده هو اللي هيحل مشكلة الـ "argument handler must be a function"
+export default authRouter;
