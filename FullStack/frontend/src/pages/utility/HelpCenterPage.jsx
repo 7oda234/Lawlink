@@ -13,114 +13,73 @@ const HelpCenterPage = () => {
   const isRTL = language === 'ar' || language === 'eg';
   const [selectedCategory, setSelectedCategory] = useState('getting-started');
 
+  // Translated FAQs for all 3 languages
   const faqs = {
-    'getting-started': [
-      {
-        q: 'How do I create an account?',
-        a: 'Click the "Sign Up" button, enter your email and password, then verify your email address. You can then complete your profile with additional information.'
-      },
-      {
-        q: 'Is LawLink free to use?',
-        a: 'Yes! Basic features are free. For advanced features like legal research tools and priority support, we offer Pro subscription at EGP 99/month for clients.'
-      },
-      {
-        q: 'Do I need to provide my full legal information?',
-        a: 'No. We only require essential information to get started. You can add more details to your profile later as needed.'
-      },
-      {
-        q: 'Can I change my account preferences later?',
-        a: 'Of course! You can update your profile, payment methods, and preferences anytime from your account settings.'
-      }
+    'getting-started': language === 'en' ? [
+      { q: 'How do I create an account?', a: 'Click the "Sign Up" button, enter your email and password, then verify your email address. You can then complete your profile with additional information.' },
+      { q: 'Is LawLink free to use?', a: 'Yes! Basic features are free. For advanced features like legal research tools and priority support, we offer Pro subscription at EGP 99/month for clients.' },
+      { q: 'Do I need to provide my full legal information?', a: 'No. We only require essential information to get started. You can add more details to your profile later as needed.' },
+      { q: 'Can I change my account preferences later?', a: 'Of course! You can update your profile, payment methods, and preferences anytime from your account settings.' }
+    ] : [
+      { q: 'أزاي أعمل حساب؟', a: 'دوس على زر "إنشاء حساب"، أدخل بريدك والرقم السري، وأكد بريدك. بعده كمّل بيانات ملفك.' },
+      { q: 'هل LawLink مجاني؟', a: 'أيوه! الميزات الأساسية مجانية. لكن في ميزات متقدمة مثل أدوات البحث والدعم الأولويات، فيها اشتراك Pro بـ 99 جنيه شهريًا للعملاء.' },
+      { q: 'لازم أبعت كل بياناتي القانونية؟', a: 'لا. احنا محتاجين البيانات الأساسية بس. تقدر تضيف التفاصيل الكاملة لاحقًا متى ما تحتاج.' },
+      { q: 'أقدر أغير تفضيلات حسابي بعدين؟', a: 'تمام! تقدر تحدّث ملفك وطرق الدفع والتفضيلات أي وقت من الإعدادات.' }
     ],
-    'finding-lawyers': [
-      {
-        q: 'How do I find a lawyer?',
-        a: 'Go to the Lawyers page, use our search filters (specialty, location, budget), and browse verified lawyer profiles. Check reviews, rates, and credentials before selecting.'
-      },
-      {
-        q: 'How are lawyers verified?',
-        a: 'All lawyers are verified with the Egyptian Bar Association. We manually check credentials and registration status before any lawyer can accept clients.'
-      },
-      {
-        q: 'Can I see lawyer ratings and reviews?',
-        a: 'Yes! Every lawyer has a verified review section showing client feedback and star ratings. Read these to help make your decision.'
-      },
-      {
-        q: 'What if I do not like the lawyer I chose?',
-        a: 'You can end the relationship anytime and connect with another lawyer. There are no penalties or long-term commitments.'
-      }
+    'finding-lawyers': language === 'en' ? [
+      { q: 'How do I find a lawyer?', a: 'Go to the Lawyers page, use our search filters (specialty, location, budget), and browse verified lawyer profiles. Check reviews, rates, and credentials before selecting.' },
+      { q: 'How are lawyers verified?', a: 'All lawyers are verified with the Egyptian Bar Association. We manually check credentials and registration status before any lawyer can accept clients.' },
+      { q: 'Can I see lawyer ratings and reviews?', a: 'Yes! Every lawyer has a verified review section showing client feedback and star ratings. Read these to help make your decision.' },
+      { q: 'What if I do not like the lawyer I chose?', a: 'You can end the relationship anytime and connect with another lawyer. There are no penalties or long-term commitments.' }
+    ] : [
+      { q: 'أزاي أدوّر على محامي؟', a: 'روح لصفحة المحامين، استخدم الفلاتر (التخصص، الموقع، الميزانية)، واتفرج على ملفات المحامين. تفقد التقييمات والأسعار قبل الاختيار.' },
+      { q: 'كل المحامين موثوقين؟', a: 'كل المحامين على المنصة موثوقين من نقابة المحامين المصرية. احنا بنتفقد البيانات والترخيص قبل ما يقبل أى محامي عملاء.' },
+      { q: 'أشوف تقييمات وآراء المحامين؟', a: 'أيوه! كل محامي ليه قسم تقييمات مؤكد بآراء العملاء والتقييمات. اقرأها قبل الاختيار.' },
+      { q: 'ولو ما عجبني المحامي اللي اخترت؟', a: 'تقدر تنهي العلاقة في أي وقت وتتواصل مع محامي تاني. مفيش عقوبات أو التزامات لفترة طويلة.' }
     ],
-    'communication': [
-      {
-        q: 'How can I communicate with my lawyer?',
-        a: 'You can chat (instant messaging), schedule video calls, or arrange in-person meetings. All communication is encrypted and secure.'
-      },
-      {
-        q: 'Is my communication private and secure?',
-        a: 'Yes. All messages and documents are encrypted end-to-end. We comply with Egypt\'s Data Protection Law and international security standards.'
-      },
-      {
-        q: 'Can I upload documents?',
-        a: 'Yes. You can securely upload documents to your case. They\'re encrypted and only accessible by you and your lawyer.'
-      },
-      {
-        q: 'What if I need emergency communication?',
-        a: 'For urgent matters, you can contact your lawyer directly through the app or request an emergency consultation.'
-      }
+    'communication': language === 'en' ? [
+      { q: 'How can I communicate with my lawyer?', a: 'You can chat (instant messaging), schedule video calls, or arrange in-person meetings. All communication is encrypted and secure.' },
+      { q: 'Is my communication private and secure?', a: 'Yes. All messages and documents are encrypted end-to-end. We comply with Egypt\'s Data Protection Law and international security standards.' },
+      { q: 'Can I upload documents?', a: 'Yes. You can securely upload documents to your case. They\'re encrypted and only accessible by you and your lawyer.' },
+      { q: 'What if I need emergency communication?', a: 'For urgent matters, you can contact your lawyer directly through the app or request an emergency consultation.' }
+    ] : [
+      { q: 'أزاي أتواصل مع محامي؟', a: 'تقدر تتراسل (رسائل فورية)، تحجز مكالمة فيديو، أو تلتقي وجهًا لوجه. كل التواصل مشفر وآمن.' },
+      { q: 'هل التواصل خصوصي وآمن؟', a: 'أيوه. كل الرسائل والملفات مشفرة من البداية للنهاية. احنا بنطبّق قانون حماية البيانات المصري والمعايير الأمانية العالمية.' },
+      { q: 'أقدر أرفع ملفات؟', a: 'أيوه. تقدر ترفع الملفات بأمان في القضية. مشفرة وما حد يشوفها غيرك وغير محاميك.' },
+      { q: 'ولو عندي مشكلة طارئة؟', a: 'للمسائل العاجلة، تقدر تتواصل مع محاميك مباشرة أو تطلب استشارة طارئة.' }
     ],
-    'payments': [
-      {
-        q: 'How does payment work?',
-        a: 'You pay through licensed payment gateways (Paymob, Fawry). Rates are set by each lawyer. Payment happens after consultation confirmation.'
-      },
-      {
-        q: 'Are there hidden fees?',
-        a: 'No. All prices are transparent and shown upfront. You know the cost before confirming your consultation.'
-      },
-      {
-        q: 'What payment methods are accepted?',
-        a: 'We accept credit/debit cards, mobile payment (Vodafone Cash, Orange Money), and Egyptian bank transfers.'
-      },
-      {
-        q: 'Can I get a refund?',
-        a: 'Yes. If a lawyer cancels or you\'re not satisfied with service, you can request a refund within 48 hours.'
-      }
+    'payments': language === 'en' ? [
+      { q: 'How does payment work?', a: 'You pay through licensed payment gateways (Paymob, Fawry). Rates are set by each lawyer. Payment happens after consultation confirmation.' },
+      { q: 'Are there hidden fees?', a: 'No. All prices are transparent and shown upfront. You know the cost before confirming your consultation.' },
+      { q: 'What payment methods are accepted?', a: 'We accept credit/debit cards, mobile payment (Vodafone Cash, Orange Money), and Egyptian bank transfers.' },
+      { q: 'Can I get a refund?', a: 'Yes. If a lawyer cancels or you\'re not satisfied with service, you can request a refund within 48 hours.' }
+    ] : [
+      { q: 'أزاي الدفع؟', a: 'تدفع عن طريق بوابات دفع مرخصة (Paymob, Fawry). كل محامي بيحدد سعره. الدفع يكون بعد تأكيد الاستشارة.' },
+      { q: 'في رسوم خفية؟', a: 'لا. كل الأسعار شفافة وتشوفها من الأول. تعرف الثمن قبل ما توافق على الاستشارة.' },
+      { q: 'أنهي طرق دفع متاحة؟', a: 'نقبل البطاقات (بطاقات الائتمان والخصم المباشر)، المحافظ الرقمية (Vodafone Cash, Orange Money)، والتحويلات البنكية المصرية.' },
+      { q: 'أقدر أاسترد الفلوس؟', a: 'أيوه. لو المحامي ألغى أو ما أديت الخدمة بشكل كويس، تقدر تطلب استرجاع الفلوس في خلال 48 ساعة.' }
     ],
-    'cases': [
-      {
-        q: 'How do I track my case?',
-        a: 'Visit your case dashboard to see documents, messages, deadlines, and status updates in real-time. Everything is organized in one place.'
-      },
-      {
-        q: 'Can I upload case documents?',
-        a: 'Yes. Securely upload any documents related to your case. They\'re organized and only visible to you and your lawyer.'
-      },
-      {
-        q: 'How do I know if my lawyer has replied?',
-        a: 'You\'ll receive a notification (in-app, email, or SMS) whenever your lawyer replies. You can also check your case dashboard anytime.'
-      },
-      {
-        q: 'Can I manage multiple cases?',
-        a: 'Yes. You can have multiple lawyers and cases. Each case has its own dashboard and communication thread.'
-      }
+    'cases': language === 'en' ? [
+      { q: 'How do I track my case?', a: 'Visit your case dashboard to see documents, messages, deadlines, and status updates in real-time. Everything is organized in one place.' },
+      { q: 'Can I upload case documents?', a: 'Yes. Securely upload any documents related to your case. They\'re organized and only visible to you and your lawyer.' },
+      { q: 'How do I know if my lawyer has replied?', a: 'You\'ll receive a notification (in-app, email, or SMS) whenever your lawyer replies. You can also check your case dashboard anytime.' },
+      { q: 'Can I manage multiple cases?', a: 'Yes. You can have multiple lawyers and cases. Each case has its own dashboard and communication thread.' }
+    ] : [
+      { q: 'أزاي أتابع القضية؟', a: 'روح على لوحة القضية لتشوف الملفات والرسائل والمواعيد والتحديثات في الوقت الفعلي. كل حاجة منظمة مكان واحد.' },
+      { q: 'أقدر أرفع ملفات القضية؟', a: 'أيوه. رفّع أي ملفات متعلقة بالقضية بأمان. منظمة وما حد يشوفها غيرك وغير محاميك.' },
+      { q: 'أزاي أعرف المحامي رد عليّ؟', a: 'هتاخد إشعار (في التطبيق أو البريد أو الرسائل) لما المحامي يرد. وتقدر تشوف لوحة القضية أي وقت.' },
+      { q: 'أقدر أدير قضايا متعددة؟', a: 'أيوه. تقدر تشتغل مع محامين مختلفين وفي قضايا مختلفة. كل قضية ليها لوحة منفصلة واتصال منفصل.' }
     ],
-    'account': [
-      {
-        q: 'How do I change my password?',
-        a: 'Go to Settings > Security > Change Password. Enter your current password and set a new one. Make sure to use a strong, unique password.'
-      },
-      {
-        q: 'Can I delete my account?',
-        a: 'Yes, but we recommend exporting your case files first. Account deletion is permanent and removes all case history.'
-      },
-      {
-        q: 'How do I change my email?',
-        a: 'Go to Settings > Account > Email. Enter your new email and verify it via the confirmation link we send.'
-      },
-      {
-        q: 'Can I have multiple accounts?',
-        a: 'We recommend one account per person. Multiple accounts may violate our terms of service.'
-      }
+    'account': language === 'en' ? [
+      { q: 'How do I change my password?', a: 'Go to Settings > Security > Change Password. Enter your current password and set a new one. Make sure to use a strong, unique password.' },
+      { q: 'Can I delete my account?', a: 'Yes, but we recommend exporting your case files first. Account deletion is permanent and removes all case history.' },
+      { q: 'How do I change my email?', a: 'Go to Settings > Account > Email. Enter your new email and verify it via the confirmation link we send.' },
+      { q: 'Can I have multiple accounts?', a: 'We recommend one account per person. Multiple accounts may violate our terms of service.' }
+    ] : [
+      { q: 'أزاي أغير الرقم السري؟', a: 'روح الإعدادات > الأمان > غير الرقم السري. أدخل الرقم الحالي وحط واحد جديد. تأكد الرقم السري قوي وفريد.' },
+      { q: 'أقدر أحذف حسابي؟', a: 'أيوه، لكن ننصحك تصدّر ملفات القضية الأول. حذف الحساب دائم وبيشيل كل سجل القضايا.' },
+      { q: 'أزاي أغير الإيميل؟', a: 'روح الإعدادات > الحساب > الإيميل. أدخل الإيميل الجديد وأكده من الرابط اللي هنبعتهولك.' },
+      { q: 'أقدر أعمل حسابات متعددة؟', a: 'ننصحك بحساب واحد للشخص الواحد. حسابات متعددة ممكن تخالف شروط الخدمة.' }
     ]
   };
 

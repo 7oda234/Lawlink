@@ -194,19 +194,19 @@ const SettingsPage = () => {
 
           {/* NOTIFICATION SETTINGS */}
           {activeTab === 'notifications' && (
-            <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
-              <h2 className="text-2xl font-bold text-black mb-6">Notification Preferences</h2>
+            <div className={`bg-white border border-gray-200 rounded-xl p-8 shadow-sm ${isRTL ? 'text-right' : ''}`}>
+              <h2 className={`text-2xl font-bold text-black mb-6 ${isRTL ? 'text-right' : ''}`}>{t('page.settings.notificationPreferences', 'Notification Preferences')}</h2>
               
               <div className="space-y-4">
-                <label className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                <label className={`flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer ${isRTL ? 'flex-row-reverse' : ''}`}>
                   <input type="checkbox" defaultChecked className="w-5 h-5" />
-                  <div>
-                    <p className="font-bold text-black">Email Notifications</p>
-                    <p className="text-gray-600 text-sm">Get updates about your cases and messages</p>
+                  <div className={isRTL ? 'text-right' : ''}>
+                    <p className="font-bold text-black">{t('layout.emailNotifications', 'Email Notifications')}</p>
+                    <p className="text-gray-600 text-sm">{t('layout.emailNotificationsDesc', 'Get updates about your cases and messages')}</p>
                   </div>
                 </label>
 
-                <label className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                <label className={`flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer ${isRTL ? 'flex-row-reverse' : ''}`}>
                   <input type="checkbox" defaultChecked className="w-5 h-5" />
                   <div>
                     <p className="font-bold text-black">SMS Notifications</p>

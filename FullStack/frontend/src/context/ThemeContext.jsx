@@ -1,77 +1,117 @@
 // ═══════════════════════════════════════════════════════════════════════════════════
 // 🎨 سياق المظهر والألوان - Theme Context
 // ═══════════════════════════════════════════════════════════════════════════════════
-// هنا بنخزّن إعدادات المظهر (Light/Dark) والألوان المختارة ويمكن نوصّل المعلومات
-// دي لأي مكون في التطبيق من غير ما نعدي البيانات من component لحد يتاني
+// هنا بنخزّن إعدادات المظهر (Light/Dark) والألوان المختارة
 // ─────────────────────────────────────────────────────────────────────────────────────
 
-/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
-// 🔧 إنشاء السياق الأساسي - Create the initial context object
 const ThemeContext = createContext({
   mode: 'light',
   palette: 'blue',
   toggleMode: () => {},
   setPalette: () => {},
+  palettes: ['blue', 'yellow', 'green', 'purple'],
 });
 
-// 🎯 مزود المظهر - Theme Provider Component
-// بيوفّر أعدادات المظهر لكل مكونات التطبيق
 export const ThemeProvider = ({ children }) => {
-  // 🌙 حالة المظهر (Light أو Dark) - Light/Dark mode state
-  // بنشتغل من الـ localStorage عشان نخزّن الاختيار الأخير للـ user
   const [mode, setMode] = useState(() => localStorage.getItem('lawlink-theme-mode') || 'light');
-  
-  // 🎨 حالة لون الموضوع (blue, yellow, green, purple) - Color palette state
   const [palette, setPalette] = useState(() => localStorage.getItem('lawlink-theme-palette') || 'blue');
 
-  // 💾 حفظ تغييرات المظهر - Save theme changes
-  // لما يتغيّر المظهر أو اللون، بنحدّث الـ document class وبنخزّن في localStorage
+  // حفظ تغييرات المظهر
   useEffect(() => {
-    // 🖥️ بنضيف أو بنشيل 'dark' class من الـ HTML element
-    document.documentElement.classList.toggle('dark', mode === 'dark');
-
-    // 🎨 نضبط متغيرات CSS للعناصر المشتركة زي الخلفية والنص والaccent
+    const isDark = mode === 'dark';
+    
+    // Toggle dark class on HTML element
+    document.documentElement.classList.toggle('dark', isDark);
+    
+    // Color palettes
     const paletteMap = {
       blue: '#3b82f6',
       yellow: '#f59e0b',
       green: '#10b981',
       purple: '#8b5cf6',
     };
-    document.documentElement.style.setProperty('--accent-color', paletteMap[palette] || paletteMap.blue);
-    document.documentElement.style.setProperty('--page-bg', mode === 'dark' ? '#020617' : '#f8fafc');
-    document.documentElement.style.setProperty('--surface-bg', mode === 'dark' ? 'rgba(15, 23, 42, 0.92)' : 'rgba(255, 255, 255, 0.92)');
-    document.documentElement.style.setProperty('--surface-border', mode === 'dark' ? '#334155' : '#e2e8f0');
-    document.documentElement.style.setProperty('--text-color', mode === 'dark' ? '#f8fafc' : '#0f172a');
-    document.documentElement.style.setProperty('--muted-text', mode === 'dark' ? '#cbd5e1' : '#475569');
-
-    // 💾 بنخزّن الاختيار في الـ localStorage عشان لما يفتح الـ user التطبيق ثاني، ييجي معاه الإعداد
+    
+    const accentColor = paletteMap[palette] || paletteMap.blue;
+    
+    // Light mode colors
+    const lightColors = {
+      '--page-bg': '#f8fafc',
+      '--surface-bg': 'rgba(255, 255, 255, 0.95)',
+      '--surface-bg-solid': '#ffffff',
+      '--surface-border': '#e2e8f0',
+      '--text-color': '#0f172a',
+      '--text-secondary': '#1e293b',
+      '--text-muted': '#64748b',
+      '--text-light': '#94a3b8',
+      '--card-bg': '#ffffff',
+      '--hover-bg': '#f1f5f9',
+    };
+    
+    // Dark mode colors
+    const darkColors = {
+      '--page-bg': '#020617',
+      '--surface-bg': 'rgba(15, 23, 42, 0.95)',
+      '--surface-bg-solid': '#0f172a',
+      '--surface-border': '#334155',
+      '--text-color': '#f8fafc',
+      '--text-secondary': '#e2e8f0',
+      '--text-muted': '#94a3b8',
+      '--text-light': '#64748b',
+      '--card-bg': '#1e293b',
+      '--hover-bg': '#334155',
+    };
+    
+    const colors = isDark ? darkColors : lightColors;
+    
+    // Apply all CSS variables
+    Object.entries(colors).forEach(([property, value]) => {
+      document.documentElement.style.setProperty(property, value);
+    });
+    
+    // Always set accent color
+    document.documentElement.style.setProperty('--accent-color', accentColor);
+    document.documentElement.style.setProperty('--accent-hover', isDark 
+      ? adjustBrightness(accentColor, -20) 
+      : adjustBrightness(accentColor, 20));
+    
+    // Save to localStorage
     localStorage.setItem('lawlink-theme-mode', mode);
     localStorage.setItem('lawlink-theme-palette', palette);
-  }, [mode, palette]); // هذا dependents array يقول: بنشتغل دالة دي لما mode أو palette يتغيروا
+    
+    // Update color-scheme
+    document.documentElement.style.colorScheme = mode;
+  }, [mode, palette]);
 
-  // 🔄 دالة تغيير المظهر - Toggle between light and dark mode
-  // بتحول من light لـ dark والعكس
+  // Toggle between light and dark mode
   const toggleMode = () => {
-    setMode((prev) => (prev === 'dark' ? 'light' : 'dark'));
+    setMode(prev => prev === 'dark' ? 'light' : 'dark');
   };
 
-  // 📦 إنشاء القيمة اللي بنوديها للـ children - Create context value
-  // useMemo بتتأكد إننا ما بننشئ object جديد في كل render، عشان performance
-  const value = useMemo(
-    () => {
-      // 🎨 الألوان المتاحة في التطبيق
-      const palettes = ['blue', 'yellow', 'green', 'purple'];
-      // 🔙 بنرجع كل البيانات اللي بنحتاجها في المكونات الأطفال
-      return { mode, palette, toggleMode, setPalette, palettes };
-    },
-    [mode, palette], // dependencies: لما دول يتغيروا بس بننشئ object جديد
-  );
+  const value = useMemo(() => ({
+    mode,
+    palette,
+    toggleMode,
+    setPalette,
+    palettes: ['blue', 'yellow', 'green', 'purple'],
+  }), [mode, palette]);
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };
 
-// 🪝 Hook مخصص للوصول للمظهر - Custom hook to access theme
-// أي مكون بيحتاج يستخدم المظهر يـ import ده واستدعيه
+// Helper function to adjust color brightness
+const adjustBrightness = (hex, percent) => {
+  const num = parseInt(hex.replace('#', ''), 16);
+  const amt = Math.round(2.55 * percent);
+  const R = (num >> 16) + amt;
+  const G = (num >> 8 & 0x00FF) + amt;
+  const B = (num & 0x0000FF) + amt;
+  return '#' + (0x1000000 + 
+    (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 + 
+    (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 + 
+    (B < 255 ? (B < 1 ? 0 : B) : 255)
+  ).toString(16).slice(1);
+};
+
 export const useTheme = () => useContext(ThemeContext);

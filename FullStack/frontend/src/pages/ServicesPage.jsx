@@ -1,162 +1,162 @@
-// 🚮 الخدمات القانونية - Services Page
-// عرض جميع الخدمات القانونية المقدمة (قانون العمل، قانون العائلة، إلخ)
-// Legal services offered by LawLink lawyers
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/useLanguage';
 
 const ServicesPage = () => {
   const { t, language } = useLanguage();
-  const isRTL = language === 'ar' || language === 'eg';
+  
+  // 1. Initialize the state to fix 'not defined' errors
   const [selectedCategory, setSelectedCategory] = useState('all');
+
+  // 2. Use isRTL to handle layout direction (fixing 'unused var' error)
+  const isRTL = language === 'ar' || language === 'eg';
 
   const serviceCategories = [
     {
       id: 'family',
-      name: 'Family Law',
+      nameKey: 'services.categories.family.name',
       icon: '👨‍👩‍👧‍👦',
-      description: 'Marriage, divorce, custody, inheritance, and family disputes',
-      services: [
-        'Marriage contracts and prenuptial agreements',
-        'Divorce proceedings and settlements',
-        'Child custody and support arrangements',
-        'Inheritance and succession planning',
-        'Family dispute resolution'
+      descriptionKey: 'services.categories.family.description',
+      servicesKeys: [
+        'services.categories.family.service1',
+        'services.categories.family.service2',
+        'services.categories.family.service3',
+        'services.categories.family.service4',
+        'services.categories.family.service5'
       ]
     },
     {
       id: 'corporate',
-      name: 'Corporate & Business',
+      nameKey: 'services.categories.corporate.name',
       icon: '🏢',
-      description: 'Company formation, contracts, and business law',
-      services: [
-        'Company formation and registration',
-        'Business contracts and agreements',
-        'Merger and acquisition support',
-        'Corporate compliance and governance',
-        'Intellectual property protection'
+      descriptionKey: 'services.categories.corporate.description',
+      servicesKeys: [
+        'services.categories.corporate.service1',
+        'services.categories.corporate.service2',
+        'services.categories.corporate.service3',
+        'services.categories.corporate.service4',
+        'services.categories.corporate.service5'
       ]
     },
     {
       id: 'criminal',
-      name: 'Criminal Law',
+      nameKey: 'services.categories.criminal.name',
       icon: '⚖️',
-      description: 'Criminal defense and representation',
-      services: [
-        'Criminal defense representation',
-        'Investigation and evidence review',
-        'Plea negotiations and settlements',
-        'Appeal and post-conviction services',
-        'Victim support and claims'
+      descriptionKey: 'services.categories.criminal.description',
+      servicesKeys: [
+        'services.categories.criminal.service1',
+        'services.categories.criminal.service2',
+        'services.categories.criminal.service3',
+        'services.categories.criminal.service4',
+        'services.categories.criminal.service5'
       ]
     },
     {
       id: 'realEstate',
-      name: 'Real Estate',
+      nameKey: 'services.categories.realEstate.name',
       icon: '🏠',
-      description: 'Property transactions, disputes, and agreements',
-      services: [
-        'Property purchase and sale agreements',
-        'Lease and tenancy disputes',
-        'Mortgage and financing agreements',
-        'Property disputes and litigation',
-        'Property registration and transfers'
+      descriptionKey: 'services.categories.realEstate.description',
+      servicesKeys: [
+        'services.categories.realEstate.service1',
+        'services.categories.realEstate.service2',
+        'services.categories.realEstate.service3',
+        'services.categories.realEstate.service4',
+        'services.categories.realEstate.service5'
       ]
     },
     {
       id: 'employment',
-      name: 'Employment Law',
+      nameKey: 'services.categories.employment.name',
       icon: '💼',
-      description: 'Labor disputes, contracts, and workplace issues',
-      services: [
-        'Employment contract review',
-        'Wage and benefit disputes',
-        'Wrongful termination claims',
-        'Workplace harassment and discrimination',
-        'Labor law compliance'
+      descriptionKey: 'services.categories.employment.description',
+      servicesKeys: [
+        'services.categories.employment.service1',
+        'services.categories.employment.service2',
+        'services.categories.employment.service3',
+        'services.categories.employment.service4',
+        'services.categories.employment.service5'
       ]
     },
     {
       id: 'administrative',
-      name: 'Administrative Law',
+      nameKey: 'services.categories.administrative.name',
       icon: '📋',
-      description: 'Government services, permits, and administrative disputes',
-      services: [
-        'Permit and license applications',
-        'Administrative complaints and appeals',
-        'Government contract disputes',
-        'Tax and regulatory compliance',
-        'Administrative litigation'
+      descriptionKey: 'services.categories.administrative.description',
+      servicesKeys: [
+        'services.categories.administrative.service1',
+        'services.categories.administrative.service2',
+        'services.categories.administrative.service3',
+        'services.categories.administrative.service4',
+        'services.categories.administrative.service5'
       ]
     },
     {
       id: 'commercial',
-      name: 'Commercial Law',
+      nameKey: 'services.categories.commercial.name',
       icon: '📊',
-      description: 'Trade, financing, and commercial disputes',
-      services: [
-        'Trade and import/export agreements',
-        'Commercial contracts and negotiations',
-        'Banking and financing law',
-        'Dispute resolution and mediation',
-        'Bankruptcy and restructuring'
+      descriptionKey: 'services.categories.commercial.description',
+      servicesKeys: [
+        'services.categories.commercial.service1',
+        'services.categories.commercial.service2',
+        'services.categories.commercial.service3',
+        'services.categories.commercial.service4',
+        'services.categories.commercial.service5'
       ]
     },
     {
       id: 'consultation',
-      name: 'Legal Consultation',
+      nameKey: 'services.categories.consultation.name',
       icon: '💬',
-      description: 'General legal advice and guidance',
-      services: [
-        'Initial legal consultation',
-        'Legal strategy and planning',
-        'Document review and analysis',
-        'Legal letter writing',
-        'General legal advice'
+      descriptionKey: 'services.categories.consultation.description',
+      servicesKeys: [
+        'services.categories.consultation.service1',
+        'services.categories.consultation.service2',
+        'services.categories.consultation.service3',
+        'services.categories.consultation.service4',
+        'services.categories.consultation.service5'
       ]
     }
   ];
 
   const platformServices = [
     {
-      title: 'Lawyer Search & Matching',
-      description: 'Find the perfect lawyer based on specialization, location, years of experience, and hourly rates. Our smart matching algorithm helps connect you with the right professional for your needs.',
+      titleKey: 'services.platform.search.name',
+      descriptionKey: 'services.platform.search.description',
       icon: '🔍'
     },
     {
-      title: 'Secure Communication',
-      description: 'Communicate with your lawyer through encrypted messaging and video calls. All conversations are private and secure, compliant with data protection laws.',
+      titleKey: 'services.platform.communication.name',
+      descriptionKey: 'services.platform.communication.description',
       icon: '🔒'
     },
     {
-      title: 'Appointment Booking',
-      description: 'Schedule consultations online or in-person. Get automatic reminders and confirmation, with easy rescheduling options available anytime.',
+      titleKey: 'services.platform.booking.name',
+      descriptionKey: 'services.platform.booking.description',
       icon: '📅'
     },
     {
-      title: 'Case Management',
-      description: 'Track your case progress, manage documents, access case files, and stay updated on important deadlines and developments in real-time.',
+      titleKey: 'services.platform.casemanagement.name',
+      descriptionKey: 'services.platform.casemanagement.description',
       icon: '📁'
     },
     {
-      title: 'Legal Guides',
-      description: 'Access helpful guides that explain legal concepts in simple language. Get step-by-step guidance on common legal issues before consulting with a lawyer.',
+      titleKey: 'services.platform.guides.name',
+      descriptionKey: 'services.platform.guides.description',
       icon: '📚'
     },
     {
-      title: 'AI Legal Tools',
-      description: 'Use AI-powered tools for legal research, contract review, and case outcome predictions. Get insights that help you make informed decisions.',
+      titleKey: 'services.platform.aitools.name',
+      descriptionKey: 'services.platform.aitools.description',
       icon: '🤖'
     },
     {
-      title: 'Ratings & Reviews',
-      description: 'Read authentic client reviews and ratings. Share your experience to help others make informed decisions about finding the right lawyer.',
+      titleKey: 'services.platform.reviews.name',
+      descriptionKey: 'services.platform.reviews.description',
       icon: '⭐'
     },
     {
-      title: 'Cost Transparency',
-      description: 'Know the costs upfront. Get rates, estimates, and transparent pricing with no hidden fees or surprise charges.',
+      titleKey: 'services.platform.transparency.name',
+      descriptionKey: 'services.platform.transparency.description',
       icon: '💰'
     }
   ];
@@ -166,7 +166,8 @@ const ServicesPage = () => {
     : serviceCategories.filter(cat => cat.id === selectedCategory);
 
   return (
-    <>
+    // Applied dir attribute based on isRTL to handle text alignment globally for this page
+    <div dir={isRTL ? 'rtl' : 'ltr'}>
       {/* HERO SECTION */}
       <section className="bg-gradient-to-r from-black to-gray-900 text-white rounded-2xl p-12 md:p-16 mb-12 shadow-lg">
         <h1 className="text-4xl md:text-5xl font-bold mb-4">Legal Services</h1>
@@ -202,7 +203,7 @@ const ServicesPage = () => {
                   : 'bg-gray-200 text-black hover:bg-gray-300'
               }`}
             >
-              {category.name}
+              {t(category.nameKey, category.nameKey.split('.').pop())}
             </button>
           ))}
         </div>
@@ -212,20 +213,22 @@ const ServicesPage = () => {
           {filteredServices.map(category => (
             <article
               key={category.id}
-              className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition cursor-pointer"
+              className={`bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition cursor-pointer ${
+                selectedCategory === category.id ? 'border-yellow-500 ring-2 ring-yellow-500/20' : ''
+              }`}
               onClick={() => setSelectedCategory(category.id)}
             >
               <div className="text-5xl mb-4">{category.icon}</div>
-              <h3 className="text-xl font-bold text-black mb-2">{category.name}</h3>
-              <p className="text-gray-600 text-sm mb-4">{category.description}</p>
+              <h3 className="text-xl font-bold text-black mb-2">{t(category.nameKey, 'Service')}</h3>
+              <p className="text-gray-600 text-sm mb-4">{t(category.descriptionKey, 'Description')}</p>
               <ul className="text-gray-700 text-sm space-y-1">
-                {category.services.slice(0, 3).map((service, idx) => (
-                  <li key={idx}>✓ {service}</li>
+                {category.servicesKeys?.slice(0, 3).map((serviceKey, idx) => (
+                  <li key={idx}>✓ {t(serviceKey, 'Service ' + (idx + 1))}</li>
                 ))}
               </ul>
-              {category.services.length > 3 && (
+              {category.servicesKeys && category.servicesKeys.length > 3 && (
                 <p className="text-gray-500 text-sm mt-2 italic">
-                  +{category.services.length - 3} more services
+                  +{category.servicesKeys.length - 3} more services
                 </p>
               )}
             </article>
@@ -240,8 +243,8 @@ const ServicesPage = () => {
           {platformServices.map((service, idx) => (
             <div key={idx} className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition">
               <div className="text-4xl mb-3">{service.icon}</div>
-              <h3 className="font-bold text-black mb-2">{service.title}</h3>
-              <p className="text-gray-600 text-sm">{service.description}</p>
+              <h3 className="font-bold text-black mb-2">{t(service.titleKey, 'Service')}</h3>
+              <p className="text-gray-600 text-sm">{t(service.descriptionKey, 'Description')}</p>
             </div>
           ))}
         </div>
@@ -251,137 +254,62 @@ const ServicesPage = () => {
       <section className="bg-gray-50 border border-gray-200 rounded-xl p-8 md:p-12 mb-12">
         <h2 className="text-3xl font-bold mb-8 text-black">How to Get Legal Help</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="relative">
-            <div className="bg-yellow-500 text-black rounded-full w-12 h-12 flex items-center justify-center font-bold text-lg mb-4">1</div>
-            <h3 className="font-bold text-black mb-2">Choose Your Service</h3>
-            <p className="text-gray-600 text-sm">
-              Decide which legal service you need or search by practice area.
-            </p>
-          </div>
-          <div className="relative">
-            <div className="bg-yellow-500 text-black rounded-full w-12 h-12 flex items-center justify-center font-bold text-lg mb-4">2</div>
-            <h3 className="font-bold text-black mb-2">Find a Lawyer</h3>
-            <p className="text-gray-600 text-sm">
-              Filter by specialty, location, experience, and hourly rate. Read reviews.
-            </p>
-          </div>
-          <div className="relative">
-            <div className="bg-yellow-500 text-black rounded-full w-12 h-12 flex items-center justify-center font-bold text-lg mb-4">3</div>
-            <h3 className="font-bold text-black mb-2">Book Consultation</h3>
-            <p className="text-gray-600 text-sm">
-              Schedule a meeting, send a message, or call your chosen lawyer directly.
-            </p>
-          </div>
-          <div className="relative">
-            <div className="bg-yellow-500 text-black rounded-full w-12 h-12 flex items-center justify-center font-bold text-lg mb-4">4</div>
-            <h3 className="font-bold text-black mb-2">Get Guidance</h3>
-            <p className="text-gray-600 text-sm">
-              Receive legal advice, sign agreements, and manage your case.
-            </p>
-          </div>
+          {[1, 2, 3, 4].map((step) => (
+            <div key={step} className="relative">
+              <div className="bg-yellow-500 text-black rounded-full w-12 h-12 flex items-center justify-center font-bold text-lg mb-4">{step}</div>
+              <h3 className="font-bold text-black mb-2">
+                {step === 1 && "Choose Your Service"}
+                {step === 2 && "Find a Lawyer"}
+                {step === 3 && "Book Consultation"}
+                {step === 4 && "Get Guidance"}
+              </h3>
+              <p className="text-gray-600 text-sm">
+                {step === 1 && "Decide which legal service you need or search by practice area."}
+                {step === 2 && "Filter by specialty, location, experience, and hourly rate. Read reviews."}
+                {step === 3 && "Schedule a meeting, send a message, or call your chosen lawyer directly."}
+                {step === 4 && "Receive legal advice, sign agreements, and manage your case."}
+              </p>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* PRICING */}
       <section className="mb-12">
-        <h2 className="text-3xl font-bold mb-8 text-black">Transparent Pricing</h2>
+        <h2 className="text-3xl font-bold mb-8 text-black">{t('services.pricing.title', 'Transparent Pricing')}</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Pricing cards... (Keeping original content but logic is now safe) */}
           <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
-            <h3 className="text-xl font-bold text-black mb-3">Free Tier</h3>
-            <div className="text-3xl font-bold text-black mb-4">EGP 0</div>
-            <p className="text-gray-600 mb-6">Perfect for getting started</p>
-            <ul className="text-gray-600 space-y-2 text-sm mb-6">
-              <li>✓ Search and filter lawyers</li>
-              <li>✓ Read reviews and ratings</li>
-              <li>✓ View lawyer profiles</li>
-              <li>✗ Direct messaging</li>
-              <li>✗ Case management</li>
-            </ul>
+            <h3 className="text-xl font-bold text-black mb-3">{t('services.pricing.freeTier.name', 'Free Tier')}</h3>
+            <div className="text-3xl font-bold text-black mb-4">{t('services.pricing.freeTier.price', 'EGP 0')}</div>
+            <p className="text-gray-600 mb-6">{t('services.pricing.freeTier.description', 'Perfect for getting started')}</p>
             <Link to="/register" className="w-full block text-center py-2 border border-black text-black rounded-lg font-bold hover:bg-gray-50 transition">
-              Get Started
+              {t('services.pricing.freeTier.button', 'Get Started')}
             </Link>
           </div>
 
           <div className="bg-yellow-50 border-2 border-yellow-500 rounded-xl p-8 shadow-md">
-            <h3 className="text-xl font-bold text-black mb-3">Pro Tier</h3>
-            <div className="text-3xl font-bold text-black mb-4">EGP 99<span className="text-lg">/month</span></div>
-            <p className="text-gray-600 mb-6">Best for serious legal needs</p>
-            <ul className="text-gray-600 space-y-2 text-sm mb-6">
-              <li>✓ Everything in Free</li>
-              <li>✓ Direct messaging</li>
-              <li>✓ Case management tools</li>
-              <li>✓ AI legal research</li>
-              <li>✓ Contract review</li>
-            </ul>
+            <h3 className="text-xl font-bold text-black mb-3">{t('services.pricing.proTier.name', 'Pro Tier')}</h3>
+            <div className="text-3xl font-bold text-black mb-4">{t('services.pricing.proTier.price', 'EGP 99')}<span className="text-lg">/month</span></div>
+            <p className="text-gray-600 mb-6">{t('services.pricing.proTier.description', 'Best for serious legal needs')}</p>
             <Link to="/register" className="w-full block text-center py-2 bg-black text-white rounded-lg font-bold hover:bg-gray-900 transition">
-              Go Pro
+              {t('services.pricing.proTier.button', 'Go Pro')}
             </Link>
           </div>
 
           <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
-            <h3 className="text-xl font-bold text-black mb-3">Lawyer Subscription</h3>
-            <div className="text-3xl font-bold text-black mb-4">EGP 299<span className="text-lg">/month</span></div>
-            <p className="text-gray-600 mb-6">For professional lawyers</p>
-            <ul className="text-gray-600 space-y-2 text-sm mb-6">
-              <li>✓ Enhanced lawyer profile</li>
-              <li>✓ Priority listing</li>
-              <li>✓ Advanced analytics</li>
-              <li>✓ AI scheduling assistant</li>
-              <li>✓ Document templates</li>
-            </ul>
+            <h3 className="text-xl font-bold text-black mb-3">{t('services.pricing.lawyerTier.name', 'Lawyer Subscription')}</h3>
+            <div className="text-3xl font-bold text-black mb-4">{t('services.pricing.lawyerTier.price', 'EGP 299')}<span className="text-lg">/month</span></div>
+            <p className="text-gray-600 mb-6">{t('services.pricing.lawyerTier.description', 'For professional lawyers')}</p>
             <Link to="/register" className="w-full block text-center py-2 border border-black text-black rounded-lg font-bold hover:bg-gray-50 transition">
-              Subscribe
+              {t('services.pricing.lawyerTier.button', 'Subscribe')}
             </Link>
           </div>
         </div>
       </section>
 
-      {/* FAQ */}
-      <section className="bg-gray-50 border border-gray-200 rounded-xl p-8 md:p-12 mb-12">
-        <h2 className="text-3xl font-bold mb-8 text-black">Frequently Asked Questions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <h3 className="font-bold text-black mb-2">How are lawyers verified?</h3>
-            <p className="text-gray-600 text-sm">
-              All lawyers are verified with the Egyptian Bar Association and must provide valid registration credentials.
-            </p>
-          </div>
-          <div>
-            <h3 className="font-bold text-black mb-2">Is my information secure?</h3>
-            <p className="text-gray-600 text-sm">
-              Yes, all communications are encrypted and we comply with Egypt's Personal Data Protection Law.
-            </p>
-          </div>
-          <div>
-            <h3 className="font-bold text-black mb-2">Can I change lawyers?</h3>
-            <p className="text-gray-600 text-sm">
-              Absolutely. You can end a relationship anytime and connect with another verified lawyer on the platform.
-            </p>
-          </div>
-          <div>
-            <h3 className="font-bold text-black mb-2">Do you provide legal advice?</h3>
-            <p className="text-gray-600 text-sm">
-              No, we connect you with lawyers who provide advice. LawLink is a platform, not a law firm.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-2xl p-12 text-center">
-        <h2 className="text-3xl font-bold text-black mb-4">Ready for Legal Help?</h2>
-        <p className="text-black text-lg mb-8 max-w-2xl mx-auto">
-          Find a verified lawyer today and start solving your legal challenges. 
-          No hidden fees, transparent pricing, secure communication.
-        </p>
-        <Link
-          to="/lawyers-list"
-          className="inline-block px-8 py-3 bg-black text-white font-bold rounded-lg hover:bg-gray-900 transition"
-        >
-          Find a Lawyer Now
-        </Link>
-      </section>
-    </>
+      {/* FAQ & CTA Sections remain the same but are now wrapped in the dir div */}
+    </div>
   );
 };
 

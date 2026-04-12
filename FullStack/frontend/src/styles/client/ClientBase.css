@@ -1,14 +1,198 @@
+/* ═══════════════════════════════════════════════════════════════════════════════════
+   Client Dashboard Styles
+   ═══════════════════════════════════════════════════════════════════════════════════ */
+
 :root {
-  --client-bg: #f1f5f9;
-  --client-text: #0f172a;
+  --client-primary: #3b82f6;
+  --client-success: #10b981;
+  --client-warning: #f59e0b;
+  --client-danger: #ef4444;
+  --client-purple: #8b5cf6;
 }
 
+/* Client Dashboard Container */
 .client-dashboard {
-  background: var(--client-bg);
-  color: var(--client-text);
+  background: var(--page-bg);
+  color: var(--text-color);
+  min-height: 100vh;
 }
 
+/* Client Widget */
 .client-widget {
   border-radius: 0.75rem;
-  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+  box-shadow: var(--shadow-sm);
+  background: var(--card-bg);
+  border: 1px solid var(--surface-border);
+  transition: var(--transition);
+}
+
+.client-widget:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* Client Cards */
+.client-card {
+  background: var(--card-bg);
+  border: 1px solid var(--surface-border);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  transition: var(--transition);
+}
+
+.client-card:hover {
+  border-color: var(--accent-color);
+  box-shadow: var(--shadow-md);
+}
+
+/* Client Stat Card */
+.client-stat-card {
+  background: var(--card-bg);
+  border: 1px solid var(--surface-border);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.client-stat-card .stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.client-stat-card .stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.client-stat-card .stat-label {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+/* Client Quick Actions */
+.client-quick-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--hover-bg);
+  border: 1px solid var(--surface-border);
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.client-quick-action:hover {
+  background: var(--surface-border);
+  transform: translateY(-2px);
+}
+
+/* Client Case Card */
+.client-case-card {
+  background: var(--hover-bg);
+  border: 1px solid var(--surface-border);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: var(--transition);
+}
+
+.client-case-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--accent-color);
+}
+
+/* Client Badge */
+.client-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.client-badge-success {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--client-success);
+}
+
+.client-badge-warning {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: var(--client-warning);
+}
+
+.client-badge-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--client-danger);
+}
+
+.client-badge-info {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: var(--client-primary);
+}
+
+/* Client Notification */
+.client-notification {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  transition: var(--transition);
+}
+
+.client-notification.unread {
+  background: var(--hover-bg);
+}
+
+.client-notification:hover {
+  background: var(--surface-border);
+}
+
+/* Client Appointment Card */
+.client-appointment-card {
+  background: var(--hover-bg);
+  border: 1px solid var(--surface-border);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+/* Client Profile Card */
+.client-profile-card {
+  background: var(--card-bg);
+  border: 1px solid var(--surface-border);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.client-profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
 }
