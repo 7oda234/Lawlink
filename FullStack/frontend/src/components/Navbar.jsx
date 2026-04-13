@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Sun, Moon, Globe } from 'lucide-react';
 import { useLanguage } from '../context/useLanguage';
 import { useTheme } from '../context/ThemeContext';
-import logoImage from '../Assets/logo/logo lawlink.png';
+import logoImage from '../Assets/logo/logo lawlink half.png';
 
 const Navbar = () => {
   const { language, setLanguage, t } = useLanguage();
@@ -34,7 +34,7 @@ const Navbar = () => {
             {mode === 'dark' ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} />}
           </button>
           <button onClick={() => setLanguage(language === 'en' ? 'eg' : 'en')} className="font-bold">
-             <Globe size={18} />
+            <Globe size={18} />
           </button>
 
           <Link to="/login" className="bg-yellow-500 !text-slate-950 px-6 py-2.5 rounded-full font-black hover:bg-yellow-400 shadow-lg shadow-yellow-500/20 transition-all">

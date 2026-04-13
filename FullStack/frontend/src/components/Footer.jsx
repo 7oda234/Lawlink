@@ -11,58 +11,66 @@ const Footer = () => {
   const isRTL = language === 'ar' || language === 'eg';
 
   return (
-    <footer className={`border-t ${mode === 'dark' ? 'border-slate-800 bg-slate-950 text-slate-200' : 'border-gray-200 bg-gray-50 text-slate-700'} px-6 py-12 transition`}>
-        {/* 📋 القسم الأساسي - Main content grid section */}
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+    <footer className={`border-t px-6 py-12 transition-all ${
+      mode === 'dark' ? 'border-slate-800 bg-slate-950 text-slate-200' : 'border-gray-200 bg-gray-50 text-slate-700'
+    }`}>
+      <div className="max-w-7xl mx-auto">
+        {/* القسم العلوي - Grid للنصوص واللوجو */}
+        <div className={`grid grid-cols-1 md:grid-cols-3 gap-12 mb-12 ${isRTL ? 'text-right' : 'text-left'}`}>
           
-          {/* 🏢 معلومات عن الشركة - Company Information */}
-          <div className={`col-span-1 md:col-span-2 ${isRTL ? 'text-right' : ''}`}>
-            {/* 📍 الشعار - Logo section */}
-            <div className="flex items-center gap-3 font-bold text-xl tracking-wider mb-4">
-              <img src={logoImage} alt="LawLink" className={`h-10 w-auto rounded-full ${mode === 'dark' ? 'bg-white/10' : 'bg-slate-200'} p-1`} />
-              <span className={mode === 'dark' ? 'text-white' : 'text-slate-900'}>LAWLINK</span>
+          {/* عمود الشركة */}
+          <div>
+            <h4 className={`font-bold mb-6 ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+              {t('footer.company', 'Company')}
+            </h4>
+            <ul className="space-y-4 text-sm">
+              <li><Link to="/about" className="hover:text-blue-500 transition">{t('footer.about', 'About')}</Link></li>
+              <li><Link to="/contact" className="hover:text-blue-500 transition">{t('footer.contact', 'Contact')}</Link></li>
+              <li><Link to="/help" className="hover:text-blue-500 transition">{t('footer.help', 'Help')}</Link></li>
+              <li><Link to="/privacy" className="hover:text-blue-500 transition">{t('footer.privacy', 'Privacy')}</Link></li>
+            </ul>
+          </div>
+
+          {/* عمود الخدمات */}
+          <div>
+            <h4 className={`font-bold mb-6 ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+              {t('footer.services', 'Services')}
+            </h4>
+            <ul className="space-y-4 text-sm">
+              <li><Link to="/find-lawyer" className="hover:text-blue-500 transition">Find a Lawyer</Link></li>
+              <li><Link to="/find-lawyer" className="hover:text-blue-500 transition">Corporate Law</Link></li>
+              <li><Link to="/find-lawyer" className="hover:text-blue-500 transition">Family Law</Link></li>
+              <li><Link to="/find-lawyer" className="hover:text-blue-500 transition">Criminal Defense</Link></li>
+            </ul>
+          </div>
+
+          {/* عمود اللوجو والوصف */}
+          <div className={`flex flex-col ${isRTL ? 'md:items-start' : 'md:items-end'} items-center text-center md:text-right`}>
+            <div className={`flex items-center gap-3 mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+              <span className={`text-2xl font-bold tracking-tighter ${mode === 'dark' ? 'text-white' : 'text-black'}`}>LAWLINK</span>
+              <img src={logoImage} alt="Logo" className="h-10 w-10 object-contain" />
             </div>
-            {/* 📝 وصف الشركة - Company description */}
-            <p className={`text-sm max-w-xs ${mode === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+            <p className="text-sm max-w-[250px] leading-relaxed opacity-80">
               Redefining legal access through intelligent technology. Secure, transparent, and comprehensive.
             </p>
           </div>
-          
-          {/* 🛠️ قسم الخدمات - Services Section */}
-          <div className={isRTL ? 'text-right' : ''}>
-            <h4 className={`font-bold mb-4 ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>{t('footer.services', 'Services')}</h4>
-            <ul className={`space-y-3 text-sm ${mode === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-              <li><a href="#" className={`transition ${mode === 'dark' ? 'hover:text-white' : 'hover:text-slate-900'}`}>Find a Lawyer</a></li>
-              <li><a href="#" className={`transition ${mode === 'dark' ? 'hover:text-white' : 'hover:text-slate-900'}`}>Corporate Law</a></li>
-              <li><a href="#" className={`transition ${mode === 'dark' ? 'hover:text-white' : 'hover:text-slate-900'}`}>Family Law</a></li>
-              <li><a href="#" className={`transition ${mode === 'dark' ? 'hover:text-white' : 'hover:text-slate-900'}`}>Criminal Defense</a></li>
-            </ul>
-          </div>
-
-          {/* 🏛️ قسم الشركة - Company Section */}
-          <div className={isRTL ? 'text-right' : ''}>
-            <h4 className={`font-bold mb-4 ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>{t('footer.company', 'Company')}</h4>
-            <ul className={`space-y-3 text-sm ${mode === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-              <li><Link to="/about" className={`transition ${mode === 'dark' ? 'hover:text-white' : 'hover:text-slate-900'}`}>{t('footer.about', 'About')}</Link></li>
-              <li><Link to="/contact" className={`transition ${mode === 'dark' ? 'hover:text-white' : 'hover:text-slate-900'}`}>{t('footer.contact', 'Contact')}</Link></li>
-              <li><Link to="/help" className={`transition ${mode === 'dark' ? 'hover:text-white' : 'hover:text-slate-900'}`}>{t('footer.help', 'Help')}</Link></li>
-              <li><Link to="/terms" className={`transition ${mode === 'dark' ? 'hover:text-white' : 'hover:text-slate-900'}`}>{t('footer.privacy', 'Privacy')}</Link></li>
-            </ul>
-          </div>
         </div>
 
-        {/* 🔗 الخط السفلي - Bottom footer */}
-        <div className={`max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center pt-8 border-t ${mode === 'dark' ? 'border-gray-800' : 'border-gray-300'} text-sm ${mode === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-          {/* 📋 حقوق النشر - Copyright */}
-          <p>© 2026 LawLink Inc. All rights reserved</p>
-          
-          {/* 📱 روابط السوشيال ميديا - Social Media Links */}
-          <div className={`flex gap-4 ${isRTL ? 'flex-row-reverse' : ''} mt-4 md:mt-0`}>
-            <a href="#" className={`transition ${mode === 'dark' ? 'hover:text-white' : 'hover:text-slate-900'}`}><Facebook size={18} /></a>
-            <a href="#" className={`transition ${mode === 'dark' ? 'hover:text-white' : 'hover:text-slate-900'}`}><Linkedin size={18} /></a>
+        {/* الخط الفاصل والسوشيال ميديا */}
+        <div className={`pt-8 border-t flex flex-col md:flex-row justify-between items-center gap-6 ${
+          mode === 'dark' ? 'border-slate-800 text-slate-500' : 'border-gray-200 text-gray-500'
+        }`}>
+          <div className="flex gap-6 order-2 md:order-1">
+            <a href="#" className="hover:text-blue-600 transition"><Facebook size={20} /></a>
+            <a href="#" className="hover:text-blue-400 transition"><Linkedin size={20} /></a>
           </div>
+          
+          <p className="text-sm order-1 md:order-2">
+            LawLink Inc. All rights reserved 2026 ©
+          </p>
         </div>
-      </footer>
+      </div>
+    </footer>
   );
 };
 
