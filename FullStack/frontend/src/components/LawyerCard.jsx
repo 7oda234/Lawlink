@@ -1,58 +1,78 @@
 import React from 'react';
-import { MapPin, Star, Briefcase } from 'lucide-react';
+import { MapPin, Star, Briefcase, CheckCircle } from 'lucide-react';
+// ✅ تصحيح المسار: لو الملف في src/components نرجع خطوة لـ src ثم ندخل context
+import { useTheme } from '../context/ThemeContext'; 
 
-// 📌 Props: lawyer (كائن به معلومات المحامي - lawyer object with all details)
 const LawyerCard = ({ lawyer }) => {
-  // 📍 Return section starts here
+  const { mode } = useTheme();
+  const isDark = mode === 'dark';
+
   return (
-    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col sm:flex-row group">
+    <div className={`border rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col sm:flex-row group ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-gray-100 shadow-md'}`}>
       
-      {/* 🖼️ صورة الملف الشخصي - Profile Image */}
-      <div className="w-full sm:w-48 h-48 sm:h-auto shrink-0 overflow-hidden bg-gray-100">
+      {/* 🖼️ صورة الملف الشخصي */}
+      <div className="w-full sm:w-44 h-44 sm:h-auto shrink-0 overflow-hidden bg-gray-100">
         <img 
           src={lawyer.image} 
           alt={lawyer.name} 
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
         />
       </div>
 
-      {/* 📝 تفاصيل المحامي - Lawyer Details Section */}
-      <div className="p-6 flex flex-col flex-grow justify-between">
+      {/* 📝 تفاصيل المحامي */}
+      <div className="p-5 flex flex-col flex-grow justify-between">
         <div>
-          {/* 📊 رأس الكارت (الاسم والتقييم) - Header with name and rating */}
           <div className="flex justify-between items-start mb-2">
             <div>
-              <h3 className="text-xl font-bold text-gray-900 group-hover:text-yellow-600 transition-colors">
-                {lawyer.name}
-              </h3>
-              <p className="text-sm font-medium text-yellow-600 mb-3">{lawyer.specialty}</p>
+              {/* 💡 وضوح الاسم: text-slate-950 للـ Light mode عشان يبقى أسود صريح */}
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className={`text-xl font-black transition-colors ${isDark ? 'text-white' : 'text-slate-950'}`}>
+                  {lawyer.name}
+                </h3>
+                {lawyer.isVerified && (
+                  <CheckCircle size={18} className="text-blue-500 fill-blue-500/10" />
+                )}
+              </div>
+
+              {/* التخصصات */}
+              <div className="flex flex-wrap gap-1 mb-3">
+                {lawyer.specsArray && lawyer.specsArray.slice(0, 2).map((spec, i) => (
+                  <span key={i} className="text-[10px] uppercase tracking-wider font-bold bg-blue-50 dark:bg-blue-900/30 text-blue-600 px-2 py-0.5 rounded-full">
+                    {spec}
+                  </span>
+                ))}
+              </div>
             </div>
-            {/* ⭐ بادج التقييم - Rating Badge */}
-            <div className="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-md border border-gray-100">
-              <Star size={16} className="text-yellow-500 fill-yellow-500" />
-              <span className="text-sm font-bold text-gray-700">{lawyer.rating}</span>
+
+            {/* ⭐ التقييم */}
+            <div className={`flex items-center gap-1 px-2 py-1 rounded-lg border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-gray-50 border-gray-100'}`}>
+              <Star size={14} className="text-yellow-500 fill-yellow-500" />
+              <span className={`text-sm font-black ${isDark ? 'text-yellow-400' : 'text-slate-700'}`}>
+                {lawyer.rating}
+              </span>
             </div>
           </div>
 
-          <div className="space-y-2 mb-6">
-            <div className="flex items-center gap-2 text-sm text-gray-500">
-              <MapPin size={16} />
-              <span>{lawyer.location}</span>
+          {/* الموقع والخبرة */}
+          <div className="space-y-2 mb-4">
+            <div className={`flex items-center gap-2 text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+              <MapPin size={14} className="text-blue-500" />
+              <span className="font-medium">{lawyer.location || 'Cairo, Egypt'}</span>
             </div>
-            <div className="flex items-center gap-2 text-sm text-gray-500">
-              <Briefcase size={16} />
-              <span>{lawyer.experience} Years Experience</span>
+            <div className={`flex items-center gap-2 text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+              <Briefcase size={14} className="text-blue-500" />
+              <span className="font-bold">{lawyer.experience} سنة خبرة</span>
             </div>
           </div>
         </div>
 
-        {/* 🔘 الأزرار الفعلية - Action Buttons */}
-        <div className="flex gap-3 mt-auto pt-4 border-t border-gray-100">
-          <button className="flex-1 bg-black text-white py-2 rounded-lg text-sm font-bold hover:bg-gray-800 transition shadow-sm">
-            View Profile
+        {/* 🔘 الأزرار */}
+        <div className={`flex gap-3 mt-auto pt-4 border-t ${isDark ? 'border-slate-800' : 'border-gray-100'}`}>
+          <button className="flex-1 bg-slate-950 dark:bg-blue-600 text-white py-2.5 rounded-xl text-sm font-black hover:opacity-90 transition">
+            {isDark ? 'View Profile' : 'عرض الملف'}
           </button>
-          <button className="flex-1 bg-white border border-gray-300 text-gray-700 py-2 rounded-lg text-sm font-bold hover:bg-gray-50 transition">
-            Book Consultation
+          <button className={`flex-1 border py-2.5 rounded-xl text-sm font-black transition ${isDark ? 'border-slate-700 text-slate-300 hover:bg-slate-800' : 'border-gray-300 text-slate-700 hover:bg-gray-50'}`}>
+            {isDark ? 'Consult' : 'استشارة'}
           </button>
         </div>
       </div>
