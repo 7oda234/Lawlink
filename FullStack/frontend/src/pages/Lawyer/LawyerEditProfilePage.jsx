@@ -15,15 +15,15 @@ const LawyerEditProfilePage = () => {
     <div dir={isRTL ? 'rtl' : 'ltr'} className={`min-h-screen pt-28 pb-16 ${mode === 'dark' ? 'bg-slate-950' : 'bg-gray-50'}`}>
       <main className="max-w-4xl mx-auto px-6">
         <header className={`p-10 rounded-3xl border mb-8 shadow-sm ${cardBg} flex flex-col md:flex-row items-center gap-8`}>
-           <div className="relative group cursor-pointer">
-             <div className="w-24 h-24 bg-slate-700 rounded-3xl flex items-center justify-center overflow-hidden border-2 border-yellow-500/50">
-               <Camera size={30} className="text-slate-500" />
-             </div>
-           </div>
-           <div className={isRTL ? 'text-right' : 'text-left'}>
-             <h1 className={`text-3xl font-black ${textColor}`}>{t('page.lawyerEditProfile.title', isRTL ? 'إعدادات الملف الشخصي' : 'Profile Settings')}</h1>
-             <p className="text-slate-500">{t('page.lawyerEditProfile.subtitle', isRTL ? 'تحديث بياناتك المهنية وخبراتك.' : 'Update your professional data and experience.')}</p>
-           </div>
+          <div className="relative group cursor-pointer">
+            <div className="w-24 h-24 bg-slate-700 rounded-3xl flex items-center justify-center overflow-hidden border-2 border-yellow-500/50">
+              <Camera size={30} className="text-slate-500" />
+            </div>
+          </div>
+          <div className={isRTL ? 'text-right' : 'text-left'}>
+            <h1 className={`text-3xl font-black ${textColor}`}>{t('page.lawyerEditProfile.title', isRTL ? 'إعدادات الملف الشخصي' : 'Profile Settings')}</h1>
+            <p className="text-slate-500">{t('page.lawyerEditProfile.subtitle', isRTL ? 'تحديث بياناتك المهنية وخبراتك.' : 'Update your professional data and experience.')}</p>
+          </div>
         </header>
 
         <form className={`p-10 rounded-3xl border shadow-sm ${cardBg} space-y-6`}>
