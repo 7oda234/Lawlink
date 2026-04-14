@@ -51,18 +51,17 @@ const ClientAppointmentsPage = React.lazy(() => import('./pages/client/ClientApp
 const ClientNotificationsPage = React.lazy(() => import('./pages/client/ClientNotificationsPage'));
 const ClientPaymentPage = React.lazy(() => import('./pages/client/ClientPaymentPage'));
 
-// استيراد صفحات المحامي - Importing lawyer pages
-// Change this line in your imports
-const LawyerDashboard = React.lazy(() => import('./pages/lawyer/LawyerDashboardPage'));
-const LawyerProfileDashboardPage = React.lazy(() => import('./pages/lawyer/LawyerProfileDashboardPage'));
-const LawyerEditProfilePage = React.lazy(() => import('./pages/lawyer/LawyerEditProfilePage'));
-const LawyerAssignedCasesPage = React.lazy(() => import('./pages/lawyer/LawyerAssignedCasesPage'));
-const LawyerCaseDetailsPage = React.lazy(() => import('./pages/lawyer/LawyerCaseDetailsPage'));
-const LawyerUpdateStatusPage = React.lazy(() => import('./pages/lawyer/LawyerUpdateStatusPage'));
-const LawyerUploadDocumentsPage = React.lazy(() => import('./pages/lawyer/LawyerUploadDocumentsPage'));
-const LawyerClientMessagesPage = React.lazy(() => import('./pages/lawyer/LawyerClientMessagesPage'));
-const LawyerSchedulePage = React.lazy(() => import('./pages/lawyer/LawyerSchedulePage'));
-const LawyerCalendarPage = React.lazy(() => import('./pages/lawyer/LawyerCalendarPage'));
+// استيراد صفحات المحامي - التعديل هنا في اسم الفولدر 'Lawyer'
+const LawyerDashboard = React.lazy(() => import('./pages/Lawyer/LawyerDashboardPage'));
+const LawyerProfileDashboardPage = React.lazy(() => import('./pages/Lawyer/LawyerProfileDashboardPage'));
+const LawyerEditProfilePage = React.lazy(() => import('./pages/Lawyer/LawyerEditProfilePage'));
+const LawyerAssignedCasesPage = React.lazy(() => import('./pages/Lawyer/LawyerAssignedCasesPage'));
+const LawyerCaseDetailsPage = React.lazy(() => import('./pages/Lawyer/LawyerCaseDetailsPage'));
+const LawyerUpdateStatusPage = React.lazy(() => import('./pages/Lawyer/LawyerUpdateStatusPage'));
+const LawyerUploadDocumentsPage = React.lazy(() => import('./pages/Lawyer/LawyerUploadDocumentsPage'));
+const LawyerClientMessagesPage = React.lazy(() => import('./pages/Lawyer/LawyerClientMessagesPage'));
+const LawyerSchedulePage = React.lazy(() => import('./pages/Lawyer/LawyerSchedulePage'));
+const LawyerCalendarPage = React.lazy(() => import('./pages/Lawyer/LawyerCalendarPage'));
 
 // استيراد صفحات الإدارة - Importing admin pages
 const AdminDashboardPage = React.lazy(() => import('./pages/admin/AdminDashboardPage'));
@@ -189,6 +188,7 @@ const routeConfig = [
   { path: '/help', Component: HelpCenterPage },
 { path: '/privacy', Component: TermsPrivacyPage},
 { path: '/terms', Component: TermsPrivacyPage},
+{ path: '*', Component: NotFoundPage },
 ];
 
 // مكون الروتات - Routes component
