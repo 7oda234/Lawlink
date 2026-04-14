@@ -5,7 +5,7 @@
 // Legal terms, privacy policy, and compliance information
 // ───────────────────────────────────────────────────────────────────────────────────
 import React, { useState } from 'react';
-import { useLanguage } from '../context/useLanguage';
+import { useLanguage } from '../../context/useLanguage';
 
 const TermsPrivacyPage = () => {
   const { t, language } = useLanguage();

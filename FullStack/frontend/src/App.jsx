@@ -121,6 +121,7 @@ const PageWrapper = ({ children }) => (
 
 // إعدادات الروتات - Route configuration
 const routeConfig = [
+  // صفحات عامة - Public pages
   { path: '/', Component: HomePage },
   { path: '/about', Component: AboutPage },
   { path: '/contact', Component: ContactPage },
@@ -129,13 +130,13 @@ const routeConfig = [
   { path: '/find-lawyer', Component: FindLawyerPage },
   { path: '/lawyers', Component: LawyersListPage },
   { path: '/lawyers/:id', Component: LawyerProfilePublicPage },
-
+// auth routes
   { path: '/login', Component: LoginPage },
   { path: '/register', Component: RegisterPage },
   { path: '/forgot-password', Component: ForgotPasswordPage },
   { path: '/reset-password', Component: ResetPasswordPage },
   { path: '/verify-email', Component: EmailVerificationPage },
-
+// client routes
   { path: '/client/dashboard', Component: ClientDashboardPage },
   { path: '/client/profile', Component: ClientMyProfilePage },
   { path: '/client/profile/edit', Component: ClientEditProfilePage },
@@ -147,7 +148,7 @@ const routeConfig = [
   { path: '/client/appointments', Component: ClientAppointmentsPage },
   { path: '/client/notifications', Component: ClientNotificationsPage },
   { path: '/client/payment', Component: ClientPaymentPage },
-
+// lawyer routes
   { path: '/lawyer/dashboard', Component: LawyerDashboard },
   { path: '/lawyer/profile', Component: LawyerProfileDashboardPage },
   { path: '/lawyer/profile/edit', Component: LawyerEditProfilePage },
@@ -158,7 +159,7 @@ const routeConfig = [
   { path: '/lawyer/messages', Component: LawyerClientMessagesPage },
   { path: '/lawyer/appointments', Component: LawyerSchedulePage },
   { path: '/lawyer/calendar', Component: LawyerCalendarPage },
-
+// admin routes
   { path: '/admin/dashboard', Component: AdminDashboardPage },
   { path: '/admin/users', Component: AdminManageUsersPage },
   { path: '/admin/users/new', Component: AdminCreateUserPage },
@@ -171,22 +172,23 @@ const routeConfig = [
   { path: '/admin/cases/monitoring', Component: AdminCaseMonitoringPage },
   { path: '/admin/reports', Component: AdminReportsPage },
   { path: '/admin/logs', Component: AdminSystemLogsPage },
-
+// case routes
   { path: '/cases', Component: CaseAllPage },
   { path: '/cases/new', Component: CaseCreatePage },
   { path: '/cases/:caseId', Component: CaseDetailsPage },
   { path: '/cases/:caseId/timeline', Component: CaseTimelinePage },
   { path: '/cases/:caseId/documents', Component: CaseDocumentsPage },
   { path: '/cases/:caseId/status', Component: CaseStatusTrackingPage },
-
+// communication routes
   { path: '/messages/inbox', Component: MessagesInboxPage },
   { path: '/messages/chat', Component: ChatPage },
   { path: '/messages/send', Component: SendMessagePage },
   { path: '/notifications', Component: NotificationsCenterPage },
-
+// utility routes
   { path: '/settings', Component: SettingsPage },
   { path: '/help', Component: HelpCenterPage },
-  { path: '/terms', Component: TermsPrivacyPage },
+{ path: '/privacy', Component: TermsPrivacyPage},
+{ path: '/terms', Component: TermsPrivacyPage},
 ];
 
 // مكون الروتات - Routes component
@@ -210,7 +212,7 @@ const AppRoutes = () => {
 
         // روت للصفحات غير الموجودة - Route for not found pages
         <Route
-          path="*"
+          path="../src/utils/NotFoundPage.jsx"
           element={
             <PageWrapper>
               <NotFoundPage />
@@ -221,7 +223,19 @@ const AppRoutes = () => {
     </AnimatePresence>
   );
 };
-
+// مكون المحتوى الرئيسي للتطبيق - Main content component for the app
+{routeConfig.map(({ path, Component }) => (
+  <Route 
+    key={path} 
+    path={path} 
+    element={
+      <PageWrapper>
+        <Component />
+      </PageWrapper>
+    } 
+  />
+))}
+// مكون المحتوى الرئيسي للتطبيق - Main content component for the app
 const AppContent = () => {
   const { mode } = useTheme();
 
@@ -229,26 +243,16 @@ const AppContent = () => {
     <div className={`min-h-screen ${mode === 'dark' ? 'bg-slate-950 text-white' : 'bg-gray-50 text-slate-900'}`}>
       <Navbar />
       <main className="max-w-7xl mx-auto px-4 pt-24 min-h-screen">
-<Routes>
-    <Route path="/" element={<HomePage />} />
-    <Route path="/login" element={<LoginPage />} />
-    
-    {/* ضيف السطر ده هنا */}
-    <Route path="/about" element={<AboutPage />} />
-
-    <Route path="/find-lawyer" element={<LawyersListPage />} />
-    <Route path="/how-it-works" element={<HowItWorksPage />} />
-    
-    <Route path="/lawyer/dashboard" element={<LawyerDashboard />} />
-
-    <Route path="*" element={<div className="text-center py-20">404 - Not Found</div>} />
-</Routes>
+        {/* React.Suspense is required for the lazy-loaded pages defined in your technical feasibility [cite: 394, 434] */}
+        <React.Suspense fallback={<div className="text-center py-20">Loading LawLink...</div>}>
+          <AppRoutes />
+        </React.Suspense>
       </main>
       <Footer />
     </div>
   );
 };
-
+// المكون الرئيسي للتطبيق - Main component of the app
 function App() {
   return (
     <ThemeProvider>
