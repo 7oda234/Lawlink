@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Sun, Moon, Globe, Bell, User, LogOut, LayoutDashboard, ChevronDown } from 'lucide-react';
 import { useLanguage } from '../../context/useLanguage';
 import { useTheme } from '../../context/ThemeContext';
-import logoImage from '../Assets/logo/logo lawlink half.png';
+import logoImage from '../../Assets/logo/logo lawlink half.png';
 
 const Navbar = () => {
   const { language, setLanguage, t } = useLanguage();
