@@ -1,42 +1,35 @@
 import OpenAI from "openai";
-// ✅ الموديولات الجاهزة (موجودة فعلاً في الفولدرات)
+// ✅ الموديولات الجاهزة
 import authRouter from "../modules/auth/auth.controller.js"; 
 import userRouter from "../modules/user/user.routes.js";
-import casesRouter from "../modules/Cases/cases.routes.js"; //
+import casesRouter from "../modules/Cases/cases.routes.js";
 import aiRouter from "../modules/Ai_tools/ai_tools.routes.js";
-
 // ❌ الموديولات اللي لسه مكرتناش ملفاتها (عطلناها عشان السيرفر ما يضربش)
+
 // import appointmentRouter from "../modules/appointments/appointments.routes.js";
+
 // import paymentRouter from "../modules/payments/payments.routes.js";
+
 // import messageRouter from "../modules/communication/messages.routes.js";
+
 
 /**
  * 🛠️ إعداد كافة مسارات التطبيق (Routing Hub)
  */
 export const setupAppRoutes = (app) => {
-    // 🔐 مسارات الدخول والتسجيل
-    app.use("/api/auth", authRouter); 
+    // 🔐 مسارات الدخول والتسجيل (تعديل: تم التوجيه لـ userRouter لضمان عمل الـ Login)
+    app.use("/api/auth", userRouter); 
     
-    // 📂 مسارات القضايا - جربها دلوقتي في Postman هتشتغل!
+    // 📂 مسارات القضايا
     app.use("/api/cases", casesRouter); 
     
     // 👥 مسارات المستخدمين
     app.use("/api/users", userRouter);
 
-    // 📅 المواعيد (معطلة مؤقتاً)
-    // app.use("/api/appointments", appointmentRouter);
-
-    // 💰 المدفوعات (معطلة مؤقتاً)
-    // app.use("/api/payments", paymentRouter);
-
-    // 💬 المراسلات (معطلة مؤقتاً)
-    // app.use("/api/messages", messageRouter);
-    
     // 🤖 أدوات الذكاء الاصطناعي
     app.use("/ai", aiRouter);
     
     // ⚠️ معالج المسارات غير الموجودة (404 Error Handler)
-    // لازم يفضل آخر واحد تحت خالص
     app.use((req, res) => {
         res.status(404).json({ 
             ok: false, 
@@ -51,19 +44,15 @@ export const setupAppRoutes = (app) => {
 export const handleChat = async (req, res) => {
     try {
         const { message } = req.body;
-        const userRole = req.user?.role || 'user';
         if (!message) return res.status(400).json({ success: false, message: "يرجى كتابة سؤالك أولاً." });
 
         const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
         const completion = await openai.chat.completions.create({
             model: "gpt-3.5-turbo",
-            messages: [
-                { role: "system", content: `أنت مساعد قانوني لمشروع LawLink. رتبة المستخدم: ${userRole}.` },
-                { role: "user", content: message },
-            ],
+            messages: [{ role: "user", content: message }]
         });
-        res.status(200).json({ success: true, reply: completion.choices[0].message.content });
+        res.status(200).json({ success: true, response: completion.choices[0].message.content });
     } catch (error) {
-        res.status(500).json({ success: false, message: "الـ AI غير متاح حالياً." });
+        res.status(500).json({ success: false, message: error.message });
     }
 };

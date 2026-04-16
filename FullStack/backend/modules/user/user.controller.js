@@ -1,6 +1,5 @@
 import * as userService from './user.service.js';
 
-// ✅ الدالة الجديدة اللي هتجيب التخصصات للـ Frontend
 export const getSpecializations = async (req, res) => {
     try {
         const specs = await userService.getLawyerSpecializationsService();
@@ -32,7 +31,7 @@ export const searchUsers = async (req, res) => {
 export const updateUser = async (req, res) => {
     try {
         await userService.updateUserService(req.params.id, req.body);
-        res.status(200).json({ success: true, message: "تم التحديث" });
+        res.status(200).json({ success: true, message: "تم التحديث بنجاح" });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
 

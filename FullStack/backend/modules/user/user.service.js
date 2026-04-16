@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = "lawlink_secret_key"; 
 
-// ✅ 1. جلب التخصصات الفريدة من الجدول الجديد
+// ✅ 1. جلب التخصصات الفريدة (للفلترة في الفرونت إند)
 export const getLawyerSpecializationsService = async () => {
     try {
         const [rows] = await pool.promise().query(
@@ -16,7 +16,7 @@ export const getLawyerSpecializationsService = async () => {
     }
 };
 
-// ✅ 2. البحث (Search) - جلب البيانات شاملة الصورة والخبرة والتوثيق
+// ✅ 2. البحث (Search) - جلب البيانات شاملة الصورة والخبرة والتوثيق والتقييم
 export const searchUsersService = async (searchTerm) => {
     const term = `%${searchTerm || ''}%`;
     const [rows] = await pool.promise().query(
@@ -35,11 +35,13 @@ export const searchUsersService = async (searchTerm) => {
     return rows;
 };
 
-// ✅ 3. تسجيل مستخدم جديد (Register)
+// ✅ 3. تسجيل مستخدم جديد (Register) مع توزيع البيانات على الجداول
 export const registerUserService = async (userData) => {
     const connection = await pool.promise().getConnection();
     try {
         await connection.beginTransaction();
+        
+        // تشفير الباسورد عند التسجيل لأول مرة
         const hashedPassword = await bcrypt.hash(userData.password, 10);
         
         const [userResult] = await connection.query(
@@ -49,6 +51,7 @@ export const registerUserService = async (userData) => {
         );
         const userId = userResult.insertId;
 
+        // إضافة تفاصيل المحامي إذا كان الدور Lawyer
         if (userData.role === 'Lawyer') {
             await connection.query(
                 `INSERT INTO lawyer (user_id, license_number, years_experience, verified) VALUES (?, ?, ?, ?)`, 
@@ -75,13 +78,22 @@ export const registerUserService = async (userData) => {
     }
 };
 
-// ✅ 4. التحديث (Update) - التحكم الكامل في كل الحقول من Postman
+// ✅ 4. التحديث (Update) - يدعم تحديث الباسورد المشفر وباقي بيانات المحامي
 export const updateUserService = async (userId, userData) => {
     const connection = await pool.promise().getConnection();
     try {
         await connection.beginTransaction();
 
-        // تحديث جدول users الأساسي
+        // 💡 تحديث الباسورد: يتم تشفيره قبل التخزين لضمان نجاح تسجيل الدخول لاحقاً
+        if (userData.password) {
+            const hashedPassword = await bcrypt.hash(userData.password, 10);
+            await connection.query(
+                `UPDATE users SET password = ? WHERE user_id = ?`,
+                [hashedPassword, userId]
+            );
+        }
+
+        // تحديث جدول users الأساسي (الاسم، الايميل، الهاتف، رابط الصورة)
         await connection.query(
             `UPDATE users SET 
                 name = IFNULL(?, name), 
@@ -92,7 +104,7 @@ export const updateUserService = async (userId, userData) => {
             [userData.name || null, userData.email || null, userData.Phone_no1 || null, userData.image_url || null, userId]
         );
 
-        // تحديث جدول lawyer (التقييم، التوثيق، الخبرة)
+        // تحديث جدول lawyer (التقييم، حالة التوثيق، سنوات الخبرة)
         await connection.query(
             `UPDATE lawyer SET 
                 rating_avg = IFNULL(?, rating_avg),
@@ -102,7 +114,7 @@ export const updateUserService = async (userId, userData) => {
             [userData.rating_avg || null, userData.verified !== undefined ? userData.verified : null, userData.years_experience || null, userId]
         );
 
-        // تحديث التخصصات المتعددة
+        // تحديث التخصصات: حذف القديم وإضافة الجديد
         if (userData.specializations && Array.isArray(userData.specializations)) {
             await connection.query(`DELETE FROM lawyer_specializations WHERE lawyer_id = ?`, [userId]);
             const specValues = userData.specializations.map(spec => [userId, spec]);
@@ -119,7 +131,7 @@ export const updateUserService = async (userId, userData) => {
     }
 };
 
-// ✅ 5. تسجيل الدخول (Login)
+// ✅ 5. تسجيل الدخول (Login) - التحقق من الايميل ومقارنة الباسورد الـ Hash
 export const loginService = async (email, password) => {
     const [users] = await pool.promise().query(
         `SELECT * FROM users WHERE email = ? AND deleted_at IS NULL`, 
@@ -129,9 +141,12 @@ export const loginService = async (email, password) => {
     if (users.length === 0) throw new Error("الحساب غير موجود أو تم حذفه");
     
     const user = users[0];
+    
+    // 💡 التحقق الأمني: مقارنة النص الصريح مع الـ Hash المخزن في الداتابيز
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) throw new Error("كلمة المرور غير صحيحة");
+    if (!isMatch) throw new Error("كلمة المرور التي أدخلتها غير صحيحة.");
 
+    // توليد التوكن (JWT) للصلاحيات
     const token = jwt.sign(
         { userId: user.user_id, role: user.role },
         JWT_SECRET, 
@@ -144,7 +159,7 @@ export const loginService = async (email, password) => {
     };
 };
 
-// ✅ 6. الحذف المنطقي (Delete)
+// ✅ 6. الحذف المنطقي (Logical Delete)
 export const deleteUserService = async (userId) => {
     try {
         await pool.promise().query(

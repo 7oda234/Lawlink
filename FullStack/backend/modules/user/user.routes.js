@@ -13,13 +13,13 @@ router.get('/search', userController.searchUsers);
 // 3. تسجيل مستخدم جديد
 router.post('/register', validateRegister, userController.register);
 
-// 4. تسجيل الدخول
+// 4. تسجيل الدخول (POST /api/auth/login)
 router.post('/login', userController.login);
 
-// 5. تحديث بيانات مستخدم (PUT /api/users/:id) 👈 السطر ده كان عامل المشكلة
+// 5. تحديث بيانات مستخدم (PUT /api/auth/:id) - لتغيير الباسورد
 router.put('/:id', userController.updateUser);
 
-// 6. حذف مستخدم (DELETE /api/users/:id)
+// 6. حذف مستخدم
 router.delete('/:id', userController.deleteUser);
 
 export default router;
