@@ -1,40 +1,43 @@
-// ═══════════════════════════════════════════════════════════════════════════════════
-// Send Message Page
-// ═══════════════════════════════════════════════════════════════════════════════════
-// صفحة التواصل لSend Message Page - chat/notifications/messages
-// Communication page for messaging and notifications.
-// ───────────────────────────────────────────────────────────────────────────────────
-import React from 'react';
+import React from 'react'; // استيراد ريأكت
+import { useLanguage } from '../../context/useLanguage'; // للغة والترجمة
+import { useTheme } from '../../context/ThemeContext'; // للثيم
+import { Send, User } from 'lucide-react'; // الأيقونات
+import '../../styles/communication/CommunicationBase.css'; // الستايل الموحد
 
-const SendMessagePage = () => (
-  <>
-// 📍 Start page component content
-  <div className="min-h-screen flex flex-col bg-gray-50"> 
-    <main className="flex-grow pt-28 pb-16"> 
-      <section className="max-w-6xl mx-auto px-6 py-16"> 
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-10"> 
-          <h1 className="text-4xl font-bold text-black mb-3">Send Message</h1>
-          <p className="text-gray-500 mb-8 text-lg">Compose and send a legal message.</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6"> 
-            <div className="rounded-xl border border-gray-200 p-5 bg-black text-white"> 
-              <h3 className="text-xl font-bold mb-2">Quick Actions</h3>
-              <ul className="space-y-2 text-sm">
-                <li>• High-impact, professional UI</li>
-                <li>• Fast, responsive layout</li>
-                <li>• Consistent style language</li>
-              </ul>
+const SendMessagePage = () => {
+  const { language, t } = useLanguage(); // تفعيل الترجمة
+  const { mode } = useTheme(); // تفعيل الثيم
+  const isRTL = language === 'ar' || language === 'eg'; // تحديد الاتجاه
+
+  return (
+    <div dir={isRTL ? 'rtl' : 'ltr'} className={`min-h-screen pt-28 pb-16 ${mode === 'dark' ? 'dark-mode' : ''}`}>
+      <main className="max-w-3xl mx-auto px-6">
+        {/* حاوية الفورم (Form Container) */}
+        <div className="comm-chat-container p-10 shadow-2xl">
+          <h1 className="text-3xl font-black mb-8">{t('page.send.title', isRTL ? 'إرسال رسالة قانونية' : 'Send Legal Message')}</h1>
+          {/* فورم إرسال الرسالة للمحامي */}
+          <form className="space-y-6">
+            <div>
+              <label className="block text-xs font-black uppercase text-slate-500 mb-2">{isRTL ? 'إلى المحامي' : 'To Lawyer'}</label>
+              <div className="relative">
+                <User size={18} className={`${isRTL ? 'right-4' : 'left-4'} absolute top-4 text-slate-500`} />
+                <input className={`comm-input ${isRTL ? 'pr-12' : 'pl-12'}`} placeholder={isRTL ? 'اسم المحامي...' : 'Lawyer name...'} />
+              </div>
             </div>
-            <div className="rounded-xl border border-gray-200 p-5"> 
-              <h3 className="text-xl font-bold mb-2">Overview</h3>
-              <p className="text-gray-700">This page is scaffolded for send message with a bold black-and-white theming and a subtle accent tone consistent with LawLink branding. Extend it with actual fields and business logic as needed.</p>
+            <div>
+              <label className="block text-xs font-black uppercase text-slate-500 mb-2">{isRTL ? 'نص الرسالة' : 'Message'}</label>
+              {/* تيكست أريا كبيرة عشان الموكل يشرح استفساره */}
+              <textarea rows={6} className="comm-input resize-none" placeholder={isRTL ? 'اشرح استفسارك هنا بالتفصيل...' : 'Explain your query...'} />
             </div>
-          </div>
+            {/* زرار الإرسال بستايل الـ Primary Button بتاعنا */}
+            <button type="button" className="comm-btn-primary w-full flex items-center justify-center gap-3">
+              <Send size={20} /> {isRTL ? 'إرسال الآن' : 'Send Now'}
+            </button>
+          </form>
         </div>
-      </section>
-    </main>
-  </div>
-  </>
-
-);
+      </main>
+    </div>
+  );
+};
 
 export default SendMessagePage;

@@ -1,14 +1,116 @@
+/* ═══════════════════════════════════════════════════════════════════════════════════
+   LAWLINK COMMUNICATION BASE STYLES
+   ═══════════════════════════════════════════════════════════════════════════════════ */
+
 :root {
-  --comm-bg: #f8fafc;
-  --comm-text: #1e293b;
+  /* ألوان الهوية البصرية الأساسية */
+  --law-yellow: #eab308;
+  --law-black: #020617;
+  --law-slate-800: #1e293b;
+  --law-slate-900: #0f172a;
+  --law-gray-50: #f8fafc;
+  
+  /* إعدادات الحواف والظلال */
+  --comm-radius: 1.5rem;
+  --comm-radius-lg: 2rem;
+  --law-shadow: 0 10px 15px -3px rgba(234, 179, 8, 0.1), 0 4px 6px -4px rgba(234, 179, 8, 0.1);
 }
 
+/* حاوية الدردشة الأساسية */
 .comm-chat-container {
-  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  background: var(--comm-bg);
   border: 1px solid #cbd5e1;
-  border-radius: 1rem;
+  border-radius: var(--comm-radius);
+  overflow: hidden;
+  transition: all 0.3s ease;
 }
 
+/* تنسيق فقاعات الرسائل */
 .comm-message {
-  margin-bottom: 0.75rem;
+  max-width: 75%;
+  margin-bottom: 1rem;
+  padding: 1.25rem;
+  font-weight: 700;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* رسائل المحامي (المرسل) */
+.comm-message-lawyer {
+  background-color: var(--law-yellow);
+  color: var(--law-black);
+  border-bottom-right-radius: 0;
+  align-self: flex-end;
+}
+
+/* رسائل الموكل (المستقبل) */
+.comm-message-client {
+  background-color: #f1f5f9;
+  color: var(--law-black);
+  border-bottom-left-radius: 0;
+  align-self: flex-start;
+}
+
+/* تنسيق التنبيهات */
+.comm-notif-card {
+  padding: 1.5rem;
+  border-radius: var(--comm-radius);
+  border: 1px solid #e2e8f0;
+  background-color: #ffffff;
+  display: flex;
+  gap: 1rem;
+  transition: all 0.2s ease-in-out;
+  margin-bottom: 1rem;
+}
+
+.comm-notif-unread {
+  border-left: 4px solid var(--law-yellow) !important;
+  background-color: rgba(234, 179, 8, 0.05);
+}
+
+/* دعم الوضع الليلي (Dark Mode) */
+.dark-mode .comm-chat-container {
+  background-color: var(--law-slate-900);
+  border-color: var(--law-slate-800);
+}
+
+.dark-mode .comm-notif-card {
+  background-color: var(--law-slate-900);
+  border-color: var(--law-slate-800);
+  color: #ffffff;
+}
+
+.dark-mode .comm-message-client {
+  background-color: var(--law-slate-800);
+  color: #ffffff;
+}
+
+/* تأثيرات تفاعلية للأزرار */
+.comm-btn-primary {
+  background-color: var(--law-yellow);
+  color: var(--law-black);
+  font-weight: 900;
+  border-radius: 1rem;
+  padding: 1rem 1.5rem;
+  transition: transform 0.2s active;
+  box-shadow: var(--law-shadow);
+}
+
+.comm-btn-primary:hover {
+  background-color: #facc15;
+  transform: scale(1.02);
+}
+
+/* تنسيق حقل الإدخال */
+.comm-input {
+  width: 100%;
+  background-color: rgba(148, 163, 184, 0.05);
+  border-radius: 1rem;
+  padding: 1rem 1.5rem;
+  border: none;
+  outline: none;
+  font-weight: 700;
 }

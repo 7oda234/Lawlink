@@ -1,40 +1,50 @@
-// ═══════════════════════════════════════════════════════════════════════════════════
-// Chat Page
-// ═══════════════════════════════════════════════════════════════════════════════════
-// صفحة التواصل لChat Page - chat/notifications/messages
-// Communication page for messaging and notifications.
-// ───────────────────────────────────────────────────────────────────────────────────
-import React from 'react';
+import React, { useState } from 'react';
+import { useLanguage } from '../../context/useLanguage';
+import { useTheme } from '../../context/ThemeContext';
+import { Send, User } from 'lucide-react';
+import '../../styles/communication/CommunicationBase.css';
 
-const ChatPage = () => (
-  <>
-// 📍 Start page component content
-  <div className="min-h-screen flex flex-col bg-gray-50"> 
-    <main className="flex-grow pt-28 pb-16"> 
-      <section className="max-w-6xl mx-auto px-6 py-16"> 
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-10"> 
-          <h1 className="text-4xl font-bold text-black mb-3">Chat</h1>
-          <p className="text-gray-500 mb-8 text-lg">Live chat interface for ongoing conversations.</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6"> 
-            <div className="rounded-xl border border-gray-200 p-5 bg-black text-white"> 
-              <h3 className="text-xl font-bold mb-2">Quick Actions</h3>
-              <ul className="space-y-2 text-sm">
-                <li>• High-impact, professional UI</li>
-                <li>• Fast, responsive layout</li>
-                <li>• Consistent style language</li>
-              </ul>
-            </div>
-            <div className="rounded-xl border border-gray-200 p-5"> 
-              <h3 className="text-xl font-bold mb-2">Overview</h3>
-              <p className="text-gray-700">This page is scaffolded for chat with a bold black-and-white theming and a subtle accent tone consistent with LawLink branding. Extend it with actual fields and business logic as needed.</p>
-            </div>
+const ChatPage = () => {
+  const { language } = useLanguage();
+  const { mode } = useTheme();
+  const isRTL = language === 'ar' || language === 'eg';
+  const [msg, setMsg] = useState('');
+
+  // مصفوفة الرسايل بتمثل المحادثة الفعلية
+  const messages = [
+    { id: 1, text: 'أهلاً بك، كيف يمكنني مساعدتك؟', sender: 'lawyer' },
+    { id: 2, text: 'عندي استفسار بخصوص القضية رقم 101.', sender: 'client' }
+  ];
+
+  return (
+    <div dir={isRTL ? 'rtl' : 'ltr'} className={`min-h-screen pt-28 pb-16 flex flex-col ${mode === 'dark' ? 'dark-mode' : ''}`}>
+      <main className="max-w-4xl mx-auto px-6 w-full flex-grow flex flex-col">
+        <div className="comm-chat-container flex-grow flex flex-col">
+          {/* هيدر الشات فيه اسم الشخص اللي بتكلمه */}
+          <div className="p-6 border-b border-gray-500/10 flex items-center gap-4">
+            <div className="w-12 h-12 bg-yellow-500 rounded-2xl flex items-center justify-center font-black"><User size={24} /></div>
+            <h3 className="font-black">محمود خالد</h3>
+          </div>
+          
+          {/* منطقة عرض الرسايل */}
+          <div className="flex-grow p-8 overflow-y-auto flex flex-col">
+            {messages.map(m => (
+              // الكلاس بيحدد لو الرسالة يمين (محامي) ولا شمال (موكل) بناءً على المرسل
+              <div key={m.id} className={`comm-message ${m.sender === 'lawyer' ? 'comm-message-lawyer' : 'comm-message-client'}`}>
+                {m.text}
+              </div>
+            ))}
+          </div>
+
+          {/* منطقة الكتابة والإرسال */}
+          <div className="p-6 border-t border-gray-500/10 flex gap-4">
+            <input className="comm-input" value={msg} onChange={(e) => setMsg(e.target.value)} placeholder={isRTL ? 'اكتب هنا...' : 'Type here...'} />
+            <button className="comm-btn-primary"><Send size={20} /></button>
           </div>
         </div>
-      </section>
-    </main>
-  </div>
-  </>
-
-);
+      </main>
+    </div>
+  );
+};
 
 export default ChatPage;
