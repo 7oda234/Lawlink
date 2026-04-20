@@ -1,11 +1,7 @@
 import jwt from "jsonwebtoken";
 
-// 🔑 المفتاح السري (يجب أن يكون مطابقاً لملف auth.service.js)
 const JWT_SECRET = "lawlink_secret_key"; 
 
-/**
- * ميدلوير التحقق من الهوية (Authentication Middleware)
- */
 export const authMiddleware = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
@@ -20,10 +16,10 @@ export const authMiddleware = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded; 
+    // تأكدنا إننا بنخزن userId عشان الـ Controller يقرأه صح
+    req.user = { ...decoded, userId: decoded.userId || decoded.id }; 
     next(); 
   } catch (error) {
-    console.log("JWT Verify Error:", error.message); 
     return res.status(401).json({ 
       ok: false, 
       message: "Invalid or expired token" 
@@ -31,6 +27,6 @@ export const authMiddleware = (req, res, next) => {
   }
 };
 
-// 🔄 تصدير إضافي بنفس الاسم القديم لدعم ملفات الـ AI والملفات الأخرى
-// This ensures backward compatibility with modules searching for 'verifyToken'
+// 🔄 تصدير الأسماء المختلفة لضمان عمل السيستم بالكامل
 export const verifyToken = authMiddleware;
+export const protect = authMiddleware; // 👈 ده اللي بيحل الـ SyntaxError

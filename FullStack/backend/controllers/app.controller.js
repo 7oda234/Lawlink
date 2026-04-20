@@ -10,7 +10,7 @@ import aiRouter from "../modules/Ai_tools/ai_tools.routes.js";
 
 // import paymentRouter from "../modules/payments/payments.routes.js";
 
-// import messageRouter from "../modules/communication/messages.routes.js";
+ import messageRouter from "../modules/Message/message.routes.js";
 
 
 /**
@@ -29,6 +29,8 @@ export const setupAppRoutes = (app) => {
     // 🤖 أدوات الذكاء الاصطناعي
     app.use("/ai", aiRouter);
     
+    // 💬 موديول المراسلات (الـ Chat الجديد)
+    app.use("/api/messages", messageRouter);
     // ⚠️ معالج المسارات غير الموجودة (404 Error Handler)
     app.use((req, res) => {
         res.status(404).json({ 
