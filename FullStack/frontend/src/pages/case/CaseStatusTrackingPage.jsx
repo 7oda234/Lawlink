@@ -1,40 +1,32 @@
-// ═══════════════════════════════════════════════════════════════════════════════════
-// Case Status Tracking Page
-// ═══════════════════════════════════════════════════════════════════════════════════
-// عن Case Status Tracking Page - File overview
-// Case Status Tracking Page component or module.
-// ───────────────────────────────────────────────────────────────────────────────────
 import React from 'react';
+import { CheckCircle2, Clock, ArrowDown } from 'lucide-react';
 
-const CaseStatusTrackingPage = () => (
-  <>
-// 📍 Start page component content
-  <div className="min-h-screen flex flex-col bg-gray-50"> 
-    <main className="flex-grow pt-28 pb-16"> 
-      <section className="max-w-6xl mx-auto px-6 py-16"> 
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-10"> 
-          <h1 className="text-4xl font-bold text-black mb-3">Case Status Tracking</h1>
-          <p className="text-gray-500 mb-8 text-lg">Live status tracking and milestones.</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6"> 
-            <div className="rounded-xl border border-gray-200 p-5 bg-black text-white"> 
-              <h3 className="text-xl font-bold mb-2">Quick Actions</h3>
-              <ul className="space-y-2 text-sm">
-                <li>• High-impact, professional UI</li>
-                <li>• Fast, responsive layout</li>
-                <li>• Consistent style language</li>
-              </ul>
+const CaseStatusTrackingPage = () => {
+  // في العادي بنجيب الحالة من الـ API (status column في جدول cases)
+  const stages = [
+    { title: 'Pending', status: 'completed' },
+    { title: 'Ongoing', status: 'active' },
+    { title: 'Closed', status: 'pending' },
+  ];
+
+  return (
+    <div className="min-h-screen bg-gray-50 pt-28 pb-16">
+      <main className="max-w-2xl mx-auto px-6">
+        <h1 className="text-center text-4xl font-black italic uppercase mb-16">Live <span className="text-yellow-500">Tracker</span></h1>
+        {stages.map((s, idx) => (
+          <div key={idx} className="flex flex-col items-center">
+            <div className={`w-full p-8 rounded-[2.5rem] border flex items-center gap-6 bg-white transition-all ${s.status === 'active' ? 'border-yellow-500 shadow-xl scale-105' : 'border-gray-100 opacity-60'}`}>
+              <div className={s.status === 'completed' ? 'text-green-500' : s.status === 'active' ? 'text-yellow-500 animate-pulse' : 'text-gray-300'}>
+                {s.status === 'completed' ? <CheckCircle2 size={32}/> : <Clock size={32}/>}
+              </div>
+              <h3 className="text-2xl font-black uppercase tracking-tighter">{s.title}</h3>
             </div>
-            <div className="rounded-xl border border-gray-200 p-5"> 
-              <h3 className="text-xl font-bold mb-2">Overview</h3>
-              <p className="text-gray-700">This page is scaffolded for case status tracking with a bold black-and-white theming and a subtle accent tone consistent with LawLink branding. Extend it with actual fields and business logic as needed.</p>
-            </div>
+            {idx !== stages.length - 1 && <ArrowDown className="my-6 text-gray-200" size={32} />}
           </div>
-        </div>
-      </section>
-    </main>
-  </div>
-  </>
-
-);
+        ))}
+      </main>
+    </div>
+  );
+};
 
 export default CaseStatusTrackingPage;
