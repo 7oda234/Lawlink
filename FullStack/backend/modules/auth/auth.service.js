@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import db from "../../db/Connection.js"; // تأكد أن المسار يوجه لمجلد الاتصال بقاعدة البيانات
+import db from "../../db/Connection.js"; // مسار الاتصال بقاعدة البيانات
 
 const JWT_SECRET = process.env.JWT_SECRET || "lawlink_secret_key";
 
@@ -45,11 +45,12 @@ export const login = async (email, password) => {
       return { ok: false, message: "كلمة المرور التي أدخلتها غير صحيحة." };
     }
 
-    // جلب البروفايل كامل مع الربط (JOIN) بناءً على الدور
+    // ✅ جلب البروفايل كامل شامل الصورة (image_url) وعدد التنبيهات (unread_notifications)
     const fullProfile = await runQuery(`
-      SELECT u.user_id, u.name, u.role, u.email, u.gender, u.Phone_no1, u.Date_of_Birth,
-             l.specialization, l.license_number, l.rating_avg, l.verified,
-             a.authority_level
+      SELECT u.user_id, u.name, u.role, u.email, u.gender, u.Phone_no1, u.Date_of_Birth, u.image_url,
+            l.license_number, l.rating_avg, l.verified, l.years_experience,
+            a.authority_level,
+            (SELECT COUNT(*) FROM notification n WHERE n.user_id = u.user_id AND n.is_read = 0) AS unread_notifications
       FROM users u
       LEFT JOIN lawyer l ON u.user_id = l.user_id
       LEFT JOIN admin a ON u.user_id = a.user_id
@@ -80,19 +81,19 @@ export const login = async (email, password) => {
 // ---------------------------------------------------------
 export const register = async (userData) => {
   try {
-    const { name, email, password, role, Phone_no1, gender, Date_of_Birth, authority_level } = userData;
+    const { name, email, password, role, Phone_no1, gender, Date_of_Birth, authority_level, image_url } = userData;
     const cleanEmail = normalizeEmail(email);
 
     // تشفير كلمة المرور
     const hashedPassword = await bcrypt.hash(String(password), 10);
 
-    // الإدخال في جدول users
-    // 💡 ملاحظة: الـ Trigger 'after_user_insert' في SQL هيقوم بإنشاء سجل في جدول (admin/lawyer/client) تلقائياً
+    // الإدخال في جدول users (الـ Trigger في SQL هيكريت باقي الجداول تلقائياً)
     const sqlInsert = `
-      INSERT INTO users (name, role, email, password, gender, Phone_no1, Date_of_Birth) 
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO users (name, role, email, password, gender, Phone_no1, Date_of_Birth, image_url) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
     
+    // إرسال الـ image_url للداتابيز وقت التسجيل
     const result = await runQuery(sqlInsert, [
       name, 
       role, 
@@ -100,7 +101,8 @@ export const register = async (userData) => {
       hashedPassword, 
       gender, 
       Phone_no1, 
-      Date_of_Birth
+      Date_of_Birth, 
+      image_url || null
     ]);
 
     const newUserId = result.insertId;
@@ -134,19 +136,23 @@ export const register = async (userData) => {
 // ---------------------------------------------------------
 export const getMe = async (userId) => {
   try {
-    const profile = await runQuery(`
-      SELECT u.user_id, u.name, u.role, u.email, u.gender, u.Phone_no1, u.Date_of_Birth,
-             l.specialization, l.license_number, l.verified,
-             a.authority_level
+    // ✅ تصليح الكويري: شيلنا الجدول الوهمي بتاع الصورة، وصلحنا الـ WHERE عشان تاخد userId
+    const fullProfile = await runQuery(`
+      SELECT u.user_id, u.name, u.role, u.email, u.gender, u.Phone_no1, u.Date_of_Birth, u.image_url, 
+            l.license_number, l.rating_avg, l.verified, l.years_experience,
+            a.authority_level,
+            (SELECT COUNT(*) FROM notification n WHERE n.user_id = u.user_id AND n.is_read = 0) AS unread_notifications
       FROM users u
       LEFT JOIN lawyer l ON u.user_id = l.user_id
       LEFT JOIN admin a ON u.user_id = a.user_id
+      LEFT JOIN client c ON u.user_id = c.user_id
       WHERE u.user_id = ?`, [userId]);
 
-    if (!profile.length) return { ok: false, message: "المستخدم غير موجود." };
+    if (!fullProfile.length) return { ok: false, message: "المستخدم غير موجود." };
 
-    return { ok: true, user: profile[0] };
+    return { ok: true, user: fullProfile[0] };
   } catch (err) {
+    console.error("❌ GetMe Service Error:", err);
     throw err;
   }
 };

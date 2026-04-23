@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { FaLock, FaEnvelope, FaExclamationCircle, FaGavel, FaUser } from 'react-icons/fa';
+import { FaLock, FaEnvelope, FaExclamationCircle, FaGavel, FaUser, FaQuestionCircle } from 'react-icons/fa';
 import axios from 'axios';
 
 const LoginPage = () => {
@@ -10,6 +10,8 @@ const LoginPage = () => {
   const [error, setError] = useState('');
   const [validationErrors, setValidationErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  // Track failed attempts to show "Forgot Password"
+  const [failedAttempts, setFailedAttempts] = useState(0);
   
   const navigate = useNavigate();
 
@@ -18,7 +20,6 @@ const LoginPage = () => {
     setError('');
     setValidationErrors({});
 
-    // 1. Validation فوري قبل إرسال الطلب
     if (!email || !password) {
       setValidationErrors({
         email: !email ? "يرجى إدخال البريد الإلكتروني" : "",
@@ -30,7 +31,6 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      // 🚀 2. محاولة تسجيل الدخول من السيرفر
       const response = await axios.post('http://localhost:5000/api/auth/login', {
         email: email.trim().toLowerCase(),
         password: password
@@ -39,18 +39,17 @@ const LoginPage = () => {
       const user = response.data.user; 
       const token = response.data.token;
 
-      // 🔍 3. فحص البوابة (بعد التأكد إن البيانات صحيحة)
       const userRoleFromDB = user.role.toLowerCase();
       const currentSelectedPortal = selectedRole.toLowerCase();
 
       if (userRoleFromDB !== 'admin' && userRoleFromDB !== currentSelectedPortal) {
-        // ⚠️ الرسالة دي بتظهر لما البيانات تكون صح بس المكان غلط
         setError(`⚠️ الحساب مسجل كـ [${user.role}]؛ يرجى الدخول من بوابة ${user.role === 'Lawyer' ? 'المحامي' : 'العميل'}.`);
         setLoading(false);
         return; 
       }
 
-      // ✅ 4. الدخول الناجح
+      // Reset attempts on success
+      setFailedAttempts(0);
       localStorage.setItem('token', token);
       localStorage.setItem('userRole', user.role);
 
@@ -59,12 +58,12 @@ const LoginPage = () => {
       else navigate('/client/dashboard');
 
     } catch (err) {
-      // ❌ التعامل مع أخطاء السيرفر والبيانات
+      // Increment failed attempts on error
+      setFailedAttempts(prev => prev + 1);
+
       if (err.response) {
-        // السيرفر رد (غالباً 401 أو 404) -> يعني البيانات غلط
         setError("❌ البريد الإلكتروني أو كلمة المرور غير صحيحة. حاول مرة أخرى.");
       } else {
-        // السيرفر مش بيرد أصلاً
         setError("🔌 عذراً، تعذر الاتصال بالسيرفر. تأكد من تشغيل الـ Backend.");
       }
     } finally {
@@ -81,7 +80,7 @@ const LoginPage = () => {
           <p className="text-yellow-500 font-bold text-sm uppercase tracking-widest italic underline decoration-2 underline-offset-8">LAWLINK SYSTEM</p>
         </div>
 
-        {/* اختيار البوابة */}
+        {/* Portal Selection */}
         <div className="flex p-1.5 rounded-2xl mb-8 bg-slate-950 border border-white/5 shadow-inner">
           <button 
             type="button"
@@ -131,6 +130,18 @@ const LoginPage = () => {
               }`}
             />
           </div>
+
+          {/* Forgot Password Link - Appears after 1 wrong attempt */}
+          {failedAttempts >= 1 && (
+            <div className="flex justify-start px-2 animate-fadeIn">
+              <Link 
+                to="/forgot-password" 
+                className="text-xs font-bold text-gray-400 hover:text-yellow-500 transition-colors flex items-center gap-1"
+              >
+                <FaQuestionCircle size={10} /> هل نسيت كلمة المرور؟
+              </Link>
+            </div>
+          )}
 
           {/* Error Message Display */}
           {error && (

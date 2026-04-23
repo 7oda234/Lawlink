@@ -1,229 +1,113 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../../styles/auth/AuthBase.css";
-import { FaLock, FaEnvelope, FaGavel, FaUser } from 'react-icons/fa';
-import { useAuth } from '../../context/useAuth';
-import { useLanguage } from '../../context/useLanguage';
-import logo from '../../Assets/logo/logo canvas.png'; 
+import { FaLock, FaEnvelope, FaGavel, FaUser, FaArrowRight } from 'react-icons/fa';
+// import { useLanguage } from '../../context/useLanguage';
+import logo from '../../Assets/logo/logo lawlink transparent.png'; 
 import AuthShell from '../../components/AuthShell';
 
-/**
- * صفحة التسجيل - Register Page
- * بتدعم تسجيل كلينت أو لاير
- */
 const RegisterPage = () => {
-  // 👤 حالة نوع المستخدم - state to track which user type is selected (client or lawyer)
+  const [step, setStep] = useState(1);
   const [userType, setUserType] = useState('client');
-
-  // 📝 حالة البيانات الأساسية - basic registration data
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
-    password: ''
+    password: '',
+    confirmPassword: ''
   });
-
-  // ⚠️ حالة الأخطاء - error states
   const [errors, setErrors] = useState({});
-
-  // 🔄 حالة التحميل - loading state
-  const [loading, setLoading] = useState(false);
-
-  // 🧭 التنقل - navigation
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  // const { t } = useLanguage();
 
-  // 🔐 سياق المصادقة - auth context
-  const { register } = useAuth();
-
-  // 📝 دالة تحديث البيانات - handle input changes
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (errors[e.target.name]) setErrors({ ...errors, [e.target.name]: '' });
   };
 
-  // ✅ دالة التحقق من الصحة - validation function
-  const validateForm = () => {
+  const validateStep1 = () => {
     const newErrors = {};
-
-    // Full name validation
-    if (!formData.fullName.trim()) {
-      newErrors.fullName = 'الاسم الكامل مطلوب';
-    } else if (formData.fullName.trim().length < 2) {
-      newErrors.fullName = 'الاسم الكامل يجب أن يكون على الأقل حرفين';
-    }
-
-    // Email validation
-    if (!formData.email.trim()) {
-      newErrors.email = 'البريد الإلكتروني مطلوب';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'البريد الإلكتروني غير صحيح';
-    }
-
-    // Password validation
-    if (!formData.password) {
-      newErrors.password = 'كلمة المرور مطلوبة';
-    } else if (formData.password.length < 8) {
-      newErrors.password = 'كلمة المرور يجب أن تكون 8 أحرف على الأقل';
-    }
-
+    if (!formData.fullName.trim()) newErrors.fullName = 'الاسم الكامل مطلوب';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'البريد الإلكتروني غير صحيح';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // 📝 دالة معالجة الإرسال - handle form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      // إرسال البيانات الأساسية للتسجيل - Send basic registration data
-      const result = await register({
-        ...formData,
-        userType
-      });
-
-      if (result.success) {
-        // التنقل لصفحة الاستكمال حسب نوع المستخدم - Navigate to continue page based on user type
-        if (userType === 'client') {
-          navigate('/register/client/continue');
-        } else {
-          navigate('/register/lawyer/continue');
-        }
-      } else {
-        setErrors({ general: result.error });
+  const handleNext = () => {
+    if (step === 1 && validateStep1()) setStep(2);
+    else if (step === 2) {
+      if (formData.password.length < 8) {
+        setErrors({ password: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل' });
+        return;
       }
-    } catch (error) {
-      console.error('خطأ في التسجيل:', error);
-      setErrors({ general: 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.' });
-    } finally {
-      setLoading(false);
+      // Save progress to session and move to specific pages
+      sessionStorage.setItem('reg_base', JSON.stringify({ ...formData, userType }));
+      navigate(userType === 'client' ? '/register/client/continue' : '/register/lawyer/continue');
     }
   };
 
   return (
-    // Wrapper الأساسي اللي بيعمل الخلفية الـ Dark
     <AuthShell>
-      <div className="auth-wrapper">
-      <div className="auth-container">
-        {/* الجزء اللي على الشمال - Brand Sidebar */}
-        <div className="brand-sidebar">
-          <div className="brand-content">
-            <h1 className="brand-logo">LawLink</h1>
-            <h2 className="welcome-text">Join LawLink.</h2>
-            <p className="brand-tagline">Redefining legal access through intelligent technology.</p>
+      <div className="auth-wrapper" dir="rtl">
+        <div className="auth-container">
+          <div className="brand-sidebar">
+            <div className="brand-content">
+              <h1 className="brand-logo">LawLink</h1>
+              <h2 className="welcome-text">{step === 1 ? "خطوة البداية" : "تأمين الحساب"}</h2>
+              <p className="brand-tagline">انضم إلى أكبر شبكة قانونية ذكية في مصر.</p>
+            </div>
           </div>
-        </div>
 
-        {/* الجزء اللي على اليمين - Form Section */}
-          <div className="auth-card">
-            <>
+          <div className="form-section">
+            <div className="auth-card">
               <div className="logo-container">
                 <img src={logo} alt="LawLink Logo" />
               </div>
-              <h2 className="form-title">{t('auth.register.title')}</h2>
-              <p className="form-subtitle">{t('auth.register.subtitle')}</p>
-
-              {/* User Type Toggle */}
-              <div className="user-toggle">
-                <button
-                  type="button"
-                  className={`toggle-btn ${userType === 'client' ? 'active' : ''}`}
-                  onClick={() => setUserType('client')}
-                >
-                  <FaUser /> Client Portal
+              
+              <div className="user-toggle mb-6">
+                <button type="button" className={`toggle-btn ${userType === 'client' ? 'active' : ''}`} onClick={() => setUserType('client')}>
+                  <FaUser /> Client
                 </button>
-                <button
-                  type="button"
-                  className={`toggle-btn ${userType === 'lawyer' ? 'active' : ''}`}
-                  onClick={() => setUserType('lawyer')}
-                >
-                  <FaGavel /> Lawyer Portal
+                <button type="button" className={`toggle-btn ${userType === 'lawyer' ? 'active' : ''}`} onClick={() => setUserType('lawyer')}>
+                  <FaGavel /> Lawyer
                 </button>
               </div>
 
-              <form className="auth-form" onSubmit={handleSubmit}>
-                <div className="form-group">
-                  <label>{t('auth.register.fullName')}</label>
-                  <div className="input-container">
-                    <FaUser className="input-icon" />
-                    <input
-                      type="text"
-                      name="fullName"
-                      className="law-input"
-                      placeholder={t('auth.register.placeholderFullName')}
-                      value={formData.fullName}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                  {errors.fullName && <span className="error-text">{errors.fullName}</span>}
-                </div>
+              <form className="auth-form" onSubmit={(e) => e.preventDefault()}>
+                {step === 1 ? (
+                  <>
+                    <div className="form-group">
+                      <label>الاسم الكامل</label>
+                      <input type="text" name="fullName" className="law-input" placeholder="أدخل اسمك الثلاثي" onChange={handleChange} required />
+                      {errors.fullName && <span className="error-text">{errors.fullName}</span>}
+                    </div>
+                    <div className="form-group">
+                      <label>البريد الإلكتروني</label>
+                      <input type="email" name="email" className="law-input" placeholder="example@lawlink.com" onChange={handleChange} required />
+                      {errors.email && <span className="error-text">{errors.email}</span>}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="form-group">
+                      <label>كلمة المرور</label>
+                      <input type="password" name="password" className="law-input" placeholder="********" onChange={handleChange} required />
+                      {errors.password && <span className="error-text">{errors.password}</span>}
+                    </div>
+                    <div className="form-group">
+                      <label>تأكيد كلمة المرور</label>
+                      <input type="password" name="confirmPassword" className="law-input" placeholder="********" onChange={handleChange} required />
+                    </div>
+                  </>
+                )}
 
-                <div className="form-group">
-                  <label>{t('auth.register.email')}</label>
-                  <div className="input-container">
-                    <FaEnvelope className="input-icon" />
-                    <input
-                      type="email"
-                      name="email"
-                      className="law-input"
-                      placeholder={t('auth.register.placeholderEmail')}
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                  {errors.email && <span className="error-text">{errors.email}</span>}
-                </div>
-
-                <div className="form-group">
-                  <label>{t('auth.register.password')}</label>
-                  <div className="input-container">
-                    <FaLock className="input-icon" />
-                    <input
-                      type="password"
-                      name="password"
-                      className="law-input"
-                      placeholder={t('auth.register.placeholderPassword')}
-                      value={formData.password}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                  {errors.password && <span className="error-text">{errors.password}</span>}
-                </div>
-
-                {/* رسالة خطأ عامة - General error message */}
-                {errors.general && <div className="error-text" style={{ textAlign: 'center', marginBottom: '15px' }}>{errors.general}</div>}
-
-                {/* استخدمنا btn-submit عشان التنسيق يبان */}
-                <button type="submit" className="btn-submit" disabled={loading}>
-                  {loading ? t('auth.register.createAccountButton') : t('auth.register.createAccountButton')}
+                <button type="button" onClick={handleNext} className="btn-submit">
+                  {step === 1 ? "المتابعة للأمان" : "المتابعة للبيانات الشخصية"} <FaArrowRight className="inline ms-2" />
                 </button>
               </form>
-
-              <p className="footer-link">
-                {t('auth.register.alreadyHaveAccount')} <Link to="/login">{t('auth.register.signIn')}</Link>
-              </p>
-            </>
+            </div>
           </div>
+        </div>
       </div>
-    </div>
     </AuthShell>
   );
 };

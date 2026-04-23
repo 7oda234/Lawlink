@@ -62,7 +62,8 @@ const ForgotPasswordPage = () => {
           </p>
         </div>
       </div>
-    </div>    </AuthShell>  );
+    </div>    
+    </AuthShell>  );
 };
 
 export default ForgotPasswordPage;
