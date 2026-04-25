@@ -102,6 +102,8 @@ const ClientNotificationsPage = React.lazy(() => import('./pages/client/ClientNo
 
 const ClientPaymentPage = React.lazy(() => import('./pages/client/ClientPaymentPage'));
 
+const NewCaseIntake = React.lazy(() => import('./pages/client/NewCaseIntake'));
+
 
 
 // استيراد صفحات المحامي - التعديل هنا في اسم الفولدر 'Lawyer'
@@ -295,6 +297,8 @@ const routeConfig = [
   { path: '/client/notifications', Component: ClientNotificationsPage },
 
   { path: '/client/payment', Component: ClientPaymentPage },
+
+  { path: '/client/cases/intake', Component: NewCaseIntake },
 
 // lawyer routes
 

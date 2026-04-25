@@ -1,198 +1,225 @@
 /* ═══════════════════════════════════════════════════════════════════════════════════
-   Client Dashboard Styles
+   LawLink Client Unified Styling (ClientBase.css)
    ═══════════════════════════════════════════════════════════════════════════════════ */
 
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
+
 :root {
-  --client-primary: #3b82f6;
-  --client-success: #10b981;
-  --client-warning: #f59e0b;
-  --client-danger: #ef4444;
-  --client-purple: #8b5cf6;
+  /* Common Variables */
+  --accent-yellow: #eab308; /* yellow-500 */
+  --accent-yellow-hover: #facc15; /* yellow-400 */
+  --slate-950: #020617;
+  --slate-900: #0f172a;
+  --slate-800: #1e293b;
 }
 
-/* Client Dashboard Container */
-.client-dashboard {
-  background: var(--page-bg);
-  color: var(--text-color);
+/* 🟢 Light Mode Variables */
+.light-mode {
+  --bg-main: #f8fafc; /* slate-50 */
+  --bg-card: #ffffff;
+  --bg-input: #f1f5f9; /* slate-100 */
+  --text-primary: #0f172a; /* slate-900 */
+  --text-secondary: #64748b; /* slate-500 */
+  --border-color: #e2e8f0; /* slate-200 */
+  --shadow-color: rgba(148, 163, 184, 0.3);
+}
+
+/* 🔵 Dark Mode Variables */
+.dark-mode {
+  --bg-main: #020617; /* slate-950 */
+  --bg-card: #0f172a; /* slate-900 */
+  --bg-input: #020617; /* slate-950 */
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8; /* slate-400 */
+  --border-color: rgba(255, 255, 255, 0.05);
+  --shadow-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Base Styles */
+.client-page-wrapper {
   min-height: 100vh;
-}
-
-/* Client Widget */
-.client-widget {
-  border-radius: 0.75rem;
-  box-shadow: var(--shadow-sm);
-  background: var(--card-bg);
-  border: 1px solid var(--surface-border);
-  transition: var(--transition);
-}
-
-.client-widget:hover {
-  box-shadow: var(--shadow-md);
-}
-
-/* Client Cards */
-.client-card {
-  background: var(--card-bg);
-  border: 1px solid var(--surface-border);
-  border-radius: 0.75rem;
-  padding: 1.25rem;
-  transition: var(--transition);
-}
-
-.client-card:hover {
-  border-color: var(--accent-color);
-  box-shadow: var(--shadow-md);
-}
-
-/* Client Stat Card */
-.client-stat-card {
-  background: var(--card-bg);
-  border: 1px solid var(--surface-border);
-  border-radius: 0.75rem;
-  padding: 1.25rem;
   display: flex;
-  align-items: center;
-  gap: 1rem;
+  flex-direction: column;
+  padding-top: 7rem; /* Space for Navbar */
+  padding-bottom: 4rem;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  transition: all 0.5s ease;
+  font-family: 'Cairo', sans-serif;
 }
 
-.client-stat-card .stat-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 0.75rem;
+/* Card Container */
+.client-card {
+  width: 100%;
+  max-width: 56rem; /* max-w-4xl */
+  margin: 0 auto;
+  padding: 2.5rem;
+  border-radius: 2.5rem;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-card);
+  box-shadow: 0 25px 50px -12px var(--shadow-color);
+}
+
+/* Typography */
+.client-h1 {
+  font-size: 2.25rem;
+  font-weight: 900;
+  margin-bottom: 0.75rem;
+  font-style: italic;
+  letter-spacing: -0.025em;
+  text-transform: uppercase;
+}
+
+.client-subtitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+/* Form Elements */
+.client-input-group {
+  margin-bottom: 1.5rem;
+}
+
+.client-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 900;
+  color: var(--accent-yellow);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+  padding: 0 0.5rem;
+}
+
+.client-input, .client-select, .client-textarea {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  border-radius: 1rem;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  font-weight: 700;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.client-input:focus, .client-select:focus, .client-textarea:focus {
+  border-color: var(--accent-yellow);
+  background-color: var(--bg-card);
+}
+
+/* Buttons */
+.client-btn-primary {
+  width: 100%;
+  padding: 1.25rem;
+  background-color: var(--accent-yellow);
+  color: var(--slate-950);
+  border-radius: 1rem;
+  font-weight: 900;
+  font-size: 1.125rem;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 10px 15px -3px rgba(234, 179, 8, 0.2);
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.client-stat-card .stat-value {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--text-color);
-}
-
-.client-stat-card .stat-label {
-  font-size: 0.875rem;
-  color: var(--text-muted);
-}
-
-/* Client Quick Actions */
-.client-quick-action {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   gap: 0.75rem;
-  padding: 1rem;
-  background: var(--hover-bg);
-  border: 1px solid var(--surface-border);
-  border-radius: 0.75rem;
-  cursor: pointer;
-  transition: var(--transition);
 }
 
-.client-quick-action:hover {
-  background: var(--surface-border);
+.client-btn-primary:hover {
+  background-color: var(--accent-yellow-hover);
   transform: translateY(-2px);
 }
 
-/* Client Case Card */
-.client-case-card {
-  background: var(--hover-bg);
-  border: 1px solid var(--surface-border);
-  border-radius: 0.75rem;
+.client-btn-primary:active {
+  transform: scale(0.95);
+}
+
+/* Security/Footer Banner */
+.client-banner {
   padding: 1rem;
+  border-radius: 1rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  transition: var(--transition);
+  gap: 0.75rem;
+  margin-top: 1.5rem;
 }
 
-.client-case-card:hover {
-  box-shadow: var(--shadow-md);
-  border-color: var(--accent-color);
+.client-banner-text {
+  font-size: 0.65rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.6;
 }
+/* ═══════════════════════════════════════════════════════════════════════════════════
+   LawLink Client Unified Styling - AI Extensions
+   ═══════════════════════════════════════════════════════════════════════════════════ */
 
-/* Client Badge */
-.client-badge {
+/* AI Specific Icons & Branding */
+.ai-icon-wrapper {
   display: inline-flex;
   align-items: center;
-  padding: 0.25rem 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  border-radius: 9999px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.client-badge-success {
-  background-color: rgba(16, 185, 129, 0.1);
-  color: var(--client-success);
-}
-
-.client-badge-warning {
-  background-color: rgba(245, 158, 11, 0.1);
-  color: var(--client-warning);
-}
-
-.client-badge-danger {
-  background-color: rgba(239, 68, 68, 0.1);
-  color: var(--client-danger);
-}
-
-.client-badge-info {
-  background-color: rgba(59, 130, 246, 0.1);
-  color: var(--client-primary);
-}
-
-/* Client Notification */
-.client-notification {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  border-radius: 0.5rem;
-  transition: var(--transition);
-}
-
-.client-notification.unread {
-  background: var(--hover-bg);
-}
-
-.client-notification:hover {
-  background: var(--surface-border);
-}
-
-/* Client Appointment Card */
-.client-appointment-card {
-  background: var(--hover-bg);
-  border: 1px solid var(--surface-border);
-  border-radius: 0.75rem;
-  padding: 1rem;
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-}
-
-/* Client Profile Card */
-.client-profile-card {
-  background: var(--card-bg);
-  border: 1px solid var(--surface-border);
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-
-.client-profile-avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: var(--accent-color);
-  color: white;
-  display: flex;
-  align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
-  font-weight: 700;
+  width: 4rem;
+  height: 4rem;
+  background-color: var(--accent-yellow);
+  border-radius: 1.25rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 20px 25px -5px rgba(234, 179, 8, 0.2);
+  animation: pulse-glow 2s infinite;
+}
+
+.ai-icon-wrapper svg {
+  color: var(--slate-950);
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+/* AI Result Box Styling */
+.ai-result-card {
+  background-color: var(--accent-yellow);
+  color: var(--slate-950);
+  padding: 2rem;
+  border-radius: 1.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  animation: zoom-in 0.5s ease-out;
+}
+
+.ai-category-badge {
+  background-color: var(--slate-950);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.5rem;
+  font-weight: 900;
+  margin: 0 0.25rem;
+}
+
+/* Animations */
+@keyframes pulse-glow {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.4); }
+  50% { transform: scale(1.05); box-shadow: 0 0 20px 10px rgba(234, 179, 8, 0); }
+}
+
+@keyframes zoom-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Loading Spinner */
+.spinner {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid rgba(15, 23, 42, 0.3);
+  border-top-color: var(--slate-950);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
