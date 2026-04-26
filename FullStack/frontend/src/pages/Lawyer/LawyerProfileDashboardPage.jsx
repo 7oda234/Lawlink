@@ -1,137 +1,122 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Sun, Moon, Globe, Bell, User, LogOut, LayoutDashboard, ChevronDown } from 'lucide-react';
-import { useLanguage } from '../../context/useLanguage';
+import React from 'react';
+import { 
+  User, 
+  Briefcase, 
+  Calendar, 
+  ShieldCheck, 
+  Star, 
+  Award, 
+  Settings, 
+  FileText, 
+  MessageSquare,
+  Clock
+} from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
-import logoImage from '../../Assets/logo/logo lawlink half.png';
+import { useLanguage } from '../../context/useLanguage';
+import { Link } from 'react-router-dom';
 
-const Navbar = () => {
-  const { language, setLanguage, t } = useLanguage();
-  const { mode, toggleMode } = useTheme();
-  const navigate = useNavigate();
+const LawyerProfileDashboardPage = () => {
+  const { mode } = useTheme();
+  const { language, t } = useLanguage();
+  const isDark = mode === 'dark';
   const isRTL = language === 'ar' || language === 'eg';
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // 🔐 محاكاة حالة تسجيل الدخول (ترتبط ببيانات المستخدم في قاعدة البيانات)
-  // تم استخراج البيانات بناءً على هيكل جدول users و lawyer في مشروك
-  const [isLoggedIn, setIsLoggedIn] = useState(true); 
+  // بيانات المستخدم الحقيقية من التخزين المحلي
   const user = {
-    name: 'محمود', //
-    role: 'Lawyer', //
-    image: 'https://xsgames.co/randomusers/assets/avatars/male/8.jpg', //
-    unreadNotifications: 3 // عدد افتراضي بناءً على وجود جدول notification
+    name: localStorage.getItem('userName') || 'محمود خالد',
+    role: localStorage.getItem('userRole') || 'Lawyer',
+    specialization: 'قانون جنائي وإداري', // بيانات تكميلية من قاعدة البيانات
+    experience: '12 سنة',
+    rating: 4.9,
+    verified: true,
+    image: 'https://xsgames.co/randomusers/assets/avatars/male/8.jpg'
   };
-
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setIsMenuOpen(false);
-    navigate('/login');
-  };
-
-  const cardBg = mode === 'dark' ? 'bg-slate-900 border-slate-800' : 'bg-white border-gray-200';
 
   return (
-    <nav dir={isRTL ? 'rtl' : 'ltr'} className={`fixed top-0 w-full z-[100] transition-all border-b ${
-      mode === 'dark' ? 'bg-slate-950/90 border-white/5 text-white' : 'bg-white/90 border-gray-200 text-slate-900'
-    } backdrop-blur-md`}>
-      <div className="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+    // 💡 pt-28 ضرورية لمنع اختفاء المحتوى تحت الـ Navbar الـ Fixed في App.jsx
+    <div className={`min-h-screen pt-28 pb-12 ${isDark ? 'bg-slate-950 text-white' : 'bg-gray-50 text-slate-900'}`} dir={isRTL ? 'rtl' : 'ltr'}>
+      <main className="max-w-6xl mx-auto px-6">
         
-        {/* Logo Section */}
-        <Link to="/" className="flex items-center gap-2">
-          <img src={logoImage} alt="Logo" className="h-10" />
-          <span className={`font-black text-2xl tracking-tighter italic ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>
-            LAW<span className="text-yellow-500">LINK</span>
-          </span>
-        </Link>
-
-        {/* Navigation Links */}
-        <div className="hidden md:flex gap-8 font-bold">
-          <Link to="/" className="hover:text-yellow-500 transition-colors">{t('nav.home', 'Home')}</Link>
-          <Link to="/find-lawyer" className="hover:text-yellow-500 transition-colors">{t('nav.findLawyer', 'Find Lawyer')}</Link>
-          <Link to="/how-it-works" className="hover:text-yellow-500 transition-colors">{t('nav.how', 'How it Works')}</Link>
-        </div>
-
-        {/* Actions Section */}
-        <div className="flex items-center gap-2 md:gap-4">
-          
-          {/* 🔔 Notification Icon - تظهر فقط في حالة تسجيل الدخول */}
-          {isLoggedIn && (
-            <Link to="/notifications" className="relative p-2 hover:bg-gray-500/10 rounded-full transition-colors group">
-              <Bell size={22} className="group-hover:text-yellow-500 transition-colors" />
-              {user.unreadNotifications > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-red-600 text-white text-[10px] font-black flex items-center justify-center rounded-full border-2 border-slate-950">
-                  {user.unreadNotifications}
-                </span>
-              )}
-            </Link>
-          )}
-
-          {/* Theme Toggle */}
-          <button onClick={toggleMode} className="p-2 hover:bg-gray-500/10 rounded-full transition-colors">
-            {mode === 'dark' ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} />}
-          </button>
-
-          {/* Language Toggle */}
-          <button onClick={() => setLanguage(language === 'en' ? 'eg' : 'en')} className="p-2 hover:bg-gray-500/10 rounded-full transition-colors">
-            <Globe size={18} />
-          </button>
-
-          {!isLoggedIn ? (
-            <Link to="/login" className="bg-yellow-500 !text-slate-950 px-6 py-2.5 rounded-full font-black hover:bg-yellow-400 shadow-lg shadow-yellow-500/20 transition-all">
-              {t('nav.signup', 'Join Now')}
-            </Link>
-          ) : (
+        {/* هيدر البروفايل */}
+        <div className={`p-8 rounded-3xl border ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-gray-200'} shadow-sm mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500`}>
+          <div className="flex flex-col md:flex-row items-center gap-8">
             <div className="relative">
-              <button 
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="flex items-center gap-2 p-1 pr-3 rtl:pr-1 rtl:pl-3 hover:bg-gray-500/10 rounded-full transition-all border border-transparent hover:border-yellow-500/30"
-              >
-                <img 
-                  src={user.image} 
-                  alt="User" 
-                  className="w-10 h-10 rounded-full object-cover border-2 border-yellow-500"
-                />
-                <ChevronDown size={16} className={`transition-transform ${isMenuOpen ? 'rotate-180' : ''}`} />
-              </button>
-
-              {/* Dropdown Menu */}
-              {isMenuOpen && (
-                <div className={`absolute top-14 ${isRTL ? 'left-0' : 'right-0'} w-56 p-2 rounded-2xl border shadow-2xl ${cardBg} animate-in fade-in zoom-in duration-200`}>
-                  <div className="px-4 py-3 border-b border-gray-500/10 mb-2">
-                    <p className="text-sm font-black truncate">{user.name}</p>
-                    <p className="text-[10px] uppercase font-bold text-yellow-500 tracking-widest">{user.role}</p>
-                  </div>
-                  
-                  <Link 
-                    to={user.role === 'Lawyer' ? '/lawyer/profile' : '/client/profile'} 
-                    onClick={() => setIsMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-yellow-500 hover:text-black transition-all font-bold text-sm"
-                  >
-                    <User size={18} /> {isRTL ? 'الملف الشخصي' : 'My Profile'}
-                  </Link>
-
-                  <Link 
-                    to={user.role === 'Lawyer' ? '/lawyer/dashboard' : '/client/dashboard'} 
-                    onClick={() => setIsMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-500/10 transition-all font-bold text-sm"
-                  >
-                    <LayoutDashboard size={18} /> {isRTL ? 'لوحة التحكم' : 'Dashboard'}
-                  </Link>
-
-                  <button 
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/10 text-red-500 transition-all font-bold text-sm mt-2 border-t border-gray-500/5 pt-4"
-                  >
-                    <LogOut size={18} /> {isRTL ? 'تسجيل الخروج' : 'Logout'}
-                  </button>
+              <div className="w-32 h-32 rounded-3xl overflow-hidden border-4 border-yellow-500/20 shadow-2xl">
+                <img src={user.image} alt="Profile" className="w-full h-full object-cover" />
+              </div>
+              {user.verified && (
+                <div className="absolute -bottom-2 -right-2 bg-blue-500 text-white p-1.5 rounded-xl shadow-lg border-4 border-slate-900">
+                  <ShieldCheck size={20} />
                 </div>
               )}
             </div>
-          )}
+            
+            <div className="text-center md:text-right flex-1">
+              <h1 className="text-4xl font-black italic uppercase tracking-tighter mb-2">{user.name}</h1>
+              <div className="flex flex-wrap justify-center md:justify-start gap-6 text-sm font-bold opacity-70">
+                <span className="flex items-center gap-2 bg-slate-500/10 px-3 py-1.5 rounded-lg">
+                  <Briefcase size={16} className="text-yellow-500" /> {user.specialization}
+                </span>
+                <span className="flex items-center gap-2 bg-slate-500/10 px-3 py-1.5 rounded-lg">
+                  <Calendar size={16} className="text-yellow-500" /> خبرة {user.experience}
+                </span>
+                <span className="flex items-center gap-2 bg-slate-500/10 px-3 py-1.5 rounded-lg">
+                  <Star size={16} fill="currentColor" className="text-yellow-500" /> {user.rating}
+                </span>
+              </div>
+            </div>
+
+            <Link to="/lawyer/profile/edit" className="flex items-center gap-2 px-8 py-4 bg-yellow-500 text-black font-black rounded-2xl hover:bg-yellow-400 transition-all shadow-xl shadow-yellow-500/10 active:scale-95">
+              <Settings size={20} />
+              {isRTL ? 'تعديل البيانات' : 'Edit Profile'}
+            </Link>
+          </div>
         </div>
-      </div>
-    </nav>
+
+        {/* شبكة الإحصائيات والمهام */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
+          {/* كرت القضايا الحالية */}
+          <div className={`p-6 rounded-3xl border ${isDark ? 'bg-slate-900/50 border-slate-800' : 'bg-white border-gray-100'} hover:border-yellow-500/30 transition-all`}>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="font-black text-lg flex items-center gap-2">
+                <FileText className="text-yellow-500" /> {isRTL ? 'القضايا النشطة' : 'Active Cases'}
+              </h3>
+              <span className="bg-yellow-500/10 text-yellow-500 px-3 py-1 rounded-full text-xs font-black">5</span>
+            </div>
+            <div className="space-y-4">
+              <div className="p-4 rounded-xl bg-slate-500/5 border border-transparent hover:border-yellow-500/10 transition-colors cursor-pointer">
+                <p className="text-sm font-bold truncate">نزاع عقاري - ورثة المنصوري</p>
+                <p className="text-[10px] opacity-50 mt-1 uppercase">جلسة: 15 مايو 2026</p>
+              </div>
+            </div>
+          </div>
+
+          {/* كرت المواعيد القادمة */}
+          <div className={`p-6 rounded-3xl border ${isDark ? 'bg-slate-900/50 border-slate-800' : 'bg-white border-gray-100'}`}>
+            <h3 className="font-black text-lg mb-6 flex items-center gap-2">
+              <Clock className="text-yellow-500" /> {isRTL ? 'المواعيد' : 'Schedule'}
+            </h3>
+            <div className="text-center py-8 opacity-40">
+              <Calendar size={40} className="mx-auto mb-2" />
+              <p className="text-xs font-bold">{isRTL ? 'لا توجد مواعيد لليوم' : 'No appointments today'}</p>
+            </div>
+          </div>
+
+          {/* كرت الرسائل الجديدة */}
+          <div className={`p-6 rounded-3xl border ${isDark ? 'bg-slate-900/50 border-slate-800' : 'bg-white border-gray-100'}`}>
+            <h3 className="font-black text-lg mb-6 flex items-center gap-2">
+              <MessageSquare className="text-yellow-500" /> {isRTL ? 'دردشة العملاء' : 'Client Chat'}
+            </h3>
+            <button className="w-full py-4 rounded-2xl bg-slate-500/10 font-bold text-sm hover:bg-yellow-500 hover:text-black transition-all">
+              {isRTL ? 'فتح صندوق الرسائل' : 'Open Inbox'}
+            </button>
+          </div>
+
+        </div>
+      </main>
+    </div>
   );
 };
 
-export default Navbar;
+export default LawyerProfileDashboardPage;
