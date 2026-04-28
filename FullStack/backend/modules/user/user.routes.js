@@ -13,13 +13,16 @@ router.get('/search', userController.searchUsers);
 // 3. تسجيل مستخدم جديد
 router.post('/register', validateRegister, userController.register);
 
-// 4. تسجيل الدخول (POST /api/auth/login)
+// 4. تسجيل الدخول (POST /api/users/login)
 router.post('/login', userController.login);
 
-// 5. تحديث بيانات مستخدم (PUT /api/auth/:id) - لتغيير الباسورد
+// 5. جلب بيانات البروفايل بالـ ID (الجديد)
+router.get('/profile/:id', userController.getUserProfile);
+
+// 6. تحديث بيانات مستخدم (PUT /api/users/:id)
 router.put('/:id', userController.updateUser);
 
-// 6. حذف مستخدم
+// 7. حذف مستخدم
 router.delete('/:id', userController.deleteUser);
 
 export default router;

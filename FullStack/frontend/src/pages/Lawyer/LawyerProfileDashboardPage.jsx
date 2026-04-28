@@ -1,48 +1,63 @@
-import React from 'react';
-import { 
-  User, 
-  Briefcase, 
-  Calendar, 
-  ShieldCheck, 
-  Star, 
-  Award, 
-  Settings, 
-  FileText, 
-  MessageSquare,
-  Clock
-} from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Briefcase, Calendar, ShieldCheck, Star, Settings, FileText, MessageSquare, Clock } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../context/useLanguage';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const LawyerProfileDashboardPage = () => {
   const { mode } = useTheme();
-  const { language, t } = useLanguage();
+  const { language } = useLanguage();
+  const navigate = useNavigate();
   const isDark = mode === 'dark';
   const isRTL = language === 'ar' || language === 'eg';
 
-  // بيانات المستخدم الحقيقية من التخزين المحلي
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const userId = localStorage.getItem('userId');
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!userId) return navigate('/login');
+      try {
+        const res = await axios.get(`http://localhost:5000/api/users/profile/${userId}`);
+        if (res.data.success) setProfile(res.data.data);
+      } catch (err) {
+        console.error("Error fetching profile");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  }, [userId, navigate]);
+
+  if (loading) return <div className="pt-28 text-center font-bold">جاري التحميل...</div>;
+
   const user = {
-    name: localStorage.getItem('userName') || 'محمود خالد',
-    role: localStorage.getItem('userRole') || 'Lawyer',
-    specialization: 'قانون جنائي وإداري', // بيانات تكميلية من قاعدة البيانات
-    experience: '12 سنة',
-    rating: 4.9,
-    verified: true,
-    image: 'https://xsgames.co/randomusers/assets/avatars/male/8.jpg'
+    name: profile?.name || 'مستخدم',
+    specialization: profile?.specialization || 'قانون عام',
+    experience: profile?.years_experience ? `${profile.years_experience} سنة` : '0 سنة',
+    rating: profile?.rating_avg || '0.0',
+    verified: profile?.verified === 1,
+    image: profile?.image_url || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'
   };
 
   return (
-    // 💡 pt-28 ضرورية لمنع اختفاء المحتوى تحت الـ Navbar الـ Fixed في App.jsx
     <div className={`min-h-screen pt-28 pb-12 ${isDark ? 'bg-slate-950 text-white' : 'bg-gray-50 text-slate-900'}`} dir={isRTL ? 'rtl' : 'ltr'}>
       <main className="max-w-6xl mx-auto px-6">
         
         {/* هيدر البروفايل */}
-        <div className={`p-8 rounded-3xl border ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-gray-200'} shadow-sm mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500`}>
+        <div className={`p-8 rounded-3xl border ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-gray-200'} shadow-sm mb-8`}>
           <div className="flex flex-col md:flex-row items-center gap-8">
             <div className="relative">
               <div className="w-32 h-32 rounded-3xl overflow-hidden border-4 border-yellow-500/20 shadow-2xl">
-                <img src={user.image} alt="Profile" className="w-full h-full object-cover" />
+                <img 
+                  src={user.image} 
+                  alt="Profile" 
+                  className="w-full h-full object-cover" 
+                  onError={(e) => { e.target.src = 'https://cdn-icons-png.flaticon.com/512/149/149071.png'; }} // ✅ حماية الصورة
+                />
               </div>
               {user.verified && (
                 <div className="absolute -bottom-2 -right-2 bg-blue-500 text-white p-1.5 rounded-xl shadow-lg border-4 border-slate-900">
@@ -66,17 +81,16 @@ const LawyerProfileDashboardPage = () => {
               </div>
             </div>
 
-            <Link to="/lawyer/profile/edit" className="flex items-center gap-2 px-8 py-4 bg-yellow-500 text-black font-black rounded-2xl hover:bg-yellow-400 transition-all shadow-xl shadow-yellow-500/10 active:scale-95">
+            <Link to="/lawyer/profile/edit" className="flex items-center gap-2 px-8 py-4 bg-yellow-500 text-black font-black rounded-2xl hover:bg-yellow-400 transition-all shadow-xl active:scale-95">
               <Settings size={20} />
               {isRTL ? 'تعديل البيانات' : 'Edit Profile'}
             </Link>
           </div>
         </div>
 
-        {/* شبكة الإحصائيات والمهام */}
+        {/* شبكة الإحصائيات */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          
-          {/* كرت القضايا الحالية */}
+          {/* كرت القضايا */}
           <div className={`p-6 rounded-3xl border ${isDark ? 'bg-slate-900/50 border-slate-800' : 'bg-white border-gray-100'} hover:border-yellow-500/30 transition-all`}>
             <div className="flex items-center justify-between mb-6">
               <h3 className="font-black text-lg flex items-center gap-2">
@@ -92,7 +106,7 @@ const LawyerProfileDashboardPage = () => {
             </div>
           </div>
 
-          {/* كرت المواعيد القادمة */}
+          {/* كرت المواعيد */}
           <div className={`p-6 rounded-3xl border ${isDark ? 'bg-slate-900/50 border-slate-800' : 'bg-white border-gray-100'}`}>
             <h3 className="font-black text-lg mb-6 flex items-center gap-2">
               <Clock className="text-yellow-500" /> {isRTL ? 'المواعيد' : 'Schedule'}
@@ -103,7 +117,7 @@ const LawyerProfileDashboardPage = () => {
             </div>
           </div>
 
-          {/* كرت الرسائل الجديدة */}
+          {/* كرت الشات */}
           <div className={`p-6 rounded-3xl border ${isDark ? 'bg-slate-900/50 border-slate-800' : 'bg-white border-gray-100'}`}>
             <h3 className="font-black text-lg mb-6 flex items-center gap-2">
               <MessageSquare className="text-yellow-500" /> {isRTL ? 'دردشة العملاء' : 'Client Chat'}
@@ -112,7 +126,6 @@ const LawyerProfileDashboardPage = () => {
               {isRTL ? 'فتح صندوق الرسائل' : 'Open Inbox'}
             </button>
           </div>
-
         </div>
       </main>
     </div>

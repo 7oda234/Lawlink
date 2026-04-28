@@ -10,7 +10,7 @@ const LoginPage = () => {
   const [error, setError] = useState('');
   const [validationErrors, setValidationErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  // Track failed attempts to show "Forgot Password"
+  // تتبع المحاولات الفاشلة لإظهار "نسيت كلمة المرور"
   const [failedAttempts, setFailedAttempts] = useState(0);
   
   const navigate = useNavigate();
@@ -31,6 +31,7 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
+      // 💡 تأكد من مسار الـ API بتاعك (سواء auth أو users)
       const response = await axios.post('http://localhost:5000/api/auth/login', {
         email: email.trim().toLowerCase(),
         password: password
@@ -42,23 +43,29 @@ const LoginPage = () => {
       const userRoleFromDB = user.role.toLowerCase();
       const currentSelectedPortal = selectedRole.toLowerCase();
 
+      // التحقق من توافق الحساب مع البوابة المختارة (إلا لو كان Admin)
       if (userRoleFromDB !== 'admin' && userRoleFromDB !== currentSelectedPortal) {
         setError(`⚠️ الحساب مسجل كـ [${user.role}]؛ يرجى الدخول من بوابة ${user.role === 'Lawyer' ? 'المحامي' : 'العميل'}.`);
         setLoading(false);
         return; 
       }
 
-      // Reset attempts on success
+      // تصفير المحاولات عند النجاح
       setFailedAttempts(0);
-      localStorage.setItem('token', token);
-      localStorage.setItem('userRole', user.role);
 
+      // ✅ الجزء الجديد: حفظ كل البيانات المهمة عشان الـ Navbar والـ Dashboard
+      localStorage.setItem('token', token);
+      localStorage.setItem('userId', user.id); // 👈 ضروري جداً عشان بيانات البروفايل
+      localStorage.setItem('userRole', user.role);
+      localStorage.setItem('userName', user.name);
+      localStorage.setItem('userImage', user.image_url || 'https://cdn-icons-png.flaticon.com/512/149/149071.png');
+
+      // التوجيه بناءً على الصلاحية
       if (userRoleFromDB === 'admin') navigate('/admin/dashboard');
       else if (currentSelectedPortal === 'lawyer') navigate('/lawyer/dashboard');
       else navigate('/client/dashboard');
 
     } catch (err) {
-      // Increment failed attempts on error
       setFailedAttempts(prev => prev + 1);
 
       if (err.response) {
@@ -80,7 +87,7 @@ const LoginPage = () => {
           <p className="text-yellow-500 font-bold text-sm uppercase tracking-widest italic underline decoration-2 underline-offset-8">LAWLINK SYSTEM</p>
         </div>
 
-        {/* Portal Selection */}
+        {/* اختيار البوابة */}
         <div className="flex p-1.5 rounded-2xl mb-8 bg-slate-950 border border-white/5 shadow-inner">
           <button 
             type="button"
@@ -103,7 +110,7 @@ const LoginPage = () => {
         </div>
 
         <form className="space-y-5" onSubmit={handleLogin}>
-          {/* Email */}
+          {/* البريد الإلكتروني */}
           <div className="relative flex items-center group">
             <FaEnvelope className={`absolute right-5 transition-colors ${validationErrors.email ? 'text-red-500' : 'text-gray-500 group-focus-within:text-yellow-500'}`} size={16} />
             <input 
@@ -117,7 +124,7 @@ const LoginPage = () => {
             />
           </div>
 
-          {/* Password */}
+          {/* كلمة المرور */}
           <div className="relative flex items-center group">
             <FaLock className={`absolute right-5 transition-colors ${validationErrors.password ? 'text-red-500' : 'text-gray-500 group-focus-within:text-yellow-500'}`} size={16} />
             <input 
@@ -131,7 +138,7 @@ const LoginPage = () => {
             />
           </div>
 
-          {/* Forgot Password Link - Appears after 1 wrong attempt */}
+          {/* رابط نسيت كلمة المرور - يظهر بعد أول محاولة خطأ */}
           {failedAttempts >= 1 && (
             <div className="flex justify-start px-2 animate-fadeIn">
               <Link 
@@ -143,7 +150,7 @@ const LoginPage = () => {
             </div>
           )}
 
-          {/* Error Message Display */}
+          {/* عرض رسائل الخطأ */}
           {error && (
             <div className={`p-4 rounded-xl border flex items-center gap-3 animate-pulse ${
               error.includes('⚠️') ? 'bg-orange-500/10 text-orange-500 border-orange-500/20' : 'bg-red-500/10 text-red-500 border-red-500/20'

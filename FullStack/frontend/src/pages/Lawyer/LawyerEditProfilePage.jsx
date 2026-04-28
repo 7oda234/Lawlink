@@ -1,211 +1,214 @@
-import React, { useState, useRef } from 'react'; // ✅ ضفنا useRef للتحكم في الصورة
+import React, { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '../../context/useLanguage';
 import { useTheme } from '../../context/ThemeContext';
-import { User, Save, Camera, Hash, Briefcase, Mail, Phone, Calendar } from 'lucide-react';
+import { User, Save, Camera, Lock, Phone, Star, Mail, Hash, Briefcase, AlertCircle, CheckCircle2 } from 'lucide-react';
+import axios from 'axios';
 
 const LawyerEditProfilePage = () => {
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const { mode } = useTheme();
   const isRTL = language === 'ar' || language === 'eg';
-  
-  // ريفرنس للتحكم في فتح اختيار الملفات عند الضغط على الكاميرا
   const fileInputRef = useRef(null);
 
-  // State البيانات (مستوحاة من Schema قاعدة البيانات BackUp8.sql)
+  const [loading, setLoading] = useState(false);
+  const [statusMsg, setStatusMsg] = useState({ type: '', text: '' });
+
   const [formData, setFormData] = useState({
-    name: 'محمود خالد', // من عمود name في جدول users
-    email: 'mahmoud.test@aast.edu', // من عمود email في جدول users
-    phone: '01001122334', // من عمود Phone_no1 في جدول users
-    license_number: 'AAST-2026', // من عمود license_number في جدول lawyer
-    years_experience: 12, // من عمود years_experience في جدول lawyer
-    bio: 'محامي متخصص في القانون الجنائي والإداري.',
-    profileImage: null, // للتعامل مع رفع الصورة الشخصية (image_url)
+    name: '',
+    email: '',
+    password: '',
+    Phone_no1: '',
+    Phone_no2: '',
+    license_number: '', 
+    years_experience: 0,
+    specializations: '', 
+    image_url: '',
   });
 
-  const cardBg = mode === 'dark' ? 'bg-slate-900 border-slate-800' : 'bg-white border-gray-200';
-  const textColor = mode === 'dark' ? 'text-white' : 'text-slate-900';
-  const inputBg = mode === 'dark' ? 'bg-slate-800/50' : 'bg-gray-50';
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        const userId = localStorage.getItem('userId');
+        const response = await axios.get(`http://localhost:5000/api/users/profile/${userId}`);
+        if (response.data.success) {
+          const data = response.data.data;
+          setFormData({
+            name: data.name || '',
+            email: data.email || '',
+            password: '', 
+            Phone_no1: data.Phone_no1 || '',
+            Phone_no2: data.Phone_no2 || '',
+            license_number: data.license_number || '',
+            years_experience: data.years_experience || 0,
+            specializations: data.specialization || '', 
+            image_url: data.image_url || '',
+          });
+        }
+      } catch (err) {
+        console.error("Error fetching profile:", err);
+      }
+    };
+    fetchProfileData();
+  }, []);
 
-  // معالجة تغيير النصوص
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // معالجة رفع ومعاينة الصورة
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, profileImage: reader.result });
-      };
+      reader.onloadend = () => setFormData({ ...formData, image_url: reader.result });
       reader.readAsDataURL(file);
     }
   };
 
+  const handleSave = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setStatusMsg({ type: '', text: '' });
+
+    try {
+      const userId = localStorage.getItem('userId');
+      const response = await axios.put(`http://localhost:5000/api/users/${userId}`, formData);
+      
+      if (response.data.success) {
+        localStorage.setItem('userName', formData.name);
+        localStorage.setItem('userImage', formData.image_url);
+        window.dispatchEvent(new Event('storage'));
+
+        setStatusMsg({ 
+          type: 'success', 
+          text: isRTL ? 'تم حفظ التعديلات بنجاح' : 'Profile updated successfully!' 
+        });
+      }
+    } catch (err) {
+      setStatusMsg({ 
+        type: 'error', 
+        text: isRTL ? 'حدث خطأ أثناء الحفظ، حاول مرة أخرى' : 'Error saving changes' 
+      });
+    } finally {
+      setLoading(false);
+      setTimeout(() => setStatusMsg({ type: '', text: '' }), 3000);
+    }
+  };
+
+  const cardBg = mode === 'dark' ? 'bg-slate-900/50 border-gray-500/10' : 'bg-white border-gray-200';
+  const inputClass = `w-full p-4 rounded-xl border transition-all outline-none font-bold text-sm ${
+    mode === 'dark' 
+      ? 'bg-slate-950/50 border-gray-500/20 focus:border-yellow-500/50 text-white' 
+      : 'bg-gray-50 border-gray-200 focus:border-yellow-500 text-slate-900'
+  }`;
+
   return (
-    <div dir={isRTL ? 'rtl' : 'ltr'} className={`min-h-screen pt-28 pb-16 transition-colors ${mode === 'dark' ? 'bg-slate-950' : 'bg-gray-50'}`}>
-      <main className="max-w-4xl mx-auto px-6">
-        
-        {/* هيدر الصفحة مع الصورة التفاعلية */}
-        <header className={`p-10 rounded-3xl border mb-8 shadow-sm ${cardBg} flex flex-col md:flex-row items-center gap-8`}>
-          <div 
-            className="relative group cursor-pointer" 
-            onClick={() => fileInputRef.current.click()}
-          >
-            <div className="w-32 h-32 bg-slate-700 rounded-3xl flex items-center justify-center overflow-hidden border-2 border-yellow-500/50 shadow-xl transition-all group-hover:border-yellow-500">
-              {formData.profileImage ? (
-                <img src={formData.profileImage} alt="Profile" className="w-full h-full object-cover" />
-              ) : (
-                <Camera size={40} className="text-slate-500 group-hover:text-yellow-500 transition-colors" />
-              )}
-              {/* Overlay يظهر عند الوقوف بالماوس */}
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <span className="text-white text-xs font-black uppercase">{isRTL ? 'تغيير الصورة' : 'Change Photo'}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Input مخفي يتم تفعيله برمجياً */}
-          <input 
-            type="file" 
-            ref={fileInputRef} 
-            onChange={handleImageChange} 
-            accept="image/*" 
-            className="hidden" 
-          />
-
-          <div className={isRTL ? 'text-right' : 'text-left'}>
-            <h1 className={`text-4xl font-black mb-2 ${textColor}`}>
-              {t('page.lawyerEditProfile.title', isRTL ? 'تعديل البيانات المهنية' : 'Edit Professional Profile')}
-            </h1>
-            <p className="text-slate-500 text-lg">
-              {t('page.lawyerEditProfile.subtitle', isRTL ? 'تأكد من دقة رقم الكارنيه وسنوات الخبرة.' : 'Ensure your license number and experience are accurate.')}
-            </p>
-          </div>
-        </header>
-
-        {/* نموذج البيانات */}
-        <form className={`p-10 rounded-3xl border shadow-sm ${cardBg} space-y-8`}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            
-            {/* الاسم الكامل */}
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-xs font-black uppercase text-slate-500">
-                <User size={14} className="text-yellow-500" />
-                {t('common.fullName', isRTL ? 'الاسم بالكامل' : 'Full Name')}
-              </label>
-              <input 
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className={`w-full ${inputBg} border border-gray-500/10 rounded-2xl px-5 py-4 outline-none focus:border-yellow-500 transition-all ${textColor}`} 
-              />
-            </div>
-
-            {/* البريد الإلكتروني */}
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-xs font-black uppercase text-slate-500">
-                <Mail size={14} className="text-yellow-500" />
-                {t('common.email', isRTL ? 'البريد الإلكتروني' : 'Email')}
-              </label>
-              <input 
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                className={`w-full ${inputBg} border border-gray-500/10 rounded-2xl px-5 py-4 outline-none focus:border-yellow-500 transition-all ${textColor}`} 
-              />
-            </div>
-
-            {/* رقم الكارنيه (License) */}
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-xs font-black uppercase text-slate-500">
-                <Hash size={14} className="text-yellow-500" />
-                {t('page.lawyerEditProfile.license', isRTL ? 'رقم القيد / الكارنيه' : 'License Number')}
-              </label>
-              <input 
-                name="license_number"
-                value={formData.license_number}
-                onChange={handleChange}
-                className={`w-full ${inputBg} border border-gray-500/10 rounded-2xl px-5 py-4 outline-none focus:border-yellow-500 transition-all ${textColor}`} 
-              />
-            </div>
-
-            {/* سنوات الخبرة */}
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-xs font-black uppercase text-slate-500">
-                <Briefcase size={14} className="text-yellow-500" />
-                {t('page.lawyerEditProfile.experience', isRTL ? 'سنوات الخبرة' : 'Years of Experience')}
-              </label>
-              <input 
-                name="years_experience"
-                type="number"
-                value={formData.years_experience}
-                onChange={handleChange}
-                className={`w-full ${inputBg} border border-gray-500/10 rounded-2xl px-5 py-4 outline-none focus:border-yellow-500 transition-all ${textColor}`} 
-              />
-            </div>
-
-            {/* رقم الهاتف (Phone_no1) */}
-            <div className="space-y-2 md:col-span-2">
-              <label className="flex items-center gap-2 text-xs font-black uppercase text-slate-500">
-                <Phone size={14} className="text-yellow-500" />
-                {t('common.phone', isRTL ? 'رقم الهاتف' : 'Phone Number')}
-              </label>
-              <input 
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                className={`w-full ${inputBg} border border-gray-500/10 rounded-2xl px-5 py-4 outline-none focus:border-yellow-500 transition-all ${textColor}`} 
-              />
-            </div>
-          </div>
-
-          {/* النبذة المهنية */}
-          <div className="space-y-2">
-            <label className="block text-xs font-black uppercase text-slate-500">
-              {t('page.lawyerEditProfile.bio', isRTL ? 'النبذة المهنية (تظهر للعملاء)' : 'Professional Bio (Visible to Clients)')}
-            </label>
-            <textarea 
-              name="bio"
-              rows={4}
-              value={formData.bio}
-              onChange={handleChange}
-              className={`w-full ${inputBg} border border-gray-500/10 rounded-2xl px-5 py-4 outline-none focus:border-yellow-500 transition-all resize-none ${textColor}`} 
-            />
-          </div>
-
-          {/* أزرار الحفظ */}
-          <div className="pt-8 border-t border-gray-500/10 flex flex-col md:flex-row gap-4">
-            <button 
-              type="button"
-              className="flex-1 flex items-center justify-center gap-3 px-8 py-5 bg-yellow-500 text-black font-black rounded-2xl hover:bg-yellow-400 shadow-xl shadow-yellow-500/10 transition-all active:scale-95"
-            >
-              <Save size={22} /> 
-              {t('page.lawyerEditProfile.saveBtn', isRTL ? 'حفظ وتحديث البيانات' : 'Save & Update Profile')}
-            </button>
-            <button 
-              type="button"
-              className={`px-8 py-5 rounded-2xl font-black border border-gray-500/20 hover:bg-red-500 hover:text-white transition-all ${textColor}`}
-            >
-              {isRTL ? 'إلغاء' : 'Cancel'}
-            </button>
-          </div>
-        </form>
-
-        {/* تنبيه الأمان */}
-        <div className="mt-8 p-6 bg-blue-500/5 border border-blue-500/20 rounded-2xl flex items-center gap-4">
-          <div className="bg-blue-500/20 p-2 rounded-lg text-blue-500">
-            <Calendar size={20} />
-          </div>
-          <p className="text-sm text-slate-500 font-bold">
-            {isRTL 
-              ? 'تنويه: أي تغيير في بيانات القيد المهني قد يتطلب إعادة مراجعة الحساب من قبل الإدارة.' 
-              : 'Note: Any changes to professional credentials may require account re-verification by admin.'}
+    <div className="max-w-4xl mx-auto py-10 px-4">
+      <div className="flex items-center justify-between mb-10">
+        <div className={isRTL ? 'text-right' : 'text-left'}>
+          <h1 className="text-3xl font-black mb-2 flex items-center gap-3">
+            <User className="text-yellow-500" size={32} />
+            {isRTL ? 'تعديل الملف الشخصي' : 'Edit Profile'}
+          </h1>
+          <p className="text-slate-500 font-bold">
+            {isRTL ? 'قم بتحديث بياناتك المهنية والشخصية' : 'Update your professional and personal information'}
           </p>
         </div>
-      </main>
+      </div>
+
+      {statusMsg.text && (
+        <div className={`mb-6 p-4 rounded-2xl border flex items-center gap-3 animate-in fade-in slide-in-from-top-2 ${
+          statusMsg.type === 'success' ? 'bg-green-500/10 border-green-500/20 text-green-500' : 'bg-red-500/10 border-red-500/20 text-red-500'
+        }`}>
+          {statusMsg.type === 'success' ? <CheckCircle2 size={20}/> : <AlertCircle size={20}/>}
+          <span className="font-bold text-sm">{statusMsg.text}</span>
+        </div>
+      )}
+
+      <form onSubmit={handleSave} className="space-y-8">
+        <section className={`p-8 rounded-3xl border ${cardBg} relative overflow-hidden`}>
+          <div className="flex flex-col items-center">
+            <div className="relative group">
+              <div className="w-32 h-32 rounded-full border-4 border-yellow-500/20 overflow-hidden bg-slate-800">
+                {formData.image_url ? (
+                  <img 
+                    src={formData.image_url} 
+                    alt="Profile" 
+                    className="w-full h-full object-cover" 
+                    onError={(e) => { e.target.src = 'https://cdn-icons-png.flaticon.com/512/149/149071.png'; }} // ✅ حماية الصورة
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-slate-500">
+                    <User size={48} />
+                  </div>
+                )}
+              </div>
+              <button type="button" onClick={() => fileInputRef.current.click()} className="absolute bottom-0 right-0 bg-yellow-500 p-3 rounded-full text-black hover:scale-110 transition-transform shadow-lg">
+                <Camera size={20} />
+              </button>
+              <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageChange} />
+            </div>
+          </div>
+        </section>
+
+        <section className={`p-8 rounded-3xl border ${cardBg}`}>
+          <h2 className="text-xl font-black mb-6 flex items-center gap-2">
+            <div className="w-2 h-6 bg-yellow-500 rounded-full" />
+            {isRTL ? 'المعلومات الأساسية' : 'Basic Information'}
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2 text-right">
+              <label className="text-xs font-black text-slate-500 uppercase flex items-center gap-2"><User size={14}/> {isRTL ? 'الاسم الكامل' : 'Full Name'}</label>
+              <input name="name" value={formData.name} onChange={handleChange} className={inputClass} />
+            </div>
+            <div className="space-y-2 text-right">
+              <label className="text-xs font-black text-slate-500 uppercase flex items-center gap-2"><Mail size={14}/> {isRTL ? 'البريد الإلكتروني' : 'Email Address'}</label>
+              <input name="email" value={formData.email} onChange={handleChange} className={inputClass} />
+            </div>
+            <div className="space-y-2 text-right">
+              <label className="text-xs font-black text-slate-500 uppercase flex items-center gap-2"><Phone size={14}/> {isRTL ? 'رقم الهاتف 1' : 'Phone Number 1'}</label>
+              <input name="Phone_no1" value={formData.Phone_no1} onChange={handleChange} className={inputClass} />
+            </div>
+            <div className="space-y-2 text-right">
+              <label className="text-xs font-black text-slate-500 uppercase flex items-center gap-2"><Phone size={14}/> {isRTL ? 'رقم الهاتف 2 (اختياري)' : 'Phone Number 2 (Optional)'}</label>
+              <input name="Phone_no2" value={formData.Phone_no2} onChange={handleChange} className={inputClass} />
+            </div>
+            <div className="space-y-2 text-right md:col-span-2">
+              <label className="text-xs font-black text-slate-500 uppercase flex items-center gap-2"><Lock size={14}/> {isRTL ? 'كلمة المرور الجديدة' : 'New Password'}</label>
+              <input type="password" name="password" value={formData.password} onChange={handleChange} className={inputClass} />
+            </div>
+          </div>
+        </section>
+
+        <section className={`p-8 rounded-3xl border ${cardBg}`}>
+          <h2 className="text-xl font-black mb-6 flex items-center gap-2">
+            <div className="w-2 h-6 bg-yellow-500 rounded-full" />
+            {isRTL ? 'البيانات المهنية' : 'Professional Details'}
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2 text-right">
+              <label className="text-xs font-black text-slate-500 uppercase flex items-center gap-2"><Hash size={14}/> {isRTL ? 'رقم القيد / الرخصة' : 'License Number'}</label>
+              <input name="license_number" value={formData.license_number} onChange={handleChange} className={inputClass} />
+            </div>
+            <div className="space-y-2 text-right">
+              <label className="text-xs font-black text-slate-500 uppercase flex items-center gap-2"><Briefcase size={14}/> {isRTL ? 'سنوات الخبرة' : 'Experience Years'}</label>
+              <input type="number" name="years_experience" value={formData.years_experience} onChange={handleChange} className={inputClass} />
+            </div>
+            <div className="space-y-2 text-right md:col-span-2">
+              <label className="text-xs font-black text-slate-500 uppercase flex items-center gap-2"><Star size={14}/> {isRTL ? 'التخصصات (افصل بينها بـ و أو فاصلة)' : 'Specialties (separate with and or comma)'}</label>
+              <input name="specializations" value={formData.specializations} onChange={handleChange} placeholder="جنائي، مدني، تجاري" className={inputClass} />
+            </div>
+          </div>
+        </section>
+
+        <button 
+          type="submit" 
+          disabled={loading}
+          className="w-full flex items-center justify-center gap-3 px-8 py-5 bg-yellow-500 text-black font-black rounded-2xl hover:bg-yellow-400 shadow-xl transition-all active:scale-95 disabled:opacity-50"
+        >
+          <Save size={22} /> {loading ? (isRTL ? 'جاري الحفظ...' : 'Saving...') : (isRTL ? 'حفظ التعديلات' : 'Save Changes')}
+        </button>
+      </form>
     </div>
   );
 };

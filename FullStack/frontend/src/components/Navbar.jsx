@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom'; 
 import { Sun, Moon, Globe, Bell, User, LogOut, LayoutDashboard, ChevronDown } from 'lucide-react'; 
 import { useLanguage } from '../context/useLanguage'; 
@@ -9,44 +9,42 @@ const Navbar = () => {
   const { language, setLanguage, t } = useLanguage(); 
   const { mode, toggleMode } = useTheme(); 
   const navigate = useNavigate(); 
-  
-  // 1️⃣ الحل السحري: بنستدعي الـ Hook عشان يجبر الناف بار يتحدث مع كل انتقال، من غير ما نخزنه في متغير!
-  useLocation(); 
+  const location = useLocation(); 
   
   const isRTL = language === 'ar' || language === 'eg'; 
   const [isMenuOpen, setIsMenuOpen] = useState(false); 
 
-  // 2️⃣ بنقرأ حالة تسجيل الدخول مباشرة من المتصفح كمتغير ثابت
   const isLoggedIn = !!localStorage.getItem('token'); 
 
-  // بنقرأ بيانات اليوزر بنفس الطريقة
-  const user = {
-    name: localStorage.getItem('userName') || 'User', 
-    role: localStorage.getItem('userRole') || 'Client', 
-    image: localStorage.getItem('userImage') || 'https://cdn-icons-png.flaticon.com/512/149/149071.png', 
-    unreadNotifications: parseInt(localStorage.getItem('unreadNotifications')) || 0  // افتراضي
-  };
+  // ✅ الجزء الجديد: جعل بيانات المستخدم State لتحديثها تلقائياً
+  const [userData, setUserData] = useState({
+    name: localStorage.getItem('userName') || 'مستخدم',
+    role: localStorage.getItem('userRole') || 'Client',
+    image: localStorage.getItem('userImage') || 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
+    unreadNotifications: parseInt(localStorage.getItem('unreadNotifications')) || 0
+  });
 
-//   // جوه دالة handleLogin بعد استلام التوكن
-// localStorage.setItem('token', token);
-localStorage.setItem('userRole', user.role);
-localStorage.setItem('userName', user.name);
-localStorage.setItem('userImage', user.image_url || 'https://cdn-icons-png.flaticon.com/512/149/149071.png');
-localStorage.setItem('unreadNotifications', user.unreadNotifications || 0); 
-// ✅ تخزين عدد التنبيهات غير المقروءة
-localStorage.setItem('unreadNotifications', user.unread_notifications || 0);
+  // ✅ إضافة مستمع للأحداث (EventListener) لضمان تحديث الصورة والاسم فوراً عند التعديل
+  useEffect(() => {
+    const handleSync = () => {
+      setUserData({
+        name: localStorage.getItem('userName') || 'مستخدم',
+        role: localStorage.getItem('userRole') || 'Client',
+        image: localStorage.getItem('userImage') || 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
+        unreadNotifications: parseInt(localStorage.getItem('unreadNotifications')) || 0
+      });
+    };
 
-  // دالة تسجيل الخروج
+    window.addEventListener('storage', handleSync); // يتنصت على التغييرات من صفحات التعديل
+    handleSync(); // تحديث البيانات عند تغيير المسار (Navigate)
+
+    return () => window.removeEventListener('storage', handleSync);
+  }, [location.pathname]);
+
   const handleLogout = () => {
-    // بنمسح الداتا من المتصفح
-    localStorage.removeItem('token'); 
-    localStorage.removeItem('userRole'); 
-    localStorage.removeItem('userName'); 
-    localStorage.removeItem('userImage'); 
-    localStorage.removeItem('unreadNotifications');
-
-    setIsMenuOpen(false); // بنقفل القائمة
-    navigate('/login'); // بنوجهه للوجن
+    localStorage.clear(); 
+    setIsMenuOpen(false); 
+    navigate('/login'); 
   };
 
   const cardBg = mode === 'dark' ? 'bg-slate-900 border-slate-800' : 'bg-white border-gray-200';
@@ -57,7 +55,6 @@ localStorage.setItem('unreadNotifications', user.unread_notifications || 0);
     } backdrop-blur-md`}>
       <div className="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
         
-        {/* اللوجو */}
         <Link to="/" className="flex items-center gap-2">
           <img src={logoImage} alt="Logo" className="h-10" />
           <span className={`font-black text-2xl tracking-tighter italic ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>
@@ -65,39 +62,33 @@ localStorage.setItem('unreadNotifications', user.unread_notifications || 0);
           </span>
         </Link>
 
-        {/* روابط التنقل الأساسية */}
         <div className="hidden md:flex gap-8 font-bold">
           <Link to="/" className="hover:text-yellow-500 transition-colors">{t('nav.home', 'Home')}</Link>
           <Link to="/find-lawyer" className="hover:text-yellow-500 transition-colors">{t('nav.findLawyer', 'Find Lawyer')}</Link>
           <Link to="/how-it-works" className="hover:text-yellow-500 transition-colors">{t('nav.how', 'How it Works')}</Link>
         </div>
 
-        {/* قسم الأزرار */}
         <div className="flex items-center gap-2 md:gap-4">
           
-          {/* التنبيهات (تظهر فقط لو مسجل دخول) */}
           {isLoggedIn && (
             <Link to="/notifications" className="relative p-2 hover:bg-gray-500/10 rounded-full transition-colors group">
               <Bell size={22} className="group-hover:text-yellow-500 transition-colors" />
-              {user.unreadNotifications > 0 && (
+              {userData.unreadNotifications > 0 && (
                 <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-red-600 text-white text-[10px] font-black flex items-center justify-center rounded-full border-2 border-slate-950">
-                  {user.unreadNotifications}
+                  {userData.unreadNotifications}
                 </span>
               )}
             </Link>
           )}
 
-          {/* تبديل الثيم */}
           <button onClick={toggleMode} className="p-2 hover:bg-gray-500/10 rounded-full transition-colors">
             {mode === 'dark' ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} />}
           </button>
 
-          {/* تبديل اللغة */}
           <button onClick={() => setLanguage(language === 'en' ? 'eg' : 'en')} className="p-2 hover:bg-gray-500/10 rounded-full transition-colors">
             <Globe size={18} />
           </button>
 
-          {/* التحقق من حالة الدخول لعرض الأزرار */}
           {!isLoggedIn ? (
             <Link to="/login" className="bg-yellow-500 !text-slate-950 px-6 py-2.5 rounded-full font-black hover:bg-yellow-400 shadow-lg shadow-yellow-500/20 transition-all">
               {t('nav.signup', 'Join Now')}
@@ -109,23 +100,23 @@ localStorage.setItem('unreadNotifications', user.unread_notifications || 0);
                 className="flex items-center gap-2 p-1 pr-3 rtl:pr-1 rtl:pl-3 hover:bg-gray-500/10 rounded-full transition-all border border-transparent hover:border-yellow-500/30"
               >
                 <img 
-                  src={user.image} 
+                  src={userData.image} 
                   alt="User" 
                   className="w-10 h-10 rounded-full object-cover border-2 border-yellow-500"
+                  onError={(e) => { e.target.src = 'https://cdn-icons-png.flaticon.com/512/149/149071.png' }} // ✅ حماية
                 />
                 <ChevronDown size={16} className={`transition-transform ${isMenuOpen ? 'rotate-180' : ''}`} />
               </button>
 
-              {/* القائمة المنسدلة */}
               {isMenuOpen && (
                 <div className={`absolute top-14 ${isRTL ? 'left-0' : 'right-0'} w-56 p-2 rounded-2xl border shadow-2xl ${cardBg} animate-in fade-in zoom-in duration-200`}>
                   <div className="px-4 py-3 border-b border-gray-500/10 mb-2">
-                    <p className="text-sm font-black truncate">{user.name}</p>
-                    <p className="text-[10px] uppercase font-bold text-yellow-500 tracking-widest">{user.role}</p>
+                    <p className="text-sm font-black truncate">{userData.name}</p>
+                    <p className="text-[10px] uppercase font-bold text-yellow-500 tracking-widest">{userData.role}</p>
                   </div>
                   
                   <Link 
-                    to={user.role === 'Lawyer' ? '/lawyer/profile' : '/client/profile'} 
+                    to={userData.role.toLowerCase() === 'lawyer' ? '/lawyer/profile' : '/client/profile'} 
                     onClick={() => setIsMenuOpen(false)}
                     className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-yellow-500 hover:text-black transition-all font-bold text-sm"
                   >
@@ -133,7 +124,7 @@ localStorage.setItem('unreadNotifications', user.unread_notifications || 0);
                   </Link>
 
                   <Link 
-                    to={user.role === 'Lawyer' ? '/lawyer/dashboard' : '/client/dashboard'} 
+                    to={userData.role.toLowerCase() === 'lawyer' ? '/lawyer/dashboard' : '/client/dashboard'} 
                     onClick={() => setIsMenuOpen(false)}
                     className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-500/10 transition-all font-bold text-sm"
                   >

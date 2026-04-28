@@ -21,6 +21,13 @@ export const login = async (req, res) => {
     } catch (error) { res.status(401).json({ success: false, message: error.message }); }
 };
 
+export const getUserProfile = async (req, res) => {
+    try {
+        const data = await userService.getUserProfileService(req.params.id);
+        res.status(200).json({ success: true, data });
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+};
+
 export const searchUsers = async (req, res) => {
     try {
         const data = await userService.searchUsersService(req.query.term);
