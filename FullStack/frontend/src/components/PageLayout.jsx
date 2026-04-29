@@ -26,14 +26,15 @@ export const usePageLayoutPersistence = () => useContext(PageLayoutContext);
 
 const PageLayout = ({ title, subtitle, children, heroImage }) => {
   const { mode, palette } = useTheme();
-  const { language, t } = useLanguage();
+  const { t } = useLanguage();
   const { persistent } = usePageLayoutPersistence();
   const showChrome = !persistent;
   const showHero = Boolean(title || subtitle || heroImage);
   const location = useLocation();
   const [summary, setSummary] = useState(null);
-
   const accentClass = palette === 'yellow' ? 'text-amber-400' : palette === 'green' ? 'text-emerald-400' : palette === 'purple' ? 'text-violet-400' : 'text-blue-400';
+
+  // const accentClass = palette === 'yellow' ? 'text-amber-400' : palette === 'green' ? 'text-emerald-400' : palette === 'purple' ? 'text-violet-400' : 'text-blue-400';
 
   // Define gradient colors based on palette and mode
   const heroBg = {
@@ -88,11 +89,12 @@ const PageLayout = ({ title, subtitle, children, heroImage }) => {
       active = false;
     };
   }, [location.pathname]);
-
-  // 📍 Return section starts here
+// 📍 Return section starts here
   return (
     <div className={`min-h-screen flex flex-col ${mode === 'dark' ? 'bg-slate-950 text-gray-100' : 'bg-gray-50 text-slate-900'}`}>
+      {/* 1. Ensure showChrome is only active when needed to avoid double Navbars */}
       {showChrome && <Navbar />}
+      
       {showHero && (
         <header
           className={`relative overflow-hidden text-white`}
@@ -106,22 +108,22 @@ const PageLayout = ({ title, subtitle, children, heroImage }) => {
           }}
         >
           <div className={`absolute inset-0 bg-gradient-to-br ${palette === 'yellow' ? 'from-black/80 via-yellow-900/40' : palette === 'green' ? 'from-black/80 via-emerald-900/40' : palette === 'purple' ? 'from-black/80 via-purple-900/40' : 'from-slate-950/80 via-slate-900/40'} to-transparent`} />
+          
           <div className="relative max-w-6xl mx-auto px-6 py-20 lg:py-28">
             <p className="text-sm uppercase tracking-[0.35em] text-slate-300 mb-4">{t('layout.platform', 'LawLink')}</p>
             <h1 className={`text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight ${accentClass}`}>
               {title}
             </h1>
             {subtitle && <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-100/90">{subtitle}</p>}
-            <div className="mt-8 inline-flex flex-wrap gap-3 text-xs uppercase tracking-[0.24em] text-slate-200">
-              <span className="rounded-full bg-white/10 px-3 py-2">{t('layout.mode', 'Theme')}: {mode === 'dark' ? 'Dark' : 'Light'}</span>
-              <span className="rounded-full bg-white/10 px-3 py-2">{t('layout.palette', 'Color')}: {palette.charAt(0).toUpperCase() + palette.slice(1)}</span>
-              <span className="rounded-full bg-white/10 px-3 py-2">{t('layout.language', 'Language')}: {language === 'en' ? 'English' : language === 'ar' ? 'العربية' : 'مصرى'}</span>
-            </div>
+            
+            {/* 2. THE SECOND BAR (Metadata) HAS BEEN REMOVED FROM HERE */}
           </div>
         </header>
       )}
+
       <main className="flex-grow pt-8 pb-16">
         <div className="max-w-6xl mx-auto px-6">
+          {/* 3. Main content area with high-end glassmorphism styling */}
           <div className={`rounded-[2rem] border shadow-2xl backdrop-blur-xl page-surface ${mode === 'dark' ? 'border-slate-700/80 bg-slate-800/40' : 'border-slate-200/80 bg-white/95'}`}>
             <div className="p-8 lg:p-12 space-y-10">
               {summary && (
