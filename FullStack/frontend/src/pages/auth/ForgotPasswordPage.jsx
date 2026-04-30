@@ -13,11 +13,16 @@ const ForgotPasswordPage = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     setError('');
+    
     if (!email) {
       setError('يرجى إدخال البريد الإلكتروني');
       return;
     }
+
+    // محاكاة إرسال الرابط بنجاح
     setMessage('تم إرسال رابط استعادة كلمة المرور بنجاح.');
+    
+    // الانتقال لصفحة تعيين كلمة السر الجديدة بعد وقت قصير
     setTimeout(() => navigate('/reset-password'), 2000);
   };
 
@@ -25,14 +30,16 @@ const ForgotPasswordPage = () => {
     <AuthShell>
       <div className="auth-wrapper" dir="rtl">
         <div className="auth-container">
+          {/* الجانب الجمالي (Sidebar) */}
           <div className="brand-sidebar">
             <div className="brand-content">
               <h1 className="brand-logo">LAW<span>LINK</span></h1>
               <h2 className="welcome-text">استعادة الوصول</h2>
-              <p className="brand-tagline">لا تقلق، سنساعدك في العودة إلى حسابك بأمان وسهولة.</p>
+              <p className="brand-tagline">لا تقلق، سنساعدك في العودة إلى حسابك بأمان وسهولة من خلال خطوات بسيطة.</p>
             </div>
           </div>
           
+          {/* قسم النموذج (Form Section) */}
           <div className="form-section">
             <h2 className="form-title">نسيت كلمة السر؟</h2>
             <p className="form-subtitle">أدخل بريدك الإلكتروني وسنرسل لك رابطاً لتعيين كلمة سر جديدة.</p>
@@ -53,6 +60,7 @@ const ForgotPasswordPage = () => {
                 </div>
               </div>
 
+              {/* عرض رسائل الخطأ أو النجاح */}
               {error && <div className="error-text bg-red-500/10 p-3 rounded-lg text-center mb-4 text-sm">{error}</div>}
               {message && <div className="success-text bg-green-500/10 p-3 rounded-lg text-center mb-4 text-sm" style={{color: '#22c55e'}}>{message}</div>}
               

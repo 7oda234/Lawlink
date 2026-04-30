@@ -1,53 +1,100 @@
-// ═══════════════════════════════════════════════════════════════════════════════════
-// ✉️ تعرف البريد الإلكتروني - Email Verification Page  
-// ═══════════════════════════════════════════════════════════════════════════════════
-// المستخدم بخِ وارد رمز التياقق ذات الرسله للبريد
-// User verifies their email using a code sent to their mailbox
-// ────────────────────────────────────────═════════════════════════════════════════
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useLanguage } from '../../context/useLanguage';
+import { FaEnvelopeOpenText, FaPaperPlane } from 'react-icons/fa';
+import "../../styles/auth/AuthBase.css";
 import AuthShell from '../../components/AuthShell';
 
 const EmailVerificationPage = () => {
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
-  const { t } = useLanguage();
 
-  const handleInbox = () => {
-    navigate('/login');
-  };
-
-  const handleResend = () => {
-    setMessage('Verification link resent. Please check your email.');
-  };
-
-  // 📍 Return section starts here
   return (
     <AuthShell>
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-xl shadow-sm border border-gray-200 p-10 text-center">
-        <div className="mx-auto w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-6">
-          <svg className="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-          </svg>
+      <div className="auth-wrapper" dir="rtl">
+        <div className="auth-container" style={{
+          maxWidth: '500px', 
+          minHeight: 'auto', 
+          padding: '3.5rem 2rem', 
+          margin: 'auto', 
+          textAlign: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          
+          {/* أيقونة البريد الذهبية المتوهجة */}
+          <div style={{
+            width: '80px', 
+            height: '80px', 
+            backgroundColor: 'rgba(234, 179, 8, 0.1)', 
+            borderRadius: '50%', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            marginBottom: '2rem',
+            border: '1px solid rgba(234, 179, 8, 0.2)'
+          }}>
+            <FaEnvelopeOpenText style={{fontSize: '2rem', color: '#eab308'}} />
+          </div>
+          
+          {/* عنوان الصفحة */}
+          <h2 className="form-title" style={{fontSize: '1.8rem', marginBottom: '1rem'}}>
+            تحقق من بريدك الإلكتروني
+          </h2>
+          
+          {/* وصف الخطوة التالية */}
+          <p className="form-subtitle" style={{fontSize: '1rem', lineHeight: '1.6', marginBottom: '2.5rem', padding: '0 10px'}}>
+            لقد أرسلنا رابط التحقق إلى بريدك الإلكتروني. يرجى الضغط على الرابط لتفعيل حسابك والبدء في استخدام منصة LawLink.
+          </p>
+          
+          {/* زر الانتقال للصندوق الوارد */}
+          <button 
+            onClick={() => navigate('/login')} 
+            className="btn-submit" 
+            style={{width: '100%', marginBottom: '1.5rem'}}
+          >
+            الانتقال إلى صندوق الوارد
+          </button>
+
+          {/* رسالة نجاح إعادة الإرسال */}
+          {message && (
+            <div className="success-text" style={{
+              backgroundColor: 'rgba(34, 197, 94, 0.1)', 
+              color: '#22c55e', 
+              padding: '0.75rem', 
+              borderRadius: '0.75rem', 
+              width: '100%', 
+              marginBottom: '1.5rem',
+              fontSize: '0.9rem'
+            }}>
+              {message}
+            </div>
+          )}
+          
+          {/* خيار إعادة إرسال الرابط */}
+          <p style={{color: '#94a3b8', fontSize: '0.9rem'}}>
+            لم تصلك الرسالة؟ 
+            <button 
+              className="text-yellow-500 font-bold"
+              style={{
+                background: 'none', 
+                border: 'none', 
+                color: '#eab308', 
+                cursor: 'pointer', 
+                marginRight: '8px',
+                padding: '0',
+                fontSize: '0.9rem',
+                fontWeight: '700'
+              }}
+              onClick={() => setMessage('تم إعادة إرسال رابط التحقق بنجاح.')}
+            >
+              <FaPaperPlane style={{marginLeft: '5px', fontSize: '0.7rem'}} />
+              إعادة إرسال الرابط
+            </button>
+          </p>
         </div>
-        
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('auth.emailVerification.title')}</h2>
-        <p className="text-gray-500 mb-8 text-sm leading-relaxed">
-          {t('auth.emailVerification.description')}
-        </p>
-        
-        <button type="button" onClick={handleInbox} className="w-full bg-black text-white py-3 rounded-lg font-bold hover:bg-gray-800 mb-4 transition">
-          {t('auth.emailVerification.goToInbox')}
-        </button>
-        {message && <div className="success-text mb-4">{message}</div>}
-        <p className="text-sm text-gray-500 mt-4">
-          {t('auth.emailVerification.didntReceive')} <button type="button" className="text-black font-bold hover:underline" onClick={handleResend}>{t('auth.emailVerification.resendLink')}</button>
-        </p>
       </div>
-    </div>
     </AuthShell>
   );
 };

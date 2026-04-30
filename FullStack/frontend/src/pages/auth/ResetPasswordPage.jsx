@@ -12,11 +12,15 @@ const ResetPasswordPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setError('');
+
+    // التحقق من تطابق كلمة السر
     if (password !== confirmPassword) {
       setError('كلمات المرور غير متطابقة.');
       return;
     }
-    // التوجه لصفحة التأكيد بعد النجاح
+
+    // التوجه لصفحة التأكيد بعد النجاح[cite: 9]
     navigate('/verify-email');
   };
 
@@ -24,17 +28,19 @@ const ResetPasswordPage = () => {
     <AuthShell>
       <div className="auth-wrapper" dir="rtl">
         <div className="auth-container">
+          {/* الجانب الجمالي (Sidebar) */}
           <div className="brand-sidebar">
             <div className="brand-content">
               <h1 className="brand-logo">LAW<span>LINK</span></h1>
               <h2 className="welcome-text">الأمان أولاً</h2>
-              <p className="brand-tagline">يرجى اختيار كلمة سر قوية وفريدة لحماية بياناتك القانونية.</p>
+              <p className="brand-tagline">يرجى اختيار كلمة سر قوية وفريدة لحماية بياناتك القانونية وسجلاتك الشخصية.</p>
             </div>
           </div>
 
+          {/* قسم النموذج (Form Section) */}
           <div className="form-section">
             <h2 className="form-title">إعادة تعيين كلمة السر</h2>
-            <p className="form-subtitle">قم بإدخال كلمة السر الجديدة الخاصة بك للوصول إلى حسابك.</p>
+            <p className="form-subtitle">قم بإدخال كلمة السر الجديدة الخاصة بك للوصول إلى حسابك مرة أخرى.</p>
             
             <form className="auth-form" onSubmit={handleSubmit}>
               <div className="form-group">
@@ -67,6 +73,7 @@ const ResetPasswordPage = () => {
                 </div>
               </div>
 
+              {/* عرض رسالة الخطأ إن وُجدت */}
               {error && (
                 <div className="error-text bg-red-500/10 p-3 rounded-lg text-center mb-4 text-sm">
                   {error}
