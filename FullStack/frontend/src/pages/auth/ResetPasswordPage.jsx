@@ -1,12 +1,6 @@
-// ═══════════════════════════════════════════════════════════════════════════════════
-// Reset Password Page
-// ═══════════════════════════════════════════════════════════════════════════════════
-// صفحة اعادة تعيين كلمة السر - Reset Password flow
-// Authentication page for entering a new password.
-// ───────────────────────────────────────────────────────────────────────────────────
 import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
-import { useLanguage } from '../../context/useLanguage';
+import { FaLock, FaCheckCircle } from 'react-icons/fa';
 import "../../styles/auth/AuthBase.css";
 import AuthShell from '../../components/AuthShell';
 
@@ -15,68 +9,77 @@ const ResetPasswordPage = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { t } = useLanguage();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setError('');
-
-    if (!password || !confirmPassword) {
-      setError('Please fill in both password fields.');
-      return;
-    }
-
     if (password !== confirmPassword) {
-      setError('Passwords do not match.');
+      setError('كلمات المرور غير متطابقة.');
       return;
     }
-
+    // التوجه لصفحة التأكيد بعد النجاح
     navigate('/verify-email');
   };
 
-  // 📍 Return section starts here
   return (
     <AuthShell>
-      <div className="auth-container">
-      <div className="brand-sidebar">
-        <div className="brand-content">
-          <h1 className="brand-logo">LawLink</h1>
-          <h2 className="welcome-text">Security First.</h2>
+      <div className="auth-wrapper" dir="rtl">
+        <div className="auth-container">
+          <div className="brand-sidebar">
+            <div className="brand-content">
+              <h1 className="brand-logo">LAW<span>LINK</span></h1>
+              <h2 className="welcome-text">الأمان أولاً</h2>
+              <p className="brand-tagline">يرجى اختيار كلمة سر قوية وفريدة لحماية بياناتك القانونية.</p>
+            </div>
+          </div>
+
+          <div className="form-section">
+            <h2 className="form-title">إعادة تعيين كلمة السر</h2>
+            <p className="form-subtitle">قم بإدخال كلمة السر الجديدة الخاصة بك للوصول إلى حسابك.</p>
+            
+            <form className="auth-form" onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label>كلمة السر الجديدة</label>
+                <div className="input-container">
+                  <FaLock className="input-icon" />
+                  <input
+                    type="password"
+                    className="law-input"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>تأكيد كلمة السر الجديدة</label>
+                <div className="input-container">
+                  <FaCheckCircle className="input-icon" />
+                  <input
+                    type="password"
+                    className="law-input"
+                    placeholder="••••••••"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+
+              {error && (
+                <div className="error-text bg-red-500/10 p-3 rounded-lg text-center mb-4 text-sm">
+                  {error}
+                </div>
+              )}
+              
+              <button type="submit" className="btn-submit">
+                تحديث كلمة السر
+              </button>
+            </form>
+          </div>
         </div>
       </div>
-      <div className="form-section">
-        <div className="auth-card">
-          <h2 className="form-title">{t('auth.resetPassword.title')}</h2>
-          <p className="form-subtitle">{t('auth.resetPassword.subtitle')}</p>
-          <form className="auth-form" onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label>{t('auth.resetPassword.newPassword')}</label>
-              <input
-                type="password"
-                className="law-input"
-                placeholder={t('auth.resetPassword.newPassword')}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>{t('auth.resetPassword.confirmPassword')}</label>
-              <input
-                type="password"
-                className="law-input"
-                placeholder={t('auth.resetPassword.confirmPassword')}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-              />
-            </div>
-            {error && <div className="error-text">{error}</div>}
-            <button type="submit" className="btn-law">{t('auth.resetPassword.updatePassword')}</button>
-          </form>
-        </div>
-      </div>
-    </div>
     </AuthShell>
   );
 };

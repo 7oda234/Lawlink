@@ -10,7 +10,11 @@ export const bootstrap = () => {
     // Middlewares الأساسية
     app.use(helmet());
     app.use(cors());
-    app.use(express.json());
+
+    // ✅ الحل النهائي: زيادة الحد المسموح به لاستقبال الصور الكبيرة وتنسيق الروابط
+    app.use(express.json({ limit: '50mb' }));
+    app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
     app.use(activityLogger);
 
     // 🚀 "تظبيطة" الـ Routers كلها في سطر واحد

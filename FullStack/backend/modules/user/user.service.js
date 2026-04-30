@@ -35,13 +35,14 @@ export const searchUsersService = async (searchTerm) => {
     return rows;
 };
 
-// ✅ 3. تسجيل مستخدم جديد (قديم)
+// ✅ 3. تسجيل مستخدم جديد (معدل لتجنب التعارض مع الـ Trigger)
 export const registerUserService = async (userData) => {
     const connection = await pool.promise().getConnection();
     try {
         await connection.beginTransaction();
         const hashedPassword = await bcrypt.hash(userData.password, 10);
         
+        // 1. الإدخال في جدول users (الـ Trigger هيشتغل هنا وينشئ صف فارغ في lawyer أو client)
         const [userResult] = await connection.query(
             `INSERT INTO users (name, role, email, password, gender, Phone_no1, Phone_no2, image_url, Date_of_Birth) 
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -49,24 +50,32 @@ export const registerUserService = async (userData) => {
         );
         const userId = userResult.insertId;
 
+        // 2. استخدام UPDATE بدلاً من INSERT لتحديث البيانات الإضافية في الصف اللي أنشأه الـ Trigger
         if (userData.role === 'Lawyer') {
             await connection.query(
-                `INSERT INTO lawyer (user_id, license_number, years_experience, verified) VALUES (?, ?, ?, ?)`, 
-                [userId, userData.license_number, userData.years_experience || 0, userData.verified || 0]
+                `UPDATE lawyer SET license_number = ?, years_experience = ?, verified = ? WHERE user_id = ?`, 
+                [userData.license_number, userData.years_experience || 0, userData.verified || 0, userId]
             );
             if (userData.specializations && Array.isArray(userData.specializations)) {
                 const specValues = userData.specializations.map(spec => [userId, spec]);
                 await connection.query(`INSERT INTO lawyer_specializations (lawyer_id, spec_name) VALUES ?`, [specValues]);
             }
         } else if (userData.role === 'Admin') {
-            await connection.query(`INSERT INTO admin (user_id, authority_level) VALUES (?, ?)`, [userId, userData.authority_level]);
+            await connection.query(`UPDATE admin SET authority_level = ? WHERE user_id = ?`, [userData.authority_level, userId]);
         } else if (userData.role === 'Client') {
-            await connection.query(`INSERT INTO client (user_id, income_level) VALUES (?, ?)`, [userId, userData.income_level || 0]);
+            // التعديل هنا: UPDATE للموكل عشان ما يضربش مع الـ Trigger
+            await connection.query(`UPDATE client SET income_level = ? WHERE user_id = ?`, [userData.income_level || 0, userId]);
         }
 
         await connection.commit();
         return userId;
-    } catch (error) { await connection.rollback(); throw error; } finally { connection.release(); }
+    } catch (error) { 
+        await connection.rollback(); 
+        console.error("Database Error during registration:", error); 
+        throw error; 
+    } finally { 
+        connection.release(); 
+    }
 };
 
 // ✅ 4. التحديث الشامل (تمت إضافة الهواتف المستقلة، الصور، التخصصات، ودخل العميل)

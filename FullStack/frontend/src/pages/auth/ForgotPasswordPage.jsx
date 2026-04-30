@@ -1,69 +1,77 @@
-// ═══════════════════════════════════════════════════════════════════════════════════
-// Forgot Password Page
-// ═══════════════════════════════════════════════════════════════════════════════════
-// صفحة استرجاع كلمة السر - Forgot Password flow
-// Authentication page for password recovery.
-// ───────────────────────────────────────────────────────────────────────────────────
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useLanguage } from '../../context/useLanguage';
+import { FaEnvelope, FaArrowRight } from 'react-icons/fa';
 import "../../styles/auth/AuthBase.css";
 import AuthShell from '../../components/AuthShell';
+
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { t } = useLanguage();
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setError('');
     if (!email) {
-      setError('Please enter your email address');
+      setError('يرجى إدخال البريد الإلكتروني');
       return;
     }
-    setMessage('A password reset link has been sent if the email exists.');
-    setTimeout(() => navigate('/reset-password'), 1200);
+    setMessage('تم إرسال رابط استعادة كلمة المرور بنجاح.');
+    setTimeout(() => navigate('/reset-password'), 2000);
   };
 
-  // 📍 Return section starts here
   return (
     <AuthShell>
-      <div className="auth-container">
-      <div className="brand-sidebar">
-        <div className="brand-content">
-          <h1 className="brand-logo">LawLink</h1>
-          <h2 className="welcome-text">Recover Access.</h2>
-        </div>
-      </div>
-      <div className="form-section">
-        <div className="auth-card">
-          <h2 className="form-title">Reset Password</h2>
-          <p className="form-subtitle">Enter your email to receive a reset link.</p>
-          <form className="auth-form" onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label>{t('auth.forgotPassword.email')}</label>
-              <input
-                type="email"
-                className="law-input"
-                placeholder={t('auth.forgotPassword.email')}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
+      <div className="auth-wrapper" dir="rtl">
+        <div className="auth-container">
+          <div className="brand-sidebar">
+            <div className="brand-content">
+              <h1 className="brand-logo">LAW<span>LINK</span></h1>
+              <h2 className="welcome-text">استعادة الوصول</h2>
+              <p className="brand-tagline">لا تقلق، سنساعدك في العودة إلى حسابك بأمان وسهولة.</p>
             </div>
-            {error && <div className="error-text">{error}</div>}
-            {message && <div className="success-text">{message}</div>}
-            <button type="submit" className="btn-law">{t('auth.forgotPassword.sendLink')}</button>
-          </form>
-          <p className="footer-link">
-            <Link to="/login">{t('auth.forgotPassword.backToLogin')}</Link>
-          </p>
+          </div>
+          
+          <div className="form-section">
+            <h2 className="form-title">نسيت كلمة السر؟</h2>
+            <p className="form-subtitle">أدخل بريدك الإلكتروني وسنرسل لك رابطاً لتعيين كلمة سر جديدة.</p>
+            
+            <form className="auth-form" onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label>البريد الإلكتروني</label>
+                <div className="input-container">
+                  <FaEnvelope className="input-icon" />
+                  <input
+                    type="email"
+                    className="law-input"
+                    placeholder="example@lawlink.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+
+              {error && <div className="error-text bg-red-500/10 p-3 rounded-lg text-center mb-4 text-sm">{error}</div>}
+              {message && <div className="success-text bg-green-500/10 p-3 rounded-lg text-center mb-4 text-sm" style={{color: '#22c55e'}}>{message}</div>}
+              
+              <button type="submit" className="btn-submit">
+                إرسال رابط الاستعادة
+                <FaArrowRight className="ms-2 text-sm" style={{transform: 'rotate(180deg)'}} />
+              </button>
+            </form>
+            
+            <p className="footer-link text-center mt-6">
+              <Link to="/login" className="text-gray-400 hover:text-yellow-500 transition">
+                العودة لتسجيل الدخول
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
-    </div>    
-    </AuthShell>  );
+    </AuthShell>
+  );
 };
 
 export default ForgotPasswordPage;
