@@ -6,13 +6,14 @@ import casesRouter from "../modules/Cases/cases.routes.js";
 import aiRouter from "../modules/Ai_tools/ai_tools.routes.js";
 import messageRouter from "../modules/Message/message.routes.js";
 
-// 📄 الموديول الجديد الخاص بالمستندات (تمت الإضافة)
-import documentsRouter from "../modules/Document_folder/document_folder.routes.js"; // تأكد من مسار الفولدر عندك
+// 📄 موديول المستندات
+import documentsRouter from "../modules/Document_folder/document_folder.routes.js"; 
 
-// ❌ الموديولات اللي لسه مكرتناش ملفاتها (عطلناها عشان السيرفر ما يضربش)
-// import appointmentRouter from "../modules/appointments/appointments.routes.js";
-// import paymentRouter from "../modules/payments/payments.routes.js";
+// 💳 موديول المدفوعات (تم التفعيل)
+import paymentRouter from "../modules/Payment/payment.routes.js"; 
 
+// 📅 موديول المواعيد (تم تفعيله الآن)
+import appointmentRouter from "../modules/Appointment/appointment.routes.js"; 
 
 /**
  * 🛠️ إعداد كافة مسارات التطبيق (Routing Hub)
@@ -33,8 +34,14 @@ export const setupAppRoutes = (app) => {
     // 💬 موديول المراسلات
     app.use("/api/messages", messageRouter);
 
-    // 📁 موديول المستندات (تمت الإضافة هنا)
+    // 📁 موديول المستندات
     app.use("/api/documents", documentsRouter);
+
+    // 💳 موديول المدفوعات
+    app.use("/api/payments", paymentRouter);
+
+    // 📅 موديول المواعيد (تمت الإضافة هنا لربط العميل بمحامي القضية)
+    app.use("/api/appointments", appointmentRouter);
 
     // ⚠️ معالج المسارات غير الموجودة (404 Error Handler)
     app.use((req, res) => {
