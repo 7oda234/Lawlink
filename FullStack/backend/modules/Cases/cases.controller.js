@@ -1,6 +1,6 @@
 import * as casesService from "./cases.service.js";
 
-// ➕ إنشاء قضية (POST)
+// ➕ إنشاء قضية (POST) - [كود قديم]
 export const handleCreateCase = async (req, res) => {
   try {
     const result = await casesService.createCase(req.body);
@@ -10,7 +10,7 @@ export const handleCreateCase = async (req, res) => {
   }
 };
 
-// 📖 جلب كل القضايا (GET)
+// 📖 جلب كل القضايا (GET) - [كود قديم]
 export const handleGetCases = async (req, res) => {
   try {
     const cases = await casesService.getCases();
@@ -20,7 +20,7 @@ export const handleGetCases = async (req, res) => {
   }
 };
 
-// 📩 إرسال عرض لمحامي (POST)
+// 📩 1. العميل يرسل القضية للمحامي (POST)
 export const handleSendOffer = async (req, res) => {
   try {
     const { caseId, lawyerId } = req.body;
@@ -31,21 +31,32 @@ export const handleSendOffer = async (req, res) => {
   }
 };
 
-// ✅ رد المحامي (PUT)
-export const handleOfferResponse = async (req, res) => {
+// 👨‍⚖️ 2. رد المحامي (لو وافق بيحط الفلوس والنسبة) (PUT) - [كود جديد]
+export const handleLawyerResponse = async (req, res) => {
   try {
-    const { caseId, lawyerId, response } = req.body;
-    const result = await casesService.respondToOffer(caseId, lawyerId, response);
+    const { caseId, lawyerId, response, upfrontFee, successPercentage } = req.body;
+    const result = await casesService.lawyerRespondToOffer(caseId, lawyerId, response, upfrontFee, successPercentage);
     res.status(200).json(result);
   } catch (err) {
     res.status(500).json({ ok: false, message: err.message });
   }
 };
 
-// 🗑️ مسح قضية (DELETE)
+// 👤 3. رد العميل على المبالغ اللي المحامي حددها (PUT) - [كود جديد]
+export const handleClientResponse = async (req, res) => {
+  try {
+    const { caseId, response } = req.body;
+    const result = await casesService.clientRespondToFees(caseId, response);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+};
+
+// 🗑️ مسح قضية (DELETE) - [كود قديم]
 export const handleDeleteCase = async (req, res) => {
   try {
-    const { id } = req.params; // بياخد الـ ID من الـ URL (الرقم اللي بعد السلاش)
+    const { id } = req.params; 
     const result = await casesService.deleteCase(id);
     res.status(200).json(result);
   } catch (err) {

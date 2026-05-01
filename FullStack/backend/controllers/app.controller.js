@@ -4,20 +4,21 @@ import authRouter from "../modules/auth/auth.controller.js";
 import userRouter from "../modules/user/user.routes.js";
 import casesRouter from "../modules/Cases/cases.routes.js";
 import aiRouter from "../modules/Ai_tools/ai_tools.routes.js";
+import messageRouter from "../modules/Message/message.routes.js";
+
+// 📄 الموديول الجديد الخاص بالمستندات (تمت الإضافة)
+import documentsRouter from "../modules/Document_folder/document_folder.routes.js"; // تأكد من مسار الفولدر عندك
+
 // ❌ الموديولات اللي لسه مكرتناش ملفاتها (عطلناها عشان السيرفر ما يضربش)
-
 // import appointmentRouter from "../modules/appointments/appointments.routes.js";
-
 // import paymentRouter from "../modules/payments/payments.routes.js";
-
- import messageRouter from "../modules/Message/message.routes.js";
 
 
 /**
  * 🛠️ إعداد كافة مسارات التطبيق (Routing Hub)
  */
 export const setupAppRoutes = (app) => {
-    // 🔐 مسارات الدخول والتسجيل (تعديل: تم التوجيه لـ userRouter لضمان عمل الـ Login)
+    // 🔐 مسارات الدخول والتسجيل
     app.use("/api/auth", userRouter); 
     
     // 📂 مسارات القضايا
@@ -29,8 +30,12 @@ export const setupAppRoutes = (app) => {
     // 🤖 أدوات الذكاء الاصطناعي
     app.use("/ai", aiRouter);
     
-    // 💬 موديول المراسلات (الـ Chat الجديد)
+    // 💬 موديول المراسلات
     app.use("/api/messages", messageRouter);
+
+    // 📁 موديول المستندات (تمت الإضافة هنا)
+    app.use("/api/documents", documentsRouter);
+
     // ⚠️ معالج المسارات غير الموجودة (404 Error Handler)
     app.use((req, res) => {
         res.status(404).json({ 
