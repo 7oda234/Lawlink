@@ -1,8 +1,11 @@
 // ده المكون الرئيسي للتطبيق - This is the main component of the app
 
+// الحل الجذري للمشكلة: الاستيراد من ملف AuthContext.jsx وليس Object
+import { AuthProvider } from './context/AuthContext'; 
+
 import React from 'react';
 
-
+import { Component } from 'lucide-react';
 
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 
@@ -40,6 +43,7 @@ import './styles/communication/CommunicationBase.css';
 
 import './styles/utility/UtilityBase.css';
 
+
 // import './styles/AboutUS.module.css';
 
 
@@ -69,6 +73,10 @@ const LawyerProfilePublicPage = React.lazy(() => import('./pages/LawyerProfilePu
 const LoginPage = React.lazy(() => import('./pages/auth/LoginPage'));
 
 const RegisterPage = React.lazy(() => import('./pages/auth/RegisterPage'));
+
+const RegisterClientContinuePage = React.lazy(() => import('./pages/auth/RegisterClientContinuePage'));
+
+const RegisterLawyerContinuePage = React.lazy(() => import('./pages/auth/RegisterLawyerContinuePage'));
 
 const ForgotPasswordPage = React.lazy(() => import('./pages/auth/ForgotPasswordPage'));
 
@@ -106,7 +114,7 @@ const NewCaseIntake = React.lazy(() => import('./pages/client/NewCaseIntake'));
 
 
 
-// استيراد صفحات المحامي - التعديل هنا في اسم الفولدر 'Lawyer'
+// استيراد صفحات المحامي - Importing lawyer pages
 
 const LawyerDashboard = React.lazy(() => import('./pages/Lawyer/LawyerDashboardPage'));
 
@@ -268,6 +276,10 @@ const routeConfig = [
 
   { path: '/register', Component: RegisterPage },
 
+  { path: '/register/client/continue', Component: RegisterClientContinuePage },
+
+  { path: '/register/lawyer/continue', Component: RegisterLawyerContinuePage },
+
   { path: '/forgot-password', Component: ForgotPasswordPage },
 
   { path: '/reset-password', Component: ResetPasswordPage },
@@ -426,22 +438,14 @@ const AppRoutes = () => {
 
 
 
-        // روت للصفحات غير الموجودة - Route for not found pages
-
+        {/* روت للصفحات غير الموجودة - Route for not found pages */}
         <Route
-
-          path="../src/utils/NotFoundPage.jsx"
-
+          path="*"
           element={
-
             <PageWrapper>
-
               <NotFoundPage />
-
             </PageWrapper>
-
           }
-
         />
 
       </Routes>
@@ -452,29 +456,6 @@ const AppRoutes = () => {
 
 };
 
-// مكون المحتوى الرئيسي للتطبيق - Main content component for the app
-
-{routeConfig.map(({ path, Component }) => (
-
-  <Route
-
-    key={path}
-
-    path={path}
-
-    element={
-
-      <PageWrapper>
-
-        <Component />
-
-      </PageWrapper>
-
-    }
-
-  />
-
-))}
 
 // مكون المحتوى الرئيسي للتطبيق - Main content component for the app
 
@@ -491,8 +472,6 @@ const AppContent = () => {
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 pt-24 min-h-screen">
-
-        {/* React.Suspense is required for the lazy-loaded pages defined in your technical feasibility [cite: 394, 434] */}
 
         <React.Suspense fallback={<div className="text-center py-20">Loading LawLink...</div>}>
 
@@ -516,19 +495,31 @@ function App() {
 
   return (
 
-    <ThemeProvider>
+    <ErrorBoundary>
 
-      <LanguageProvider>
+      <ThemeProvider>
 
-        <Router>
+        <LanguageProvider>
 
-            <AppContent />
+          <AuthProvider> 
 
-        </Router>
+            <Router>
 
-      </LanguageProvider>
+              <PageLayoutProvider>
 
-    </ThemeProvider>
+                <AppContent />
+
+              </PageLayoutProvider>
+
+            </Router>
+
+          </AuthProvider>
+
+        </LanguageProvider>
+
+      </ThemeProvider>
+
+    </ErrorBoundary>
 
   );
 
