@@ -136,6 +136,10 @@ const LawyerSchedulePage = React.lazy(() => import('./pages/Lawyer/LawyerSchedul
 
 const LawyerCalendarPage = React.lazy(() => import('./pages/Lawyer/LawyerCalendarPage'));
 
+const LawyerManageRequestsPage = React.lazy(() => import('./pages/Lawyer/LawyerManageRequestsPage'));
+
+
+
 
 
 // استيراد صفحات الإدارة - Importing admin pages
@@ -333,6 +337,8 @@ const routeConfig = [
   { path: '/lawyer/appointments', Component: LawyerSchedulePage },
 
   { path: '/lawyer/calendar', Component: LawyerCalendarPage },
+
+  { path: '/lawyer/requests', Component: LawyerManageRequestsPage },
 
 // admin routes
 
