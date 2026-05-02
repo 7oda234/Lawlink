@@ -1,61 +1,51 @@
-// ═══════════════════════════════════════════════════════════════════════════════════
-// 🌍 سياق اللغة - Language Context
-// ═══════════════════════════════════════════════════════════════════════════════════
-// هنا بنخزّن لغة التطبيق (English/Arabic/Egyptian) وبنوفّر ترجمة النصوص
-// ─────────────────────────────────────────────────────────────────────────────────────
-
-import React, { useEffect, useMemo, useCallback } from 'react';
+import React, { useEffect, useMemo, useCallback, useState } from 'react';
 import { LanguageContext } from './LanguageContextObject';
 import { translations } from './translations';
 
 export const LanguageProvider = ({ children }) => {
-  const [language, setLanguage] = React.useState(() => {
-    const savedLanguage = localStorage.getItem('lawlink-language');
+  const [language, setLanguage] = useState(() => {
+    // محاولة استعادة اللغة من المتصفح
+    const savedLanguage = localStorage.getItem('app-language');
     return savedLanguage || 'en';
   });
 
-  // دالة الترجمة - Translation function
+  // دالة الترجمة المحسنة للتعامل مع المفاتيح المتداخلة
   const t = useCallback((key, fallback = '') => {
+    if (!key) return fallback;
+    
     const keys = key.split('.');
     let current = translations[language];
     
     for (const k of keys) {
-      if (current && typeof current === 'object') {
+      if (current && typeof current === 'object' && k in current) {
         current = current[k];
       } else {
-        return fallback || key;
+        // يعيد المفتاح نفسه إذا لم يعثر عليه ليتم تمييز النقص في الواجهة[cite: 15]
+        return fallback || key; 
       }
     }
-    return current || fallback || key;
+    
+    // ضمان إرجاع نص فقط وليس كائناً[cite: 15]
+    return typeof current === 'string' ? current : (fallback || key);
   }, [language]);
 
-  // اللغات المتاحة - Available languages
   const languages = useMemo(() => [
     { code: 'en', label: 'English', dir: 'ltr' },
     { code: 'ar', label: 'العربية', dir: 'rtl' },
     { code: 'eg', label: 'مصرى', dir: 'rtl' }
   ], []);
 
-  // تأثير تغيير اللغة على اتجاه الصفحة
+  // تحديث اتجاه الصفحة (RTL/LTR) واللغة في وسم HTML[cite: 15]
   useEffect(() => {
     const currentLang = languages.find(l => l.code === language);
     const dir = currentLang?.dir || 'ltr';
     
     document.documentElement.dir = dir;
     document.documentElement.lang = language;
-    localStorage.setItem('lawlink-language', language);
+    localStorage.setItem('app-language', language);
   }, [language, languages]);
 
-  // القيمة اللي بنوديها للـ children
-  const value = useMemo(
-    () => ({
-      language,
-      setLanguage,
-      languages,
-      t
-    }),
-    [language, languages, t]
-  );
+  const value = useMemo(() => ({ language, setLanguage, languages, t }), [language, languages, t]);
 
   return (
     <LanguageContext.Provider value={value}>

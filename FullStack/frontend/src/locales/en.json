@@ -1,0 +1,39 @@
+{
+  "admin": {
+    "dashboard": {
+      "title": "Dashboard",
+      "description": "Overview of system statistics.",
+      "totalUsers": "Total Users",
+      "activeCases": "Active Cases",
+      "pendingLawyers": "Pending Lawyers"
+    },
+    "createUser": {
+      "title": "Create New User",
+      "description": "Create new accounts for clients, lawyers, or admin staff.",
+      "basicInfo": "Basic Information",
+      "fullName": "Full Name",
+      "email": "Email Address",
+      "password": "Password",
+      "gender": "Gender",
+      "male": "Male",
+      "female": "Female",
+      "phone": "Primary Phone",
+      "role": "Account Role",
+      "client": "Client",
+      "lawyer": "Lawyer",
+      "admin": "Admin",
+      "save": "Create Account",
+      "cancel": "Cancel & Reset"
+    },
+    "sidebar": {
+      "title": "LawLink Admin",
+      "dashboard": "Dashboard",
+      "users": "User Management",
+      "createUser": "Create User",
+      "lawyers": "Lawyer Management",
+      "approveLawyers": "Approve Lawyers",
+      "cases": "Case Management",
+      "monitorCases": "Monitor Cases"
+    }
+  }
+}
