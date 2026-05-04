@@ -112,6 +112,8 @@ const ClientPaymentPage = React.lazy(() => import('./pages/client/ClientPaymentP
 
 const NewCaseIntake = React.lazy(() => import('./pages/client/NewCaseIntake'));
 
+const ClientWalletPage = React.lazy(() => import('./pages/client/ClientWalletPage'));
+
 
 
 // استيراد صفحات المحامي - Importing lawyer pages
@@ -138,6 +140,7 @@ const LawyerCalendarPage = React.lazy(() => import('./pages/Lawyer/LawyerCalenda
 
 const LawyerManageRequestsPage = React.lazy(() => import('./pages/Lawyer/LawyerManageRequestsPage'));
 
+const LawyerEarningsPage = React.lazy(() => import('./pages/Lawyer/LawyerEarningsPage'));
 
 
 
@@ -167,6 +170,8 @@ const AdminCaseMonitoringPage = React.lazy(() => import('./pages/admin/AdminCase
 const AdminReportsPage = React.lazy(() => import('./pages/admin/AdminReportsPage'));
 
 const AdminSystemLogsPage = React.lazy(() => import('./pages/admin/AdminSystemLogsPage'));
+
+const AdminFinancialOverview = React.lazy(() => import('./pages/admin/AdminFinancialOverviewPage'));
 
 
 
@@ -316,6 +321,8 @@ const routeConfig = [
 
   { path: '/client/cases/intake', Component: NewCaseIntake },
 
+  { path: '/client/wallet', Component: ClientWalletPage },
+
 // lawyer routes
 
   { path: '/lawyer/dashboard', Component: LawyerDashboard },
@@ -339,6 +346,8 @@ const routeConfig = [
   { path: '/lawyer/calendar', Component: LawyerCalendarPage },
 
   { path: '/lawyer/requests', Component: LawyerManageRequestsPage },
+
+  {path: '/lawyer/earnings', Component: LawyerEarningsPage },
 
 // admin routes
 
@@ -365,6 +374,8 @@ const routeConfig = [
   { path: '/admin/reports', Component: AdminReportsPage },
 
   { path: '/admin/logs', Component: AdminSystemLogsPage },
+
+  { path: '/admin/financial-overview', Component: AdminFinancialOverview },
 
 // case routes
 

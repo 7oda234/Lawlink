@@ -20,6 +20,9 @@ export const useTranslation = () => {
   const isRTL = language === 'ar' || language === 'eg';
 
   return {
+    // Legacy alias for compatibility with pages using { t }
+    t,
+
     // Translate using predefined keys from TRANSLATION_KEYS constant
     text: (keyConstant, fallback = '') => {
       const keyValue = TRANSLATION_KEYS[keyConstant];

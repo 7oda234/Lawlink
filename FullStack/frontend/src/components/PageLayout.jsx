@@ -10,8 +10,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import Navbar from './Navbar'; // شريط الملاح - navigation bar component
-import Footer from './Footer'; // التذييل بتاع الصفحة - footer component
 import { useTheme } from '../context/ThemeContext'; // المظهر والألوان - theme colors and mode
 import { useLanguage } from '../context/useLanguage';
 import dataService from '../services/DataService'; // service لإدارة الAPI
@@ -27,11 +25,9 @@ export const usePageLayoutPersistence = () => useContext(PageLayoutContext);
 const PageLayout = ({ title, subtitle, children, heroImage }) => {
   const { mode, palette } = useTheme();
   const { t } = useLanguage();
-  const { persistent } = usePageLayoutPersistence();
-  const showChrome = !persistent;
-  const showHero = Boolean(title || subtitle || heroImage);
   const location = useLocation();
   const [summary, setSummary] = useState(null);
+  const showHero = Boolean(title || subtitle || heroImage);
   const accentClass = palette === 'yellow' ? 'text-amber-400' : palette === 'green' ? 'text-emerald-400' : palette === 'purple' ? 'text-violet-400' : 'text-blue-400';
 
   // const accentClass = palette === 'yellow' ? 'text-amber-400' : palette === 'green' ? 'text-emerald-400' : palette === 'purple' ? 'text-violet-400' : 'text-blue-400';
@@ -92,12 +88,9 @@ const PageLayout = ({ title, subtitle, children, heroImage }) => {
 // 📍 Return section starts here
   return (
     <div className={`min-h-screen flex flex-col ${mode === 'dark' ? 'bg-slate-950 text-gray-100' : 'bg-gray-50 text-slate-900'}`}>
-      {/* 1. Ensure showChrome is only active when needed to avoid double Navbars */}
-      {showChrome && <Navbar />}
-      
       {showHero && (
         <header
-          className={`relative overflow-hidden text-white`}
+          className="relative overflow-hidden text-white"
           style={{
             minHeight: '38vh',
             backgroundImage: heroImage
@@ -107,27 +100,34 @@ const PageLayout = ({ title, subtitle, children, heroImage }) => {
             backgroundPosition: 'center',
           }}
         >
-          <div className={`absolute inset-0 bg-gradient-to-br ${palette === 'yellow' ? 'from-black/80 via-yellow-900/40' : palette === 'green' ? 'from-black/80 via-emerald-900/40' : palette === 'purple' ? 'from-black/80 via-purple-900/40' : 'from-slate-950/80 via-slate-900/40'} to-transparent`} />
+          <div
+            className={`absolute inset-0 bg-gradient-to-br ${
+              palette === 'yellow'
+                ? 'from-black/80 via-yellow-900/40'
+                : palette === 'green'
+                ? 'from-black/80 via-emerald-900/40'
+                : palette === 'purple'
+                ? 'from-black/80 via-purple-900/40'
+                : 'from-slate-950/80 via-slate-900/40'
+            } to-transparent`}
+          />
           
-          <div className="relative max-w-6xl mx-auto px-6 py-20 lg:py-28">
-            <p className="text-sm uppercase tracking-[0.35em] text-slate-300 mb-4">{t('layout.platform', 'LawLink')}</p>
-            <h1 className={`text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight ${accentClass}`}>
+          <div className="relative mx-auto max-w-6xl px-6 py-20 lg:py-28">
+            <p className="mb-4 text-sm uppercase tracking-[0.35em] text-slate-300">{t('layout.platform', 'LawLink')}</p>
+            <h1 className={`text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl ${accentClass}`}>
               {title}
             </h1>
             {subtitle && <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-100/90">{subtitle}</p>}
-            
-            {/* 2. THE SECOND BAR (Metadata) HAS BEEN REMOVED FROM HERE */}
           </div>
         </header>
       )}
 
-      <main className="flex-grow pt-8 pb-16">
-        <div className="max-w-6xl mx-auto px-6">
-          {/* 3. Main content area with high-end glassmorphism styling */}
-          <div className={`rounded-[2rem] border shadow-2xl backdrop-blur-xl page-surface ${mode === 'dark' ? 'border-slate-700/80 bg-slate-800/40' : 'border-slate-200/80 bg-white/95'}`}>
-            <div className="p-8 lg:p-12 space-y-10">
+      <main className="flex-grow pb-16 pt-8">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className={`page-surface rounded-[2rem] border shadow-2xl backdrop-blur-xl ${mode === 'dark' ? 'border-slate-700/80 bg-slate-800/40' : 'border-slate-200/80 bg-white/95'}`}>
+            <div className="space-y-10 p-8 lg:p-12">
               {summary && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid gap-4 md:grid-cols-3">
                   <div className={`rounded-3xl border p-6 shadow-sm ${mode === 'dark' ? 'border-slate-700/80 bg-slate-950/90' : 'border-slate-200/80 bg-white/95'}`}>
                     <p className={`text-sm uppercase tracking-[0.24em] ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{t('layout.summary', 'Summary')}</p>
                     <p className={`mt-4 text-3xl font-semibold ${mode === 'dark' ? 'text-slate-100' : 'text-slate-900'}`}>{summary.value}</p>
@@ -136,8 +136,16 @@ const PageLayout = ({ title, subtitle, children, heroImage }) => {
                   <div className={`md:col-span-2 rounded-3xl border p-6 shadow-sm ${mode === 'dark' ? 'border-slate-700/80 bg-slate-950/90' : 'border-slate-200/80 bg-white/95'}`}>
                     <p className={`text-sm uppercase tracking-[0.24em] ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{t('layout.liveStatus', 'Status')}</p>
                     <p className={`mt-4 text-lg ${mode === 'dark' ? 'text-slate-200' : 'text-slate-700'}`}>{summary.description}</p>
-                    <div className={`mt-6 h-2 rounded-full ${mode === 'dark' ? 'bg-slate-800' : 'bg-slate-100'} overflow-hidden`}>
-                      <div className={`h-full w-full rounded-full bg-gradient-to-r ${palette === 'yellow' ? 'from-yellow-400 via-amber-400 to-orange-400' : palette === 'green' ? 'from-emerald-400 via-teal-400 to-cyan-400' : palette === 'purple' ? 'from-purple-400 via-violet-400 to-indigo-400' : 'from-blue-500 via-cyan-500 to-teal-400'}`} />
+                    <div className={`mt-6 h-2 overflow-hidden rounded-full ${mode === 'dark' ? 'bg-slate-800' : 'bg-slate-100'}`}>
+                      <div className={`h-full w-full rounded-full bg-gradient-to-r ${
+                        palette === 'yellow'
+                          ? 'from-yellow-400 via-amber-400 to-orange-400'
+                          : palette === 'green'
+                          ? 'from-emerald-400 via-teal-400 to-cyan-400'
+                          : palette === 'purple'
+                          ? 'from-purple-400 via-violet-400 to-indigo-400'
+                          : 'from-blue-500 via-cyan-500 to-teal-400'
+                      }`} />
                     </div>
                   </div>
                 </div>
@@ -147,7 +155,6 @@ const PageLayout = ({ title, subtitle, children, heroImage }) => {
           </div>
         </div>
       </main>
-      {showChrome && <Footer />}
     </div>
   );
 };

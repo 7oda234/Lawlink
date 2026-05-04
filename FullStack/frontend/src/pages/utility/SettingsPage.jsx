@@ -5,7 +5,7 @@
 // User settings and account preferences management
 // ───────────────────────────────────────────────────────────────────────────────────
 import React, { useState } from 'react';
-import { useLanguage } from '../context/useLanguage';
+import { useLanguage } from '../../context/useLanguage';
 
 const SettingsPage = () => {
   const { t, language } = useLanguage();

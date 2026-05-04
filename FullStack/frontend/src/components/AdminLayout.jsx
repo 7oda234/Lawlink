@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, Users, UserPlus, Briefcase, 
   ShieldCheck, Gavel, MonitorPlay, BarChart3, 
-  FileCode, ChevronLeft, LogOut
+  FileCode, ChevronLeft, LogOut, Banknote // Added Banknote icon
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContextObject';
 
@@ -28,19 +28,18 @@ const AdminLayout = ({ children, title, description }) => {
 
   const isActive = (path) => location.pathname === path;
 
-  // التحقق مما إذا كان أي رابط في القائمة نشطاً حالياً
+  // Updated menuPaths to include the financial overview route
   const menuPaths = [
     '/admin/dashboard', '/admin/users', '/admin/users/new', 
     '/admin/clients', '/admin/lawyers', '/admin/lawyers/approve', 
-    '/admin/cases', '/admin/cases/monitoring', '/admin/reports', '/admin/logs'
+    '/admin/cases', '/admin/cases/monitoring', '/admin/financial-overview', 
+    '/admin/reports', '/admin/logs'
   ];
   const isAnyNavActive = menuPaths.some(path => isActive(path));
 
   return (
     <div className={`min-h-screen flex bg-[#0F111A] text-gray-100 font-sans`}>
-      
       <aside className={`w-72 bg-[#161922] border-${isRTL ? 'l' : 'r'} border-white/5 flex flex-col p-6 sticky top-0 h-screen`}>
-        
         <div className="flex items-center gap-3 mb-12 px-2">
           <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center shadow-xl shadow-accent/20 text-white">
             <ShieldCheck size={24} />
@@ -72,22 +71,15 @@ const AdminLayout = ({ children, title, description }) => {
 
           <div className="pt-6 pb-2 px-4">
             <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">
-              {t('admin.sidebar.casesSection')}
-            </span>
-          </div>
-          <NavItem to="/admin/cases" icon={Gavel} label={t('admin.sidebar.manageCases')} active={isActive('/admin/cases')} />
-          <NavItem to="/admin/cases/monitoring" icon={MonitorPlay} label={t('admin.sidebar.monitorCases')} active={isActive('/admin/cases/monitoring')} />
-
-          <div className="pt-6 pb-2 px-4">
-            <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">
               {t('admin.sidebar.systemSection')}
             </span>
           </div>
+          {/* New Financial Overview Link */}
+          <NavItem to="/admin/financial-overview" icon={Banknote} label={t('admin.sidebar.financialOverview')} active={isActive('/admin/financial-overview')} />
           <NavItem to="/admin/reports" icon={BarChart3} label={t('admin.sidebar.reports')} active={isActive('/admin/reports')} />
           <NavItem to="/admin/logs" icon={FileCode} label={t('admin.sidebar.logs')} active={isActive('/admin/logs')} />
         </nav>
 
-        {/* ظهور زر تسجيل الخروج فقط عند وجود Navbar نشط */}
         <div className={`mt-auto pt-6 border-t border-white/5 transition-all duration-500 ${
           isAnyNavActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
         }`}>
@@ -105,9 +97,7 @@ const AdminLayout = ({ children, title, description }) => {
              <ChevronLeft size={14} className={isRTL ? '' : 'rotate-180'} />
              <span className="text-xs font-bold text-white">{title}</span>
           </div>
-          <div className="w-8 h-8 rounded-full bg-accent/20 border border-accent/30 flex items-center justify-center text-[10px] font-bold text-accent">
-            AD
-          </div>
+          <div className="w-8 h-8 rounded-full bg-accent/20 border border-accent/30 flex items-center justify-center text-[10px] font-bold text-accent">AD</div>
         </header>
 
         <div className="p-10 max-w-7xl mx-auto">
