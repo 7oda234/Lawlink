@@ -4,6 +4,9 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
 
+/* ---------------------------------------
+   Global Theme Tokens - المتغيرات العامة
+   --------------------------------------- */
 :root {
   /* Common Variables */
   --accent-yellow: #eab308; /* yellow-500 */
@@ -35,12 +38,15 @@
   --shadow-color: rgba(0, 0, 0, 0.5);
 }
 
-/* Base Styles */
+/* ---------------------------------------
+   Base Layout and Page Shell
+   هيكل الصفحة والأساسيات
+   --------------------------------------- */
 .client-page-wrapper {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding-top: 7rem; /* Space for Navbar */
+  padding-top: 7rem; /* مساحة فوق علشان Navbar مايغطيناش */
   padding-bottom: 4rem;
   background-color: var(--bg-main);
   color: var(--text-primary);
@@ -60,7 +66,10 @@
   box-shadow: 0 25px 50px -12px var(--shadow-color);
 }
 
-/* Page Surface for consistent glass effect */
+/* ---------------------------------------
+   Page Surface and Glass Panel
+   سطح الصفحة وتأثير الزجاج
+   --------------------------------------- */
 .page-surface {
   background-color: rgba(255, 255, 255, 0.88);
   overflow: hidden;
@@ -72,7 +81,10 @@
   background-color: rgba(15, 23, 42, 0.78);
 }
 
-/* Typography */
+/* ---------------------------------------
+   Typography and Headings
+   الكتابة والعناوين
+   --------------------------------------- */
 .client-h1 {
   font-size: 2.25rem;
   font-weight: 900;
@@ -88,7 +100,10 @@
   color: var(--text-secondary);
 }
 
-/* Form Elements */
+/* ---------------------------------------
+   Form Elements
+   عناصر الفورم
+   --------------------------------------- */
 .client-input-group {
   margin-bottom: 1.5rem;
 }
@@ -121,7 +136,10 @@
   background-color: var(--bg-card);
 }
 
-/* Buttons */
+/* ---------------------------------------
+   Buttons
+   أزرار
+   --------------------------------------- */
 .client-btn-primary {
   width: 100%;
   padding: 1.25rem;
@@ -149,7 +167,10 @@
   transform: scale(0.95);
 }
 
-/* Security/Footer Banner */
+/* ---------------------------------------
+   Info Banner
+   بانر المعلومات
+   --------------------------------------- */
 .client-banner {
   padding: 1rem;
   border-radius: 1rem;
@@ -169,7 +190,10 @@
   opacity: 0.6;
 }
 
-/* Wallet Page Styling */
+/* ═══════════════════════════════════════════════════════════════════════════════════
+   Wallet Page Styling - صفحة المحفظة
+   ستايلات المحفظة والصفحات المالية
+   ═══════════════════════════════════════════════════════════════════════════════════ */
 .wallet-page-shell {
   min-height: calc(100vh - 6rem);
   padding: 3rem 1.5rem;
@@ -548,7 +572,10 @@
    LawLink Client Unified Styling - AI Extensions
    ═══════════════════════════════════════════════════════════════════════════════════ */
 
-/* AI Specific Icons & Branding */
+/* ---------------------------------------
+   AI Icons and Branding
+   أيقونات الذكاء الاصطناعي
+   --------------------------------------- */
 .ai-icon-wrapper {
   display: inline-flex;
   align-items: center;
@@ -568,7 +595,10 @@
   height: 2.5rem;
 }
 
-/* AI Result Box Styling */
+/* ---------------------------------------
+   AI Result Box Styling
+   كروت نتيجة الذكاء الاصطناعي
+   --------------------------------------- */
 .ai-result-card {
   background-color: var(--accent-yellow);
   color: var(--slate-950);
@@ -610,4 +640,127 @@
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════════
+   Dashboard Section - صفحة الداشبورد
+   ستايلات عرض الإحصائيات والوحدات السريعة
+   ═══════════════════════════════════════════════════════════════════════════════════ */
+
+.dashboard-container {
+  background-color: var(--bg-main); /* الأرضية الأساسية للصفحة سواء فاتح أو غامق */
+  min-height: 100vh; /* الصفحة تاخد طول الشاشة بالكامل */
+  padding: 2.5rem; /* مساحة داخلية عشان الكلام ميبقاش لازق في الحروف */
+  color: var(--text-primary); /* لون الخط الأساسي اللي متعرف في السيستم */
+  font-family: 'Cairo', sans-serif; /* نوع الخط العربي الأنيق الموحد */
+}
+
+/* 1. Metric Cards Row - الخلايا الإحصائية اللي فوق */
+.metrics-grid {
+  display: grid; /* تقسيم الخلايا بنظام الشبكة */
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); /* الخلايا بتكبر وتصغر أوتوماتيك حسب حجم الشاشة */
+  gap: 1.5rem; /* المسافة بين كل كارت والتاني */
+  margin-bottom: 3rem; /* مساحة تحت الصف ده كله قبل اللي بعده */
+}
+
+.metric-card {
+  background: var(--bg-card); /* خلفية الكارت من المتغيرات اللي عملناها */
+  border: 1px solid var(--border-color); /* برواز خفيف جداً عشان يدي فخامة */
+  border-radius: 1.75rem; /* دورانات ناعمة للحواف */
+  padding: 1.5rem; /* مساحة جوه الكارت عشان العناصر تتنفس */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* حركة ناعمة لما الماوس ييجي عليه */
+  display: flex; /* ترتيب الأيقونة والكلام جنب بعض */
+  align-items: center; /* سنترة العناصر في نص الكارت بالطول */
+  gap: 1.25rem; /* المسافة بين الأيقونة والبيانات */
+  box-shadow: 0 10px 30px var(--shadow-color); /* ضل ناعم بيدي عمق للكارت */
+}
+
+.metric-card:hover {
+  transform: translateY(-5px); /* الكارت بيترفع لفوق شوية لما تقف عليه */
+  border-color: var(--accent-yellow); /* البرواز بيقلب أصفر بتاع البراند */
+}
+
+/* 2. Quick Actions Section - الأزرار السريعة */
+.section-panel {
+  background: var(--bg-card); /* خلفية اللوحة الأساسية */
+  border: 1px solid var(--border-color); /* تحديد اللوحة */
+  border-radius: 2rem; /* دوران الحواف الكبير */
+  padding: 2rem; /* مساحة داخلية كبيرة */
+  margin-bottom: 2rem; /* مسافة تحت اللوحة */
+}
+
+.section-title {
+  font-size: 0.85rem; /* حجم خط صغير وعريض */
+  font-weight: 900; /* أقصى درجة عريضة للخط */
+  text-transform: uppercase; /* حروف كبيرة للإنجليزي عشان شكلها أشيك */
+  letter-spacing: 0.2em; /* مسافات بين الحروف عشان يبقى شكلها بروفيشنال */
+  color: var(--accent-yellow); /* لون العنوان أصفر البراند */
+  margin-bottom: 1.5rem; /* مسافة تحت العنوان */
+}
+
+.actions-grid {
+  display: grid; /* تقسيم الأزرار */
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* توزيع متساوي للأزرار */
+  gap: 1.25rem; /* مسافات بين الأزرار */
+}
+
+.action-btn {
+  background: rgba(255, 255, 255, 0.02); /* خلفية شفافة جداً للأزرار */
+  border: 1px dashed var(--border-color); /* برواز منقط عشان يدي إيحاء إن دي "أكشن" */
+  border-radius: 1.5rem; /* دوران الزرار */
+  padding: 2rem 1rem; /* مساحة الزرار بالطول */
+  display: flex; /* ترتيب الأيقونة والكلام فوق بعض */
+  flex-direction: column; /* الأيقونة فوق والكلمة تحت */
+  align-items: center; /* سنترة المحتوى في نص الزرار */
+  gap: 1rem; /* مسافة بين الأيقونة والكلمة */
+  transition: all 0.2s ease; /* حركة سريعة ونظيفة */
+  cursor: pointer; /* شكل الماوس بيقلب إيد لما تقف عليه */
+}
+
+.action-btn:hover {
+  background: rgba(234, 179, 8, 0.05); /* تلوين خفيف أوي بالأصفر لما تقف عليه */
+  border-style: solid; /* النقط بتتحول لخط كامل */
+  border-color: var(--accent-yellow); /* لون الخط بيقلب أصفر */
+}
+
+/* 3. Status Badges - الحالات اللي في القضايا */
+.badge {
+  font-size: 0.65rem; /* خط صغير جداً */
+  font-weight: 900; /* عريض جداً */
+  padding: 0.35rem 0.75rem; /* مساحة البادج */
+  border-radius: 0.5rem; /* حواف البادج */
+  text-transform: uppercase; /* حروف كبيرة */
+}
+
+.badge-ongoing {
+  background: rgba(59, 130, 246, 0.1); /* خلفية زرقاء شفافة للقضايا الشغالة */
+  color: #60a5fa; /* لون النص أزرق فاتح */
+}
+
+.badge-pending {
+  background: rgba(245, 158, 11, 0.1); /* خلفية برتقالي شفافة للي لسه مستني */
+  color: #fbbf24; /* لون النص برتقالي */
+}
+
+/* 4. Profile Bar Fix - شريط البروفايل اللي تحت */
+.bottom-profile-bar {
+  margin-top: 3rem; /* مسافة فوق الشريط */
+  padding: 1.25rem 2rem; /* مساحة الشريط الداخلية */
+  background: linear-gradient(90deg, #161922 0%, #0F172A 100%); /* تدريج ألوان غامق وشيك */
+  border: 1px solid var(--border-color); /* برواز الشريط */
+  border-radius: 1.5rem; /* دوران الشريط */
+  display: flex; /* توزيع العناصر بالعرض */
+  align-items: center; /* سنترة الكلام والأزرار في الشريط */
+  justify-content: space-between; /* الأفاتار على الشمال والزرار على اليمين */
+}
+
+.avatar-circle {
+  width: 3rem; /* عرض دايرة الأفاتار */
+  height: 3rem; /* طول دايرة الأفاتار */
+  border-radius: 999px; /* دايرة كاملة */
+  background: var(--accent-yellow); /* خلفية الأفاتار صفراء */
+  color: var(--slate-950); /* لون الحروف جوه الأفاتار غامق جداً */
+  font-weight: 900; /* الحروف عريضة */
+  display: grid; /* سنترة الحرف جوه الدايرة */
+  place-items: center; /* سنترة الحرف بالظبط */
 }

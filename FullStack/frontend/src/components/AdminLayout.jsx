@@ -1,111 +1,144 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
-  LayoutDashboard, Users, UserPlus, Briefcase, 
-  ShieldCheck, Gavel, MonitorPlay, BarChart3, 
-  FileCode, ChevronLeft, LogOut, Banknote // Added Banknote icon
+  LayoutDashboard, Users, ShieldCheck, 
+  BarChart3, FileCode, LogOut, Banknote,
+  Search, Bell, ChevronRight, ChevronLeft
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContextObject';
-
-const NavItem = ({ to, icon: Icon, label, active }) => (
-  <Link 
-    to={to} 
-    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group ${
-      active 
-        ? 'bg-accent text-white shadow-lg shadow-accent/20' 
-        : 'text-gray-400 hover:bg-white/5 hover:text-white'
-    }`}
-  >
-    <Icon size={20} className={`${active ? 'text-white' : 'text-gray-500 group-hover:text-accent'}`} />
-    <span className="text-sm font-semibold">{label}</span>
-  </Link>
-);
+import dataService from '../services/DataService'; // للربط بالباك إند[cite: 3]
 
 const AdminLayout = ({ children, title, description }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { t, language } = useLanguage();
+  const [searchQuery, setSearchQuery] = useState('');
   const isRTL = language === 'ar' || language === 'eg';
 
   const isActive = (path) => location.pathname === path;
 
-  // Updated menuPaths to include the financial overview route
-  const menuPaths = [
-    '/admin/dashboard', '/admin/users', '/admin/users/new', 
-    '/admin/clients', '/admin/lawyers', '/admin/lawyers/approve', 
-    '/admin/cases', '/admin/cases/monitoring', '/admin/financial-overview', 
-    '/admin/reports', '/admin/logs'
-  ];
-  const isAnyNavActive = menuPaths.some(path => isActive(path));
+  // دالة البحث من الهيدر[cite: 3]
+  const handleGlobalSearch = async (e) => {
+    setSearchQuery(e.target.value);
+    if (e.target.value.length > 3) {
+      try {
+        const res = await dataService.reports.adminGetFinancialLogs(); // مثال للربط[cite: 3]
+        console.log("نتائج البحث:", res.data);
+      } catch (err) {
+        console.error("خطأ في البحث:", err);
+      }
+    }
+  };
 
   return (
-    <div className={`min-h-screen flex bg-[#0F111A] text-gray-100 font-sans`}>
-      <aside className={`w-72 bg-[#161922] border-${isRTL ? 'l' : 'r'} border-white/5 flex flex-col p-6 sticky top-0 h-screen`}>
+    <div className={`min-h-screen flex bg-[#0F111A] text-gray-100 font-sans`} dir={isRTL ? 'rtl' : 'ltr'}>
+      
+      {/* 1. السايد بار الجانبي (بدون لوجو LawLink لتجنب التكرار) */}
+      <aside className={`w-72 bg-[#161922] border-${isRTL ? 'l' : 'r'} border-white/5 flex flex-col p-6 sticky top-0 h-screen shadow-2xl`}>
         <div className="flex items-center gap-3 mb-12 px-2">
-          <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center shadow-xl shadow-accent/20 text-white">
+          <div className="w-10 h-10 bg-yellow-500 rounded-xl flex items-center justify-center shadow-lg shadow-yellow-500/20 text-slate-950">
             <ShieldCheck size={24} />
           </div>
-          <h2 className="text-xl font-black tracking-tighter text-white">
-            {t('admin.sidebar.title')}
+          <h2 className="text-xl font-black tracking-tighter text-white uppercase italic">
+            Admin <span className="text-yellow-500">Panel</span>
           </h2>
         </div>
         
         <nav className="flex flex-col space-y-1 flex-grow overflow-y-auto no-scrollbar">
-          <NavItem to="/admin/dashboard" icon={LayoutDashboard} label={t('admin.sidebar.dashboard')} active={isActive('/admin/dashboard')} />
+          {/* القسم الرئيسي */}
+          <Link to="/admin/dashboard" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive('/admin/dashboard') ? 'bg-yellow-500 text-slate-950 shadow-lg shadow-yellow-500/20' : 'text-gray-400 hover:bg-white/5'}`}>
+            <LayoutDashboard size={20} />
+            <span className="text-sm font-bold">{t('admin.sidebar.dashboard')}</span>
+          </Link>
 
+          {/* إدارة المستخدمين */}
           <div className="pt-6 pb-2 px-4">
-            <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">
-              {t('admin.sidebar.usersSection')}
-            </span>
+            <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">{t('admin.sidebar.usersSection')}</span>
           </div>
-          <NavItem to="/admin/users" icon={Users} label={t('admin.sidebar.manageUsers')} active={isActive('/admin/users')} />
-          <NavItem to="/admin/users/new" icon={UserPlus} label={t('admin.sidebar.createUser')} active={isActive('/admin/users/new')} />
-          <NavItem to="/admin/clients" icon={Users} label={t('admin.sidebar.manageClients')} active={isActive('/admin/clients')} />
+          <Link to="/admin/users" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive('/admin/users') ? 'bg-yellow-500 text-slate-950' : 'text-gray-400 hover:bg-white/5'}`}>
+            <Users size={20} />
+            <span className="text-sm font-bold">{t('admin.sidebar.manageUsers')}</span>
+          </Link>
+          <Link to="/admin/lawyers/approve" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive('/admin/lawyers/approve') ? 'bg-yellow-500 text-slate-950' : 'text-gray-400 hover:bg-white/5'}`}>
+            <ShieldCheck size={20} />
+            <span className="text-sm font-bold">{t('admin.sidebar.approveLawyers')}</span>
+          </Link>
 
+          {/* إدارة النظام[cite: 4] */}
           <div className="pt-6 pb-2 px-4">
-            <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">
-              {t('admin.sidebar.lawyersSection')}
-            </span>
+            <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">{t('admin.sidebar.systemSection')}</span>
           </div>
-          <NavItem to="/admin/lawyers" icon={Briefcase} label={t('admin.sidebar.manageLawyers')} active={isActive('/admin/lawyers')} />
-          <NavItem to="/admin/lawyers/approve" icon={ShieldCheck} label={t('admin.sidebar.approveLawyers')} active={isActive('/admin/lawyers/approve')} />
-
-          <div className="pt-6 pb-2 px-4">
-            <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">
-              {t('admin.sidebar.systemSection')}
-            </span>
-          </div>
-          {/* New Financial Overview Link */}
-          <NavItem to="/admin/financial-overview" icon={Banknote} label={t('admin.sidebar.financialOverview')} active={isActive('/admin/financial-overview')} />
-          <NavItem to="/admin/reports" icon={BarChart3} label={t('admin.sidebar.reports')} active={isActive('/admin/reports')} />
-          <NavItem to="/admin/logs" icon={FileCode} label={t('admin.sidebar.logs')} active={isActive('/admin/logs')} />
+          <Link to="/admin/financial-overview" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive('/admin/financial-overview') ? 'bg-yellow-500 text-slate-950' : 'text-gray-400 hover:bg-white/5'}`}>
+            <Banknote size={20} />
+            <span className="text-sm font-bold">{t('admin.sidebar.financialOverview')}</span>
+          </Link>
+          <Link to="/admin/reports" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive('/admin/reports') ? 'bg-yellow-500 text-slate-950' : 'text-gray-400 hover:bg-white/5'}`}>
+            <BarChart3 size={20} />
+            <span className="text-sm font-bold">{t('admin.sidebar.reports')}</span>
+          </Link>
         </nav>
 
-        <div className={`mt-auto pt-6 border-t border-white/5 transition-all duration-500 ${
-          isAnyNavActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
-        }`}>
-          <button className="flex items-center gap-3 px-4 py-3 w-full text-gray-500 hover:text-red-400 transition-colors">
+        {/* زر تسجيل الخروج[cite: 4] */}
+        <div className="mt-auto pt-6 border-t border-white/5">
+          <button onClick={() => navigate('/login')} className="flex items-center gap-3 px-4 py-3 w-full text-gray-500 hover:text-red-500 transition-colors font-bold">
             <LogOut size={20} />
-            <span className="text-sm font-bold">Sign Out</span>
+            <span>{t('nav.logout', 'Logout')}</span>
           </button>
         </div>
       </aside>
 
+      {/* 2. المحتوى الرئيسي مع الهيدر المدمج[cite: 4] */}
       <main className="flex-1 overflow-y-auto h-screen bg-[#0F111A]">
-        <header className="h-20 border-b border-white/5 flex items-center justify-between px-10 bg-[#0F111A]/80 backdrop-blur-md sticky top-0 z-10">
-          <div className="flex items-center gap-2 text-gray-400">
-             <span className="text-xs font-medium">Pages</span>
-             <ChevronLeft size={14} className={isRTL ? '' : 'rotate-180'} />
-             <span className="text-xs font-bold text-white">{title}</span>
+        
+        {/* الهيدر الاحترافي (بدون Navbar خارجي)[cite: 4] */}
+        <header className="h-20 border-b border-white/5 flex items-center justify-between px-10 bg-[#0F111A]/80 backdrop-blur-md sticky top-0 z-50">
+          <div className="flex items-center gap-4">
+             <div className="flex flex-col">
+               <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest leading-none">Management</h3>
+               <span className="text-lg font-black text-white mt-1">{title}</span>
+             </div>
           </div>
-          <div className="w-8 h-8 rounded-full bg-accent/20 border border-accent/30 flex items-center justify-center text-[10px] font-bold text-accent">AD</div>
+
+          {/* شريط البحث المركزي[cite: 2] */}
+          <div className="relative w-96 hidden lg:block">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600" size={16} />
+            <input 
+              type="text" 
+              placeholder="Search data, logs, or users..." 
+              value={searchQuery}
+              onChange={handleGlobalSearch}
+              className="w-full bg-white/5 border border-white/10 rounded-full py-2 pl-12 pr-4 text-sm focus:outline-none focus:border-yellow-500/50 transition-all"
+            />
+          </div>
+
+          <div className="flex items-center gap-6">
+            <button className="relative p-2 text-gray-400 hover:text-white bg-white/5 rounded-full border border-white/5">
+              <Bell size={20} />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-[#0F111A]"></span>
+            </button>
+            
+            {/* صورة الأدمن[cite: 4] */}
+            <div className="flex items-center gap-3 pl-6 border-l border-white/10">
+              <div className="text-right hidden sm:block">
+                <p className="text-xs font-black text-white">Mahmoud Admin</p>
+                <p className="text-[10px] font-bold text-yellow-500 uppercase">System Controller</p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-yellow-500/20 border border-yellow-500/30 flex items-center justify-center text-yellow-500 font-black text-sm">
+                AD
+              </div>
+            </div>
+          </div>
         </header>
 
+        {/* جسم الصفحة مع الأنيميشن[cite: 4] */}
         <div className="p-10 max-w-7xl mx-auto">
-          <div className="mb-10 animate-in fade-in slide-in-from-top-4 duration-700">
-            <h1 className="text-4xl font-black tracking-tight text-white mb-3">{title}</h1>
-            {description && <p className="text-gray-500 text-lg max-w-2xl font-medium leading-relaxed">{description}</p>}
-          </div>
-          <div className="animate-in fade-in zoom-in-95 duration-500 delay-200">
+          {description && (
+            <div className="mb-8 p-6 bg-yellow-500/5 border border-yellow-500/10 rounded-2xl">
+              <p className="text-gray-400 text-sm font-medium leading-relaxed">{description}</p>
+            </div>
+          )}
+          
+          <div className="animate-in fade-in zoom-in-95 duration-500">
             {children}
           </div>
         </div>

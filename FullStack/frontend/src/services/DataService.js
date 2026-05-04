@@ -1,4 +1,4 @@
-// Full DataService for LawLink API calls
+// Full DataService for LawLink API calls[cite: 3]
 import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
@@ -10,7 +10,7 @@ const api = axios.create({
   },
 });
 
-// 🛡️ Request Interceptor: Attach JWT Token
+// 🛡️ Request Interceptor: Attach JWT Token[cite: 3]
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -19,7 +19,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// 🛡️ Response Interceptor: Global Error Handling
+// 🛡️ Response Interceptor: Global Error Handling[cite: 3]
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -33,7 +33,7 @@ api.interceptors.response.use(
 );
 
 export const dataService = {
-  // 🔐 Authentication APIs
+  // 🔐 Authentication APIs[cite: 3]
   auth: {
     login: (credentials) => api.post('/auth/login', credentials),
     register: (userData) => api.post('/auth/register', userData),
@@ -46,7 +46,7 @@ export const dataService = {
     changePassword: (passwords) => api.post('/auth/change-password', passwords),
   },
 
-  // 👥 User Management APIs
+  // 👥 User Management APIs[cite: 3]
   users: {
     getAll: () => api.get('/users'),
     getById: (id) => api.get(`/users/${id}`),
@@ -56,7 +56,7 @@ export const dataService = {
     getClients: () => api.get('/users/clients'),
   },
 
-  // ⚖️ Case Management APIs
+  // ⚖️ Case Management APIs[cite: 3]
   cases: {
     getAll: () => api.get('/cases'),
     getById: (id) => api.get(`/cases/${id}`),
@@ -68,21 +68,15 @@ export const dataService = {
     addDocument: (id, documentData) => api.post(`/cases/${id}/documents`, documentData),
   },
 
-  // 💰 Financial APIs (Wallet, Payments, Installments)
+  // 💰 Financial APIs (Wallet, Payments, Installments)[cite: 3]
   finance: {
-    // Wallet
     getWalletBalance: () => api.get('/wallet/balance'),
     addFunds: (amount) => api.post('/wallet/topup', { amount }),
-    
-    // Payments
     getPaymentHistory: () => api.get('/payments/history'),
     getLawyerEarnings: () => api.get('/payments/lawyer-stats'),
-    
-    // Installments
     getInstallmentsByCase: (caseId) => api.get(`/installments/case/${caseId}`),
     payInstallment: (id) => api.post(`/installments/${id}/pay`),
     
-    // Invoices
     downloadInvoice: async (paymentId) => {
       const response = await api.get(`/invoice/generate/${paymentId}`, {
         responseType: 'blob',
@@ -97,38 +91,16 @@ export const dataService = {
     }
   },
 
-  // 💬 Communication APIs
-  communication: {
-    getMessages: (userId) => api.get(`/messages/${userId}`),
-    sendMessage: (messageData) => api.post('/messages', messageData),
-    getNotifications: () => api.get('/notifications'),
-    markNotificationRead: (id) => api.patch(`/notifications/${id}/read`),
-    createNotification: (notificationData) => api.post('/notifications', notificationData),
-  },
-
-  // 📊 Reports and Analytics APIs
+  // 📊 Reports and Analytics APIs[cite: 3]
   reports: {
     getSystemReports: () => api.get('/reports/system'),
     getUserReports: () => api.get('/reports/users'),
     getCaseReports: () => api.get('/reports/cases'),
     exportReports: (type) => api.get(`/reports/export/${type}`, { responseType: 'blob' }),
-    // Admin financial logs
-    adminGetFinancialLogs: () => api.get('/admin/financial-logs'),
+    adminGetFinancialLogs: () => api.get('/admin/financial-logs'), // مهم للأدمن[cite: 3]
   },
 
-  // 🤖 AI Tools (Connecting to Python FastAPI service)
-  ai: {
-    analyzeDocument: (fileData) => {
-      const formData = new FormData();
-      formData.append('file', fileData);
-      return api.post('/ai/analyze', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-    },
-    legalAssistant: (query) => api.post('/ai/query', { query }),
-  },
-
-  // 📁 File Upload APIs
+  // 📁 File Upload APIs[cite: 3]
   files: {
     upload: (file, type = 'document') => {
       const formData = new FormData();
@@ -139,7 +111,6 @@ export const dataService = {
       });
     },
     delete: (fileId) => api.delete(`/files/${fileId}`),
-    get: (fileId) => api.get(`/files/${fileId}`, { responseType: 'blob' }),
   },
 };
 
