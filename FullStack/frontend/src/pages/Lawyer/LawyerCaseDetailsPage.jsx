@@ -1,63 +1,81 @@
-import React, { useState } from 'react';
-import { useLanguage } from '../../context/useLanguage';
-import { useTheme } from '../../context/ThemeContext';
-import { FileText } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useParams } from 'react-router-dom';
 
 const LawyerCaseDetailsPage = () => {
-  const { t, language } = useLanguage();
-  const { mode } = useTheme();
-  const isRTL = language === 'ar' || language === 'eg';
-  const [activeTab, setActiveTab] = useState('files');
+  const { id } = useParams();
+  const lawyerId = localStorage.getItem('userId');
+  const [caseData, setCaseData] = useState(null);
+  const [documents, setDocuments] = useState([]);
+  const [file, setFile] = useState(null);
+  const [appointmentDate, setAppointmentDate] = useState('');
 
-  const cardBg = mode === 'dark' ? 'bg-slate-900 border-slate-800' : 'bg-white border-gray-200';
-  const textColor = mode === 'dark' ? 'text-white' : 'text-slate-900';
+  useEffect(() => {
+    const fetchData = async () => {
+      const caseRes = await axios.get(`http://localhost:5000/api/cases/${id}`);
+      if (caseRes.data.ok) setCaseData(caseRes.data.case);
+      const docsRes = await axios.get(`http://localhost:5000/api/documents/case/${id}`);
+      if (docsRes.data) setDocuments(docsRes.data);
+    };
+    fetchData();
+  }, [id]);
+
+  const handleUploadDoc = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append('documents', file);
+    formData.append('case_id', id);
+    formData.append('user_id', lawyerId);
+    await axios.post('http://localhost:5000/api/documents/upload', formData);
+    alert("تم رفع المستند!");
+    setFile(null);
+  };
+
+  const handleBookAppointment = async (e) => {
+    e.preventDefault();
+    await axios.post('http://localhost:5000/api/appointments', {
+      appointment_date: appointmentDate, client_id: caseData.client_id, lawyer_id: lawyerId, case_id: id
+    });
+    alert("تم حجز الموعد بنجاح!");
+  };
+
+  if (!caseData) return null;
 
   return (
-    <div dir={isRTL ? 'rtl' : 'ltr'} className={`min-h-screen pt-28 pb-16 ${mode === 'dark' ? 'bg-slate-950' : 'bg-gray-50'}`}>
-      <main className="max-w-6xl mx-auto px-6">
-        <section className={`p-8 rounded-3xl border mb-8 ${cardBg} flex flex-col md:flex-row justify-between items-center gap-6`}>
-          <div className="flex items-center gap-6">
-            <div className="w-20 h-20 bg-yellow-500 rounded-2xl flex items-center justify-center text-black font-black text-2xl">#1025</div>
-            <div className={isRTL ? 'text-right' : 'text-left'}>
-              <h1 className={`text-2xl font-black ${textColor}`}>{isRTL ? 'قضية تعويضات - أحمد علي' : 'Compensation Case - Ahmed Ali'}</h1>
-              <p className="text-slate-500">{t('page.lawyerCaseDetails.startDate', isRTL ? 'تاريخ البدء: 15 مارس 2026' : 'Start Date: March 15, 2026')}</p>
-            </div>
+    <div className="min-h-screen pt-28 bg-gray-50 px-6">
+      <main className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100">
+            <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs font-black uppercase mb-2 inline-block">{caseData.status}</span>
+            <h1 className="text-3xl font-black uppercase">{caseData.title}</h1>
           </div>
-          <button className="px-6 py-3 bg-yellow-500 text-black font-black rounded-xl hover:bg-yellow-400 transition-all">
-            {t('page.lawyerCaseDetails.updateBtn', isRTL ? 'تحديث الحالة' : 'Update Status')}
-          </button>
-        </section>
-
-        <div className="flex border-b border-gray-500/20 mb-8 gap-8">
-          {['files', 'notes', 'history'].map(tab => (
-            <button 
-              key={tab} 
-              onClick={() => setActiveTab(tab)}
-              className={`pb-4 text-sm font-black uppercase tracking-widest transition-all ${activeTab === tab ? 'border-b-2 border-yellow-500 text-yellow-500' : 'text-slate-500'}`}
-            >
-              {isRTL ? (tab === 'files' ? 'الملفات' : tab === 'notes' ? 'الملاحظات' : 'السجل') : tab.toUpperCase()}
-            </button>
-          ))}
+          
+          <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100">
+            <h3 className="text-xl font-black uppercase mb-4">Documents</h3>
+            <div className="space-y-2 mb-6">
+              {documents.map(doc => (
+                <div key={doc.document_id} className="p-4 bg-gray-50 rounded-xl border flex justify-between">
+                  <p className="font-bold text-sm">{doc.file_path.split('/').pop()}</p>
+                  <a href={`http://localhost:5000/${doc.file_path}`} target="_blank" className="text-yellow-500 text-xs font-black uppercase">Download</a>
+                </div>
+              ))}
+            </div>
+            <form onSubmit={handleUploadDoc} className="flex gap-4">
+              <input type="file" required onChange={e => setFile(e.target.files[0])} className="flex-1" />
+              <button type="submit" className="bg-black text-white px-6 py-2 rounded-xl font-black hover:bg-yellow-500 hover:text-black">Upload</button>
+            </form>
+          </div>
         </div>
 
-        <div className={`p-10 rounded-3xl border min-h-[400px] ${cardBg}`}>
-          {activeTab === 'files' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-               {[1, 2].map(i => (
-                 <div key={i} className="p-4 border border-dashed border-slate-700 rounded-2xl flex items-center justify-between">
-                   <div className="flex items-center gap-3">
-                     <FileText className="text-yellow-500" />
-                     <span className={`font-bold ${textColor}`}>Document_{i}.pdf</span>
-                   </div>
-                   <button className="text-xs font-black uppercase text-yellow-500">{t('common.download', isRTL ? 'تحميل' : 'Download')}</button>
-                 </div>
-               ))}
-            </div>
-          )}
+        <div className="bg-black text-white p-8 rounded-[2rem]">
+          <h3 className="text-xl font-black uppercase text-yellow-500 mb-6">Schedule Appointment</h3>
+          <form onSubmit={handleBookAppointment} className="space-y-4">
+            <input type="datetime-local" required className="w-full bg-white/10 p-4 rounded-xl border border-white/10 outline-none" onChange={e => setAppointmentDate(e.target.value)} />
+            <button type="submit" className="w-full bg-yellow-500 text-black font-black p-4 rounded-xl">Book Meeting</button>
+          </form>
         </div>
       </main>
     </div>
   );
 };
-
 export default LawyerCaseDetailsPage;

@@ -1,164 +1,67 @@
-import React, { useState } from 'react';
-import { CreditCard, Receipt, History, ShieldCheck, ArrowUpRight, Wallet, AlertCircle } from 'lucide-react';
-import { useLanguage } from '../../context/useLanguage';
-import { useTheme } from '../../context/ThemeContext';
-import "../../styles/client/ClientBase.css";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const ClientPaymentPage = () => {
-  const { language } = useLanguage();
-  const { mode } = useTheme();
-  const [activeTab, setActiveTab] = useState('pending'); // 'pending' or 'history'
+  const [payments, setPayments] = useState([]);
+  const [showVisaModal, setShowVisaModal] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState(null);
+  const userId = localStorage.getItem('userId');
 
-  const isDark = mode === 'dark';
-  const isRTL = language === 'ar' || language === 'eg';
+  useEffect(() => {
+    const fetchPayments = async () => {
+      const res = await axios.get(`http://localhost:5000/api/payments/client/${userId}`);
+      if (res.data.ok) setPayments(res.data.payments);
+    };
+    fetchPayments();
+  }, [userId]);
 
-  // Content Dictionary for Bilingual Support matching your system logic
-  const content = {
-    en: {
-      title: "Payments & Invoices",
-      subtitle: "Securely manage your legal fees and installment plans.",
-      tabPending: "Pending Payments",
-      tabHistory: "Payment History",
-      walletBal: "Wallet Balance",
-      payNow: "Pay Now",
-      statusPending: "Pending",
-      statusPaid: "Paid",
-      noPayments: "No payment records found.",
-      securityNote: "LawLink uses bank-grade AES-256 encryption for all financial transactions."
-    },
-    eg: {
-      title: "المدفوعات والفواتير",
-      subtitle: "إدارة أتعابك القانونية وخطط التقسيط بأمان.",
-      tabPending: "مدفوعات معلقة",
-      tabHistory: "سجل المدفوعات",
-      walletBal: "رصيد المحفظة",
-      payNow: "ادفع الآن",
-      statusPending: "قيد الانتظار",
-      statusPaid: "تم الدفع",
-      noPayments: "لا يوجد سجل مدفوعات حالياً.",
-      securityNote: "لاو-لينك يستخدم تشفير AES-256 البنكي لتأمين كافة المعاملات المالية."
-    }
+  const processVisaPayment = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post(`http://localhost:5000/api/payments/pay`, {
+        paymentId: selectedPayment.id, caseId: selectedPayment.case_id, clientId: userId, amount: selectedPayment.amount, method: 'VISA'
+      });
+      alert('Payment Successful! Case Activated.');
+      setShowVisaModal(false);
+      // تحديث الحالة محلياً
+      setPayments(prev => prev.map(p => p.id === selectedPayment.id ? { ...p, status: 'Paid' } : p));
+    } catch (err) { alert("Payment Error."); }
   };
 
-  const t = content[language] || content['eg'];
-
-  // Mock data mapping to your SQL structure (payment & installment tables)
-  const payments = [
-    { id: 101, title: 'Case #2026-01 Installment', amount: '2,500', date: '2026-05-01', status: 'Pending' },
-    { id: 102, title: 'Consultation Fee', amount: '500', date: '2026-04-15', status: 'Paid' }
-  ];
-
   return (
-    <div className={`client-page-wrapper ${isDark ? 'dark-mode' : 'light-mode'}`} dir={isRTL ? 'rtl' : 'ltr'}>
-      <main className="max-w-6xl mx-auto px-6 w-full">
-        {/* Page Header using ClientBase classes */}
-        <div className="text-center mb-10 flex flex-col items-center">
-          <div className="ai-icon-wrapper">
-             <CreditCard size={32} />
+    <div className="min-h-screen pt-28 bg-gray-50 px-6">
+      <div className="max-w-4xl mx-auto space-y-4">
+        <h1 className="text-3xl font-black uppercase mb-8">Pending <span className="text-yellow-500">Payments</span></h1>
+        
+        {payments.filter(p => p.status === 'Pending').map(payment => (
+          <div key={payment.id} className="bg-white p-6 rounded-2xl flex justify-between items-center shadow-sm border">
+            <h3 className="font-black text-lg">{payment.title}</h3>
+            <div className="flex items-center gap-4">
+              <span className="font-black text-xl">{payment.amount} EGP</span>
+              <button onClick={() => { setSelectedPayment(payment); setShowVisaModal(true); }} className="bg-black text-white px-6 py-2 rounded-xl font-bold hover:bg-yellow-500 hover:text-black">Pay via VISA</button>
+            </div>
           </div>
-          <h1 className="client-h1 italic tracking-tight uppercase">{t.title}</h1>
-          <p className="client-subtitle font-bold">{t.subtitle}</p>
-        </div>
+        ))}
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          {/* Left Column: Wallet & Summary matching SQL wallet table */}
-          <div className="lg:col-span-1 space-y-6">
-            <div className="client-card !p-8 shadow-2xl">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 bg-yellow-500 rounded-2xl flex items-center justify-center">
-                  <Wallet className="text-slate-950" size={24} />
-                </div>
-                <div>
-                  <p className="client-banner-text !text-[10px]">{t.walletBal}</p>
-                  <h2 className="text-3xl font-black italic tracking-tighter">12,450.00 <span className="text-sm">EGP</span></h2>
-                </div>
+      {showVisaModal && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4">
+          <div className="bg-slate-900 p-8 rounded-[2rem] w-full max-w-sm border border-yellow-500/20 text-white">
+            <h3 className="text-xl font-black mb-2 text-yellow-500">VISA Secure Checkout</h3>
+            <p className="text-xs mb-6 opacity-50">VISA ONLY ACCEPTED</p>
+            <form onSubmit={processVisaPayment} className="space-y-4">
+              <input type="text" required placeholder="Cardholder Name" className="w-full bg-black/50 border border-white/10 p-4 rounded-xl outline-none" />
+              <input type="text" required pattern="4[0-9]{12}(?:[0-9]{3})?" placeholder="4000 1234 5678 9010" className="w-full bg-black/50 border border-white/10 p-4 rounded-xl outline-none" title="Must start with 4 (VISA)" />
+              <div className="flex gap-4">
+                <input type="text" required placeholder="MM/YY" className="w-1/2 bg-black/50 border border-white/10 p-4 rounded-xl outline-none" />
+                <input type="password" required placeholder="CVV" className="w-1/2 bg-black/50 border border-white/10 p-4 rounded-xl outline-none" />
               </div>
-              <button className="client-btn-primary italic !py-4">
-                + {isRTL ? 'شحن المحفظة' : 'Top Up Wallet'}
-              </button>
-            </div>
-
-            <div className="client-banner">
-              <ShieldCheck className="text-yellow-500 shrink-0" size={24} />
-              <p className="client-banner-text leading-relaxed">
-                {t.securityNote}
-              </p>
-            </div>
-          </div>
-
-          {/* Right Column: Invoices & Tabs */}
-          <div className="lg:col-span-2 client-card !p-8 shadow-2xl">
-            
-            {/* Custom Tabs */}
-            <div className="flex p-1.5 rounded-2xl bg-slate-950/50 border border-white/5 mb-8">
-              <button 
-                onClick={() => setActiveTab('pending')}
-                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm transition-all ${
-                  activeTab === 'pending' ? 'bg-yellow-500 text-slate-950 shadow-lg' : 'text-slate-500'
-                }`}
-              >
-                {t.tabPending}
-              </button>
-              <button 
-                onClick={() => setActiveTab('history')}
-                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm transition-all ${
-                  activeTab === 'history' ? 'bg-yellow-500 text-slate-950 shadow-lg' : 'text-slate-500'
-                }`}
-              >
-                {t.tabHistory}
-              </button>
-            </div>
-
-            {/* Payment List mapping to SQL invoice/installment */}
-            <div className="space-y-4">
-              {payments.filter(p => activeTab === 'pending' ? p.status === 'Pending' : p.status === 'Paid').length > 0 ? (
-                payments.filter(p => activeTab === 'pending' ? p.status === 'Pending' : p.status === 'Paid').map(payment => (
-                  <div key={payment.id} className="client-banner !justify-between !p-6 hover:!border-yellow-500/50 transition-all group">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-xl bg-slate-950 border border-white/5">
-                        <Receipt className="text-yellow-500" size={20} />
-                      </div>
-                      <div>
-                        <h4 className="font-black italic text-sm">{payment.title}</h4>
-                        <p className="client-banner-text !text-[9px]">{payment.date}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="text-right flex items-center gap-6">
-                      <div className={isRTL ? 'ml-4' : 'mr-4'}>
-                        <p className="text-lg font-black italic">{payment.amount} <span className="text-xs">EGP</span></p>
-                        <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter ${
-                          payment.status === 'Paid' ? 'bg-green-500/10 text-green-500' : 'bg-orange-500/10 text-orange-500'
-                        }`}>
-                          {payment.status === 'Paid' ? t.statusPaid : t.statusPending}
-                        </span>
-                      </div>
-                      {payment.status === 'Pending' && (
-                        <button className="bg-yellow-500 p-3 rounded-xl text-slate-950 hover:bg-yellow-400 transition-all active:scale-90">
-                          <ArrowUpRight size={18} className={isRTL ? 'rotate-[-90deg]' : ''} />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="py-20 text-center opacity-30">
-                  <AlertCircle className="mx-auto mb-4" size={40} />
-                  <p className="client-banner-text !text-sm">{t.noPayments}</p>
-                </div>
-              )}
-            </div>
+              <button type="submit" className="w-full bg-yellow-500 text-black p-4 rounded-xl font-black mt-4">Confirm Payment</button>
+            </form>
           </div>
         </div>
-
-        {/* Professional Footer Banner */}
-        <p className="mt-12 text-center client-banner-text !opacity-30">
-          LawLink Secure Billing Gateway • Protected by AES-256 Encryption • BIS AASTMT 2026
-        </p>
-      </main>
+      )}
     </div>
   );
 };
-
 export default ClientPaymentPage;

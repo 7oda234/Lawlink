@@ -203,3 +203,31 @@ export const deleteUserService = async (userId) => {
         throw new Error("خطأ أثناء الحذف: " + error.message); 
     }
 };
+
+// 🚀✅ 8. (الجديد) جلب كل المحامين مع تخصصاتهم
+export const getLawyersService = async () => {
+    const query = `
+      SELECT 
+        u.user_id, 
+        u.name, 
+        u.image_url,
+        l.verified, 
+        l.rating_avg, 
+        l.license_number,
+        l.years_experience,
+        GROUP_CONCAT(ls.spec_name SEPARATOR ',') AS specializations 
+      FROM users u
+      LEFT JOIN lawyer l ON u.user_id = l.user_id
+      LEFT JOIN lawyer_specializations ls ON u.user_id = ls.lawyer_id 
+      WHERE u.role = 'Lawyer' AND u.deleted_at IS NULL
+      GROUP BY u.user_id, u.name, u.image_url, l.verified, l.rating_avg, l.license_number, l.years_experience;
+    `;
+
+    const [results] = await pool.promise().query(query);
+
+    // تظبيط التخصصات عشان ترجع كمصفوفة (Array) للفرونت إند
+    return results.map(lawyer => ({
+        ...lawyer,
+        specializations: lawyer.specializations ? lawyer.specializations.split(',') : []
+    }));
+};

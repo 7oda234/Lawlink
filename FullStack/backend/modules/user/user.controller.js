@@ -48,3 +48,13 @@ export const deleteUser = async (req, res) => {
         res.status(200).json({ success: true, message: "تم الحذف" });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
+
+// 🚀✅ (الجديد) دالة جلب كل المحامين للفرونت إند
+export const getLawyers = async (req, res) => {
+    try {
+        const data = await userService.getLawyersService();
+        res.status(200).json({ success: true, data });
+    } catch (error) { 
+        res.status(500).json({ success: false, message: error.message }); 
+    }
+};
