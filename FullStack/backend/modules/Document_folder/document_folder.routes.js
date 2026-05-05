@@ -5,9 +5,7 @@ import * as documentsController from "./document_folder.controller.js";
 const router = express.Router();
 
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/'); 
-  },
+  destination: function (req, file, cb) { cb(null, 'uploads/'); },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     cb(null, uniqueSuffix + '-' + file.originalname);
@@ -16,16 +14,9 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// 1️⃣ رفع مستند جديد
-router.post("/", upload.single('document_file'), documentsController.handleUploadDocument);
-
-// 2️⃣ جلب ملفات قضية محددة
+router.post("/", upload.array('document_file', 10), documentsController.handleUploadDocument);
 router.get("/case/:caseId", documentsController.handleGetCaseDocuments);
-
-// 3️⃣ تعديل مستند 
 router.put("/:id", upload.single('document_file'), documentsController.handleUpdateDocument);
-
-// 4️⃣ مسح مستند
 router.delete("/:id", documentsController.handleDeleteDocument);
 
 export default router;

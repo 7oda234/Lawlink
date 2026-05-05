@@ -1,24 +1,41 @@
 import express from "express";
+import multer from "multer";
+import path from "path";
 import * as casesController from "./cases.controller.js";
 
 const router = express.Router();
 
-// 1️⃣ إنشاء قضية جديدة (POST /api/cases) - [كود قديم]
-router.post("/", casesController.handleCreateCase);
+// 📂 إعداد Multer لحفظ الملفات المرفوعة في فولدر uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/') // ⚠️ تأكد إنك عامل فولدر اسمه uploads جوا فولدر الباك إند عندك
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  }
+});
+const upload = multer({ storage: storage });
 
-// 2️⃣ جلب كل القضايا النشطة (GET /api/cases) - [كود قديم]
+// 1️⃣ إنشاء قضية جديدة (POST /api/cases) - مع استقبال ملفات تحت اسم 'documents'
+router.post("/", upload.array('documents'), casesController.handleCreateCase);
+
+// 2️⃣ جلب كل القضايا (GET /api/cases)
 router.get("/", casesController.handleGetCases);
 
-// 3️⃣ العميل يرسل القضية لمحامي - [تم التحديث ليتناسب مع الدورة الجديدة]
+// 3️⃣ العميل يرسل القضية لمحامي
 router.post("/send-offer", casesController.handleSendOffer);
 
-// 4️⃣ المحامي يوافق (ويحدد الفلوس) أو يرفض - [كود جديد]
+// 4️⃣ المحامي يوافق أو يرفض
 router.put("/lawyer-respond", casesController.handleLawyerResponse);
 
-// 5️⃣ العميل يوافق على الفلوس (ننتظر الدفع) أو يرفض - [كود جديد]
+// 5️⃣ العميل يوافق على الفلوس أو يرفض
 router.put("/client-respond", casesController.handleClientResponse);
 
-// 6️⃣ مسح قضية (DELETE /api/cases/:id) - [كود قديم]
+// 6️⃣ مسح قضية (DELETE /api/cases/:id)
 router.delete("/:id", casesController.handleDeleteCase); 
+
+// 7️⃣ تأكيد الدفع (PUT /api/cases/confirm-payment)
+router.put("/confirm-payment", casesController.handlePaymentConfirmation);
 
 export default router;

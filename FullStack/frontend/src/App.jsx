@@ -162,7 +162,7 @@ const routeConfig = [
   { path: '/client/messages', Component: ClientMessagesPage },
   { path: '/client/appointments', Component: ClientAppointmentsPage },
   { path: '/client/notifications', Component: ClientNotificationsPage },
-  { path: '/client/payment', Component: ClientPaymentPage }, // 🌟 سيناريو 6 و 9
+  { path: '/client/payments', Component: ClientPaymentPage }, // 🌟 سيناريو 6 و 9
   { path: '/client/cases/intake', Component: NewCaseIntake },
   { path: '/client/wallet', Component: ClientWalletPage },
   { path: '/client/find-specialist', Component: ClientFindLawyer }, // 🌟 سيناريو 2
