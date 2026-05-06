@@ -128,3 +128,43 @@ Contract Text:
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8000)))
+
+@app.post("/api/ai/chat")
+async def legal_chat(request: ResearchRequest):
+    """
+    AI-powered Egyptian legal assistant chat endpoint.
+    Searches the web and knowledge base for Egyptian law information.
+    """
+    try:
+        query_text = request.query.strip()
+        if not query_text:
+            raise HTTPException(status_code=400, detail="Query cannot be empty.")
+
+        prompt = f"""
+You are an expert Egyptian legal assistant with comprehensive knowledge of Egyptian law.
+You have access to current information about Egyptian legal systems, statutes, regulations, and court decisions.
+
+When answering questions:
+1. Focus exclusively on Egyptian law and the Egyptian legal framework
+2. Cite relevant Egyptian statutes, codes, and legal principles
+3. Reference Egyptian court rulings when applicable
+4. Explain legal concepts in Arabic and English when relevant
+5. Provide practical guidance based on Egyptian legal standards
+6. If information is not available in Egyptian law specifically, state that clearly
+
+User Question: {query_text}
+
+Provide a comprehensive, professional, and well-structured response about Egyptian law.
+Include relevant Egyptian legal references, statute numbers, and practical implications.
+"""
+
+        response = model.generate_content(prompt)
+
+        return {
+            "status": "success",
+            "reply": response.text,
+            "jurisdiction": "Egyptian Law"
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
