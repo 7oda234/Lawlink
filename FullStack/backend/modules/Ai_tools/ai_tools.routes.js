@@ -1,8 +1,10 @@
-import { Router } from "express";
-import { handleChat } from "./ai_tools.controller.js"; // افصل منطق الـ AI هنا
-import { verifyToken } from "../../middleware/authMiddleware.js";
+import express from 'express';
+import { uploadSingle, handleUploadError } from '../../middleware/upload.js';
+import { conductResearch, contractReview } from './ai_tools.controller.js';
 
-const aiRouter = Router();
-aiRouter.post("/chat", verifyToken, handleChat);
+const router = express.Router();
 
-export default aiRouter;
+router.post('/research', conductResearch);
+router.post('/contract-review', uploadSingle('file'), handleUploadError, contractReview);
+
+export default router;

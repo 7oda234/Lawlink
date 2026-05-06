@@ -1,12 +1,6 @@
-import express from "express";
 import * as authService from "./auth.service.js";
 
-const authRouter = express.Router();
-
-// ------------------------------------
-// 🔐 تسجيل الدخول - LOGIN
-// ------------------------------------
-authRouter.post("/login", async (req, res, next) => {
+export const loginController = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const result = await authService.login(email, password);
@@ -24,14 +18,10 @@ authRouter.post("/login", async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-});
+};
 
-// ------------------------------------
-// 📝 تسجيل مستخدم جديد (Admin/Lawyer/Client) - REGISTER
-// ------------------------------------
-authRouter.post("/register", async (req, res, next) => {
+export const registerController = async (req, res, next) => {
   try {
-    // إرسال البيانات للـ Service للتعامل مع الـ SQL
     const result = await authService.register(req.body);
 
     if (!result.ok) {
@@ -46,6 +36,24 @@ authRouter.post("/register", async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-});
+};
 
-export default authRouter;
+export const getMeController = async (req, res, next) => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ ok: false, message: "Unauthorized" });
+    }
+
+    const result = await authService.getMe(userId);
+
+    if (!result.ok) {
+      return res.status(404).json({ ok: false, message: result.message });
+    }
+
+    return res.status(200).json({ ok: true, user: result.user });
+  } catch (err) {
+    next(err);
+  }
+};

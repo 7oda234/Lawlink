@@ -1,20 +1,36 @@
-import OpenAI from "openai";
+const axios = require('axios');
 
-const openai = new OpenAI({
-  apiKey: "YOUR_OPENAI_API_KEY", // حط مفتاحك هنا
-});
+// Assuming your Python service runs on port 8000 locally
+const PYTHON_AI_SERVICE_URL = process.env.PYTHON_AI_SERVICE_URL || 'http://localhost:8000';
 
-export const askLawLinkBot = async (userMessage) => {
+exports.conductResearch = async (req, res, next) => {
     try {
-        const response = await openai.chat.completions.create({
-            model: "gpt-3.5-turbo",
-            messages: [
-                { role: "system", content: "أنت مساعد قانوني ذكي لمشروع LawLink." },
-                { role: "user", content: userMessage }
-            ],
+        const { query } = req.body;
+
+        if (!query) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'A research query is required.' 
+            });
+        }
+
+        // Forward the request to the Python microservice
+        const response = await axios.post(`${PYTHON_AI_SERVICE_URL}/api/ai/research`, {
+            query: query
         });
-        return response.choices[0].message.content;
+
+        // Send the AI response back to the React frontend
+        res.status(200).json({
+            success: true,
+            data: response.data
+        });
+
     } catch (error) {
-        throw new Error("نظام الـ AI غير متاح حالياً.");
+        console.error('AI Research Error:', error.message);
+        res.status(500).json({
+            success: false,
+            message: 'An error occurred while processing the research request.',
+            error: error.response ? error.response.data : error.message
+        });
     }
 };

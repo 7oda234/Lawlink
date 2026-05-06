@@ -147,7 +147,8 @@ const ServicesPage = () => {
     {
       titleKey: 'services.platform.aitools.name',
       descriptionKey: 'services.platform.aitools.description',
-      icon: '🤖'
+      icon: '🤖',
+      link: '/ai-tools/research'
     },
     {
       titleKey: 'services.platform.reviews.name',
@@ -240,12 +241,77 @@ const ServicesPage = () => {
       <section className="mb-12">
         <h2 className="text-3xl font-bold mb-8 text-black">Our Platform Features</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {platformServices.map((service, idx) => (
-            <div key={idx} className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition">
-              <div className="text-4xl mb-3">{service.icon}</div>
-              <h3 className="font-bold text-black mb-2">{t(service.titleKey, 'Service')}</h3>
-              <p className="text-gray-600 text-sm">{t(service.descriptionKey, 'Description')}</p>
-            </div>
+          {platformServices.map((service, idx) => {
+            const card = (
+              <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition h-full">
+                <div className="text-4xl mb-3">{service.icon}</div>
+                <h3 className="font-bold text-black mb-2">{t(service.titleKey, 'Service')}</h3>
+                <p className="text-gray-600 text-sm">{t(service.descriptionKey, 'Description')}</p>
+                {service.link && (
+                  <p className="mt-4 text-sm text-blue-600 font-semibold">Explore AI tools →</p>
+                )}
+              </div>
+            );
+
+            return service.link ? (
+              <Link key={idx} to={service.link} className="block h-full">
+                {card}
+              </Link>
+            ) : (
+              <div key={idx} className="h-full">{card}</div>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="mb-12">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+          <div>
+            <h2 className="text-3xl font-bold mb-2 text-black">AI-Powered Legal Tools</h2>
+            <p className="text-gray-600 max-w-2xl">
+              Access the AI tools that simplify legal research, contract drafting, case predictions, and fast legal advice.
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+          {[
+            {
+              title: 'Legal Research',
+              description: 'Ask about legal concepts, precedents, and regulations.',
+              icon: '📚',
+              to: '/ai-tools/research'
+            },
+            {
+              title: 'Document Drafting',
+              description: 'Generate contract and agreement drafts instantly.',
+              icon: '📝',
+              to: '/ai-tools/document-drafting'
+            },
+            {
+              title: 'Contract Review',
+              description: 'Upload a PDF contract for AI analysis and suggestions.',
+              icon: '📄',
+              to: '/ai-tools/contract-review'
+            },
+            {
+              title: 'Outcome Predictor',
+              description: 'Get an AI-based estimate of case success probability.',
+              icon: '🔮',
+              to: '/ai-tools/case-outcome-predictor'
+            },
+            {
+              title: 'Legal Chatbot',
+              description: 'Chat with an AI legal assistant for quick guidance.',
+              icon: '💬',
+              to: '/ai-tools/legal-chatbot'
+            }
+          ].map((tool) => (
+            <Link key={tool.to} to={tool.to} className="block bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition h-full">
+              <div className="text-4xl mb-4">{tool.icon}</div>
+              <h3 className="font-bold text-black mb-2">{tool.title}</h3>
+              <p className="text-gray-600 text-sm">{tool.description}</p>
+            </Link>
           ))}
         </div>
       </section>
