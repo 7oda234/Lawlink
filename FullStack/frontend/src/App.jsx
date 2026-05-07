@@ -109,6 +109,13 @@ const HelpCenterPage = React.lazy(() => import('./pages/utility/HelpCenterPage')
 const TermsPrivacyPage = React.lazy(() => import('./pages/utility/TermsPrivacyPage'));
 const NotFoundPage = React.lazy(() => import('./pages/utility/NotFoundPage'));
 
+// AI Tools
+const ResearchTool = React.lazy(() => import('./pages/AiTools/ResearchTool'));
+const DocumentDraftingTool = React.lazy(() => import('./pages/AiTools/DocumentDraftingTool'));
+const ContractReviewTool = React.lazy(() => import('./pages/AiTools/ContractReviewTool'));
+const CaseOutcomePredictor = React.lazy(() => import('./pages/AiTools/CaseOutcomePredictor'));
+const LegalChatbot = React.lazy(() => import('./pages/AiTools/LegalChatbot'));
+
 // تعريف المتغيرات للانيميشن - Defining animation variants
 const pageVariants = {
   initial: { opacity: 0, y: 20, scale: 0.98 },
@@ -217,6 +224,13 @@ const routeConfig = [
   { path: '/privacy', Component: TermsPrivacyPage},
   { path: '/terms', Component: TermsPrivacyPage},
   { path: '*', Component: NotFoundPage },
+
+  // AI Tools
+  { path: '/ai-tools/research', Component: ResearchTool },
+  { path: '/ai-tools/document-drafting', Component: DocumentDraftingTool },
+  { path: '/ai-tools/contract-review', Component: ContractReviewTool },
+  { path: '/ai-tools/case-outcome-predictor', Component: CaseOutcomePredictor },
+  { path: '/ai-tools/legal-chatbot', Component: LegalChatbot }
 ];
 
 // مكون الروتات - Routes component

@@ -100,6 +100,17 @@ export const dataService = {
     adminGetFinancialLogs: () => api.get('/admin/financial-logs'), // مهم للأدمن[cite: 3]
   },
 
+  // 🤖 AI Tools APIs
+  aiTools: {
+    research: (query) => api.post('/v1/ai-tools/research', query),
+    draft: (payload) => api.post('/v1/ai-tools/draft', payload),
+    contractReview: (formData) => api.post('/v1/ai-tools/contract-review', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }),
+    predict: (payload) => api.post('/v1/ai-tools/predict', payload),
+    chat: (messagePayload) => api.post('/v1/ai-tools/chat', messagePayload),
+  },
+
   // 📁 File Upload APIs[cite: 3]
   files: {
     upload: (file, type = 'document') => {
