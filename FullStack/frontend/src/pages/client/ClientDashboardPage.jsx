@@ -172,8 +172,8 @@ const ClientDashboardPage = () => {
                             <Sparkles size={24} className="text-white animate-pulse" />
                         </div>
                         <div>
-                            <p className="text-white font-black italic text-lg leading-tight">{isRTL ? 'دردشة ذكية' : 'Legal AI Chat'}</p>
-                            <p className="text-indigo-100/50 text-[10px] font-bold uppercase">{isRTL ? 'استشارة فورية 24/7' : 'Instant 24/7 Support'}</p>
+                            <p className="text-white font-black italic text-lg leading-tight">{isRTL ? 'الذكاء الاصطناعي' : 'AI Tools'}</p>
+                            <p className="text-indigo-100/50 text-[10px] font-bold uppercase">{isRTL ? 'تحليل الذكي' : 'Smart Draft'}</p>
                         </div>
                     </div>
                     <ChevronRight size={20} className="text-white/30 group-hover:translate-x-1 transition-transform" />
