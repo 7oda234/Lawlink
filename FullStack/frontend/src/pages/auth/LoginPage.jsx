@@ -10,7 +10,6 @@ const LoginPage = () => {
   const [error, setError] = useState('');
   const [validationErrors, setValidationErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  // تتبع المحاولات الفاشلة لإظهار "نسيت كلمة المرور"
   const [failedAttempts, setFailedAttempts] = useState(0);
   
   const navigate = useNavigate();
@@ -31,31 +30,38 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      // 💡 تأكد من مسار الـ API بتاعك (سواء auth أو users)
       const response = await axios.post('http://localhost:5000/api/auth/login', {
         email: email.trim().toLowerCase(),
         password: password
       });
 
-      const user = response.data.user; 
-      const token = response.data.token;
+      const user = response.data.user || response.data.data?.user; 
+      const token = response.data.token || response.data.data?.token;
+
+      // ✅ الحل السحري: سحبنا الـ ID بأي اسم الباك إند بيبعته بيه
+      const finalUserId = user.id || user.user_id || user.userId;
+
+      if (!finalUserId) {
+         setError("⚠️ سيرفر الباك إند لم يرسل رقم الحساب (ID) بشكل صحيح.");
+         setLoading(false);
+         return;
+      }
 
       const userRoleFromDB = user.role.toLowerCase();
       const currentSelectedPortal = selectedRole.toLowerCase();
 
-      // التحقق من توافق الحساب مع البوابة المختارة (إلا لو كان Admin)
+      // التحقق من البوابة
       if (userRoleFromDB !== 'admin' && userRoleFromDB !== currentSelectedPortal) {
         setError(`⚠️ الحساب مسجل كـ [${user.role}]؛ يرجى الدخول من بوابة ${user.role === 'Lawyer' ? 'المحامي' : 'العميل'}.`);
         setLoading(false);
         return; 
       }
 
-      // تصفير المحاولات عند النجاح
       setFailedAttempts(0);
 
-      // ✅ الجزء الجديد: حفظ كل البيانات المهمة عشان الـ Navbar والـ Dashboard
+      // ✅ تخزين البيانات بشكل آمن وسليم
       localStorage.setItem('token', token);
-      localStorage.setItem('userId', user.id); // 👈 ضروري جداً عشان بيانات البروفايل
+      localStorage.setItem('userId', finalUserId); // 👈 هنا بقى هيتخزن الرقم صح!
       localStorage.setItem('userRole', user.role);
       localStorage.setItem('userName', user.name);
       localStorage.setItem('userImage', user.image_url || 'https://cdn-icons-png.flaticon.com/512/149/149071.png');
@@ -138,7 +144,7 @@ const LoginPage = () => {
             />
           </div>
 
-          {/* رابط نسيت كلمة المرور - يظهر بعد أول محاولة خطأ */}
+          {/* رابط نسيت كلمة المرور */}
           {failedAttempts >= 1 && (
             <div className="flex justify-start px-2 animate-fadeIn">
               <Link 

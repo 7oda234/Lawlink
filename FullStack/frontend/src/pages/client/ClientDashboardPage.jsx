@@ -6,11 +6,11 @@ import {
   Calendar, 
   MessageSquare, 
   CreditCard, 
-  FileText, 
-  Clock,
   Plus,
   ChevronRight,
-  Gavel
+  Gavel,
+  Clock,
+  Sparkles // أيقونة للذكاء الاصطناعي
 } from 'lucide-react';
 import { useLanguage } from '../../context/useLanguage';
 import { useTheme } from '../../context/ThemeContext';
@@ -32,30 +32,39 @@ const ClientDashboardPage = () => {
 
   useEffect(() => {
     const fetchDashboardData = async () => {
-      if (!userId) return navigate('/login');
+      const token = localStorage.getItem('token');
+
+      if (!userId || userId === 'undefined' || userId === 'null') {
+        localStorage.clear();
+        navigate('/login');
+        return;
+      }
       
       try {
-        // 1. جلب بيانات البروفايل (للحصول على مستوى الدخل)
-        const profileRes = await axios.get(`http://localhost:5000/api/users/profile/${userId}`);
-        if (profileRes.data.success) setProfile(profileRes.data.data);
+        const profileRes = await axios.get(`http://localhost:5000/api/users/profile/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (profileRes.data.success || profileRes.data.ok) {
+           const data = profileRes.data.data || profileRes.data.user || profileRes.data;
+           setProfile(data);
+        }
 
-        // 2. جلب القضايا وفلترتها (تخص العميل الحالي وغير محذوفة)
         const casesRes = await axios.get(`http://localhost:5000/api/cases`);
         const clientCases = casesRes.data.cases.filter(c => 
           c.client_id === parseInt(userId) && c.deleted_at === null
         );
         setActiveCases(clientCases);
 
-        // 3. جلب المواعيد الخاصة بالعميل
         const appRes = await axios.get(`http://localhost:5000/api/appointments/list?userId=${userId}&role=client`);
         if (appRes.data.ok) setAppointments(appRes.data.data);
 
       } catch (err) {
-        console.error("Error fetching client dashboard data:", err);
+        console.error("❌ خطأ في جلب بيانات الداشبورد:", err.response?.data || err.message);
       } finally {
         setLoading(false);
       }
     };
+    
     fetchDashboardData();
   }, [userId, navigate]);
 
@@ -68,41 +77,17 @@ const ClientDashboardPage = () => {
   );
 
   const stats = [
-    { 
-      icon: Briefcase, 
-      value: activeCases.length, 
-      label: isRTL ? 'القضايا النشطة' : 'Active Cases',
-      colorClass: 'text-blue-500',
-      bgClass: 'bg-blue-500/10'
-    },
-    { 
-      icon: Calendar, 
-      value: appointments.length, 
-      label: isRTL ? 'المواعيد القادمة' : 'Upcoming Appointments',
-      colorClass: 'text-green-500',
-      bgClass: 'bg-green-500/10'
-    },
-    { 
-      icon: MessageSquare, 
-      value: '0', 
-      label: isRTL ? 'رسائل غير مقروءة' : 'Unread Messages',
-      colorClass: 'text-yellow-500',
-      bgClass: 'bg-yellow-500/10'
-    },
-    { 
-      icon: CreditCard, 
-      value: profile?.income_level || '0', 
-      label: isRTL ? 'مستوى الدخل (جنيه)' : 'Income Level (EGP)',
-      colorClass: 'text-purple-500',
-      bgClass: 'bg-purple-500/10'
-    }
+    { icon: Briefcase, value: activeCases.length, label: isRTL ? 'القضايا النشطة' : 'Active Cases', colorClass: 'text-blue-500', bgClass: 'bg-blue-500/10' },
+    { icon: Calendar, value: appointments.length, label: isRTL ? 'المواعيد القادمة' : 'Upcoming Appointments', colorClass: 'text-green-500', bgClass: 'bg-green-500/10' },
+    { icon: MessageSquare, value: '0', label: isRTL ? 'رسائل غير مقروءة' : 'Unread Messages', colorClass: 'text-yellow-500', bgClass: 'bg-yellow-500/10' },
+    { icon: CreditCard, value: profile?.income_level || '0', label: isRTL ? 'مستوى الدخل' : 'Income Level', colorClass: 'text-purple-500', bgClass: 'bg-purple-500/10' }
   ];
 
   return (
     <div className={`client-page-wrapper ${isDark ? 'dark-mode' : 'light-mode'}`} dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Header Section */}
+        {/* Header */}
         <div className="mb-10 pt-24 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <h1 className="client-h1 !mb-1 italic">{isRTL ? 'لوحة تحكم العميل' : 'Client Dashboard'}</h1>
@@ -112,7 +97,7 @@ const ClientDashboardPage = () => {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {stats.map((stat, index) => (
             <div key={index} className="client-card !p-6 flex items-center gap-4 hover:border-yellow-500/50 transition-all cursor-default shadow-xl shadow-black/20">
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.bgClass}`}>
@@ -126,24 +111,83 @@ const ClientDashboardPage = () => {
           ))}
         </div>
 
-        {/* Quick Actions Bar */}
-        <div className="client-card !p-6 mb-8 flex flex-wrap gap-4 items-center justify-center lg:justify-start">
-            <Link to="/client/cases/new" className="flex items-center gap-2 bg-yellow-500 text-black px-6 py-3 rounded-xl font-black italic text-xs uppercase hover:scale-105 transition-transform">
-                <Plus size={18} /> {isRTL ? 'رفع قضية جديدة' : 'Submit New Case'}
-            </Link>
-            <Link to="/find-lawyer" className="flex items-center gap-2 bg-slate-800 text-white px-6 py-3 rounded-xl font-black italic text-xs uppercase hover:bg-slate-700 transition-all">
-                <Calendar size={18} /> {isRTL ? 'حجز موعد' : 'Book Appointment'}
-            </Link>
+        {/* ✅ المطور: Quick Actions Bar الجديد */}
+        <div className="mb-12">
+            <h2 className="client-label !mb-6 opacity-40 italic !text-xs uppercase tracking-widest">{isRTL ? 'إجراءات سريعة' : 'Quick Actions'}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                {/* Submit New Case */}
+                <Link to="/client/cases/new" className="group relative flex items-center justify-between p-6 bg-yellow-500 rounded-3xl transition-all hover:scale-[1.02] hover:shadow-2xl shadow-yellow-500/20">
+            <div className="flex items-center gap-4">
+                <div className="p-3 bg-black/10 rounded-2xl group-hover:bg-black/20 transition-colors">
+                    <Plus size={24} className="text-black" />
+                </div>
+                <div>
+                    <p className="text-black font-black italic text-lg leading-tight">
+                        {isRTL ? 'رفع قضية' : 'Submit Case'}
+                    </p>
+                    <p className="text-black/70 text-[10px] font-bold uppercase mt-1">
+                        {isRTL ? 'بدء إجراءات قانونية' : 'Start legal action'}
+                    </p>
+                </div>
+            </div>
+            <ChevronRight size={20} className="text-black/50 group-hover:translate-x-1 transition-transform" />
+        </Link>
+
+                {/* Book Appointment */}
+                <Link to="/find-lawyer" className="group relative flex items-center justify-between p-6 bg-slate-900 border border-white/5 rounded-3xl transition-all hover:scale-[1.02] hover:border-yellow-500/50">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-white/5 rounded-2xl group-hover:bg-yellow-500/10 transition-colors">
+                            <Calendar size={24} className="text-yellow-500" />
+                        </div>
+                        <div>
+                            <p className="text-white font-black italic text-lg leading-tight">{isRTL ? 'حجز موعد' : 'Book Meeting'}</p>
+                            <p className="text-white/40 text-[10px] font-bold uppercase">{isRTL ? 'مقابلة محامي متخصص' : 'Meet a specialist'}</p>
+                        </div>
+                    </div>
+                    <ChevronRight size={20} className="text-white/20 group-hover:translate-x-1 transition-transform" />
+                </Link>
+                {/* NEW: Chat with Lawyer - لون أخضر مريح للمراسلات */}
+        <Link to="/client/messages" className="group relative flex items-center justify-between p-6 bg-emerald-600 rounded-3xl transition-all hover:scale-[1.02] hover:shadow-2xl shadow-emerald-600/30">
+            <div className="flex items-center gap-4">
+                <div className="p-3 bg-white/10 rounded-2xl group-hover:bg-white/20 transition-colors">
+                    <MessageSquare size={24} className="text-white" />
+                </div>
+                <div>
+                    <p className="text-white font-black italic text-lg leading-tight">
+                        {isRTL ? 'مراسلة محامي' : 'Chat with Lawyer'}
+                    </p>
+                    <p className="text-emerald-100/70 text-[10px] font-bold uppercase mt-1">
+                        {isRTL ? 'تواصل مباشر مع محاميك' : 'Direct communication'}
+                    </p>
+                </div>
+            </div>
+            <ChevronRight size={20} className="text-white/50 group-hover:translate-x-1 transition-transform" />
+        </Link>
+
+                {/* AI Chatbot - الميزة الجديدة */}
+                <Link to="/ai-chat" className="group relative flex items-center justify-between p-6 bg-indigo-600 rounded-3xl transition-all hover:scale-[1.02] hover:shadow-2xl shadow-indigo-600/30">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-white/10 rounded-2xl group-hover:bg-white/20 transition-colors">
+                            <Sparkles size={24} className="text-white animate-pulse" />
+                        </div>
+                        <div>
+                            <p className="text-white font-black italic text-lg leading-tight">{isRTL ? 'دردشة ذكية' : 'Legal AI Chat'}</p>
+                            <p className="text-indigo-100/50 text-[10px] font-bold uppercase">{isRTL ? 'استشارة فورية 24/7' : 'Instant 24/7 Support'}</p>
+                        </div>
+                    </div>
+                    <ChevronRight size={20} className="text-white/30 group-hover:translate-x-1 transition-transform" />
+                </Link>
+
+            </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          {/* Active Cases Column */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
           <div className="lg:col-span-2 client-card !p-8">
             <div className="flex items-center justify-between mb-8">
               <h2 className="client-label !mb-0">{isRTL ? 'إدارة القضايا' : 'Case Management'}</h2>
               <Link to="/client/cases" className="text-[10px] font-black text-yellow-500 flex items-center gap-1 hover:underline uppercase italic tracking-widest">
-                {isRTL ? 'عرض كل القضايا' : 'View All Cases'} <ChevronRight size={14} />
+                {isRTL ? 'عرض الكل' : 'View All'} <ChevronRight size={14} />
               </Link>
             </div>
             
@@ -180,15 +224,7 @@ const ClientDashboardPage = () => {
                       </p>
                     </div>
                   </div>
-                  
-                  <div className="flex items-center gap-5">
-                    <div className="text-right hidden sm:block">
-                        <p className={`text-[10px] font-black uppercase italic ${item.status === 'Awaiting_Client_Approval' ? 'text-yellow-500' : 'opacity-40'}`}>
-                            {item.status.replace(/_/g, ' ')}
-                        </p>
-                    </div>
-                    <ChevronRight size={20} className="text-yellow-500 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-                  </div>
+                  <ChevronRight size={20} className="text-yellow-500 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                 </Link>
               )) : (
                 <div className="text-center py-12 border-2 border-dashed border-white/5 rounded-[2rem]">
@@ -199,7 +235,6 @@ const ClientDashboardPage = () => {
             </div>
           </div>
 
-          {/* Upcoming Appointments Column */}
           <div className="client-card !p-8">
             <h2 className="client-label !mb-8">{isRTL ? 'المواعيد' : 'Appointments'}</h2>
             <div className="space-y-4">
@@ -215,10 +250,6 @@ const ClientDashboardPage = () => {
                     <p className="text-xs font-black italic uppercase">
                         {app.partner_name || 'Lawyer Pending'}
                     </p>
-                    <div className="flex items-center gap-2 mt-2">
-                        <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                        <span className="text-[9px] font-bold opacity-50 uppercase tracking-tighter">Status: {app.status}</span>
-                    </div>
                   </div>
                 </div>
               )) : (
@@ -228,16 +259,14 @@ const ClientDashboardPage = () => {
                 </div>
               )}
             </div>
-            
             <button onClick={() => navigate('/find-lawyer')} className="w-full mt-6 py-4 border border-dashed border-yellow-500/30 rounded-2xl text-[10px] font-black uppercase italic text-yellow-500 hover:bg-yellow-500 hover:text-black transition-all">
                 Schedule Meeting
             </button>
           </div>
-
         </div>
 
-        {/* Footer Quick Link */}
-        <div className="mt-12 client-card !p-8 flex flex-col sm:flex-row items-center justify-between gap-6 border-dashed border-yellow-500/20 bg-yellow-500/5 relative overflow-hidden group">
+        {/* Profile Summary Footer */}
+        <div className="mb-20 client-card !p-8 flex flex-col sm:flex-row items-center justify-between gap-6 border-dashed border-yellow-500/20 bg-yellow-500/5 relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:scale-110 transition-transform">
               <Gavel size={120} />
           </div>
@@ -256,7 +285,7 @@ const ClientDashboardPage = () => {
         </div>
       </div>
       
-      <p className="mt-16 pb-8 text-center text-[10px] font-bold opacity-20 uppercase tracking-[0.3em]">
+      <p className="pb-10 text-center text-[10px] font-bold opacity-20 uppercase tracking-[0.3em]">
         LawLink Enterprise • Secure Legal Environment • 2026
       </p>
     </div>

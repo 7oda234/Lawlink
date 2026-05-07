@@ -1,7 +1,5 @@
-import OpenAI from "openai";
-
 // ✅ الموديولات الجاهزة
-import authRouter from "../modules/auth/auth.routes.js"; // Fixed import path
+import authRouter from "../modules/auth/auth.routes.js"; 
 import userRouter from "../modules/user/user.routes.js";
 import casesRouter from "../modules/Cases/cases.routes.js";
 import aiRouter from "../modules/Ai_tools/ai_tools.routes.js";
@@ -10,15 +8,17 @@ import messageRouter from "../modules/Message/message.routes.js";
 // 📄 موديول المستندات
 import documentsRouter from "../modules/Document_folder/document_folder.routes.js"; 
 
-// 💳 موديول المدفوعات (تم التفعيل)
+// 💳 موديول المدفوعات 
 import paymentRouter from "../modules/Payment/payment.routes.js"; 
 
-// 📅 موديول المواعيد (تم تفعيله الآن)
+// 📅 موديول المواعيد 
 import appointmentRouter from "../modules/Appointment/appointment.routes.js"; 
 
+// ❌ (تم إيقافه - كود قديم) 
+// import OpenAI from "openai";
 
 /**
- * 🛠️ إعداد كافة مسارات التطبيق (Routing Hub)
+ * 🛠️ الكود الجديد: إعداد كافة مسارات التطبيق (Routing Hub)
  */
 export const setupAppRoutes = (app) => {
     // 🔐 مسارات الدخول والتسجيل
@@ -41,15 +41,9 @@ export const setupAppRoutes = (app) => {
 
     // 📅 موديول المواعيد 
     app.use("/api/appointments", appointmentRouter);
-
-    // 🤖 أدوات الذكاء الاصطناعي (المسار القديم)
-    app.use("/ai", aiRouter);
     
-    // 🤖 موديول الذكاء الاصطناعي (المسار الجديد المربوط مع React Frontend)
+    // 🤖 الكود الجديد: موديول الذكاء الاصطناعي (المربوط مع React وسيرفر البايثون)
     app.use('/api/v1/ai-tools', aiRouter);
-
-    // 🤖 AI chatbot endpoint
-    app.post('/api/chat', handleChat);
 
     // ⚠️ معالج المسارات غير الموجودة (404 Error Handler)
     app.use((req, res) => {
@@ -60,9 +54,18 @@ export const setupAppRoutes = (app) => {
     });
 };
 
-/**
- * 🤖 محرك الدردشة الذكي (AI Assistant)
- */
+/* =========================================================================
+   🗑️ الكود القديم (Old Code)
+   تم وضعه داخل تعليقات (Comments) لأنه كان يسبب تعارض مع سيرفر البايثون
+   ========================================================================= */
+
+/*
+// 🤖 أدوات الذكاء الاصطناعي (المسار القديم اللي كان عامل زحمة)
+// app.use("/ai", aiRouter);
+
+// 🤖 AI chatbot endpoint (المسار القديم اللي كان بيلغي شغل البايثون)
+// app.post('/api/chat', handleChat);
+
 export const handleChat = async (req, res) => {
     try {
         const { message } = req.body;
@@ -74,7 +77,7 @@ export const handleChat = async (req, res) => {
             });
         }
 
-        // Initialize OpenAI with your environment variable
+        // المشكلة كانت هنا: استخدام OpenAI مع مفتاح Google API
         const openai = new OpenAI({ apiKey: process.env.GOOGLE_API_KEY });
         
         const completion = await openai.chat.completions.create({
@@ -95,3 +98,4 @@ export const handleChat = async (req, res) => {
         });
     }
 };
+*/
