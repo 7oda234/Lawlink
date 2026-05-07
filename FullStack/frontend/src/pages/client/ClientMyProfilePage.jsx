@@ -20,14 +20,25 @@ const ClientMyProfilePage = () => {
     income: '0'
   });
 
-  // جلب بيانات العميل من السيرفر فور تحميل الصفحة
+  // ✅ الكود الجديد: جلب البيانات مع الحماية من الـ undefined وإرسال التوكن
   useEffect(() => {
     const fetchProfile = async () => {
+      const userId = localStorage.getItem('userId');
+      const token = localStorage.getItem('token');
+
+      // حماية: لو مفيش ID، نوقف العملية عشان السيرفر ميضربش Error 500
+      if (!userId || userId === 'undefined' || userId === 'null') {
+        console.warn("⚠️ لا يوجد بيانات تسجيل دخول، يرجى تسجيل الدخول أولاً.");
+        return; 
+      }
+
       try {
-        const userId = localStorage.getItem('userId');
-        const response = await axios.get(`http://localhost:5000/api/users/profile/${userId}`);
-        if (response.data.success) {
-          const data = response.data.data;
+        const response = await axios.get(`http://localhost:5000/api/users/profile/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (response.data.success || response.data.ok) {
+          const data = response.data.data || response.data.user || response.data;
           setProfileData({
             name: data.name || '',
             email: data.email || '',
@@ -37,9 +48,10 @@ const ClientMyProfilePage = () => {
           });
         }
       } catch (err) {
-        console.error("Error loading client profile:", err);
+        console.error("❌ خطأ في جلب بيانات البروفايل:", err.response?.data || err.message);
       }
     };
+
     fetchProfile();
   }, []);
 
@@ -52,7 +64,7 @@ const ClientMyProfilePage = () => {
               src={profileData.image_url || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'} 
               alt="Avatar" 
               className="w-32 h-32 rounded-[2rem] object-cover border-4 border-yellow-500 shadow-xl"
-              onError={(e) => { e.target.src = 'https://cdn-icons-png.flaticon.com/512/149/149071.png'; }} // ✅ إضافة للحماية من الصور المكسورة
+              onError={(e) => { e.target.src = 'https://cdn-icons-png.flaticon.com/512/149/149071.png'; }} 
             />
           </div>
           <div className="flex-1 text-center md:text-right">
@@ -88,3 +100,31 @@ const ClientMyProfilePage = () => {
 };
 
 export default ClientMyProfilePage;
+
+/* =========================================================================
+   🗑️ الكود القديم (Old Code) للرجوع إليه وقت الحاجة
+   الـ useEffect القديم اللي كان بيبعت الطلب بـ undefined ومفيهوش Token
+   ========================================================================= */
+/*
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const userId = localStorage.getItem('userId');
+        const response = await axios.get(`http://localhost:5000/api/users/profile/${userId}`);
+        if (response.data.success) {
+          const data = response.data.data;
+          setProfileData({
+            name: data.name || '',
+            email: data.email || '',
+            image_url: data.image_url || '',
+            phone: data.Phone_no1 || '',
+            income: data.income_level || '0'
+          });
+        }
+      } catch (err) {
+        console.error("Error loading client profile:", err);
+      }
+    };
+    fetchProfile();
+  }, []);
+*/

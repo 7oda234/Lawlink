@@ -34,13 +34,24 @@ const ClientEditProfilePage = () => {
     image_url: ''
   });
 
+  // ✅ الكود الجديد: جلب البيانات قبل التعديل (إضافة التوكن وحماية من undefined)
   useEffect(() => {
     const fetchClientData = async () => {
+      const userId = localStorage.getItem('userId');
+      const token = localStorage.getItem('token');
+
+      if (!userId || userId === 'undefined' || userId === 'null') {
+         setInitialLoading(false);
+         return;
+      }
+
       try {
-        const userId = localStorage.getItem('userId');
-        const response = await axios.get(`http://localhost:5000/api/users/profile/${userId}`);
-        if (response.data.success) {
-          const data = response.data.data;
+        const response = await axios.get(`http://localhost:5000/api/users/profile/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (response.data.success || response.data.ok) {
+          const data = response.data.data || response.data.user || response.data;
           setFormData({
             name: data.name || '',
             email: data.email || '',
@@ -54,11 +65,12 @@ const ClientEditProfilePage = () => {
           });
         }
       } catch (err) {
-        console.error("Error fetching client data:", err);
+        console.error("❌ خطأ في جلب بيانات التعديل:", err);
       } finally {
         setInitialLoading(false);
       }
     };
+    
     fetchClientData();
   }, []);
 
@@ -77,6 +89,7 @@ const ClientEditProfilePage = () => {
     }
   };
 
+  // ✅ الكود الجديد: إرسال التعديلات للسيرفر مع التوكن
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -84,12 +97,16 @@ const ClientEditProfilePage = () => {
 
     try {
       const userId = localStorage.getItem('userId');
-      const res = await axios.put(`http://localhost:5000/api/users/${userId}`, formData);
+      const token = localStorage.getItem('token');
       
-      if (res.data.success) {
+      const res = await axios.put(`http://localhost:5000/api/users/${userId}`, formData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (res.data.success || res.data.ok) {
         localStorage.setItem('userName', formData.name);
-        localStorage.setItem('userImage', formData.image_url);
         localStorage.setItem('userEmail', formData.email);
+        if(formData.image_url) localStorage.setItem('userImage', formData.image_url);
 
         window.dispatchEvent(new Event('storage'));
 
@@ -101,7 +118,8 @@ const ClientEditProfilePage = () => {
         setTimeout(() => navigate('/client/profile'), 1500);
       }
     } catch (err) {
-      setStatusMsg({ type: 'error', text: isRTL ? 'فشل التحديث' : 'Update failed' });
+      console.error("Update Error:", err.response?.data || err.message);
+      setStatusMsg({ type: 'error', text: isRTL ? 'فشل التحديث، تأكد من اتصالك' : 'Update failed' });
     } finally {
       setLoading(false);
     }
@@ -135,7 +153,7 @@ const ClientEditProfilePage = () => {
                 src={formData.image_url || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'} 
                 className="w-24 h-24 rounded-3xl object-cover border-4 border-yellow-500 shadow-lg"
                 alt="Profile"
-                onError={(e) => { e.target.src = 'https://cdn-icons-png.flaticon.com/512/149/149071.png'; }} // ✅ حماية الصورة
+                onError={(e) => { e.target.src = 'https://cdn-icons-png.flaticon.com/512/149/149071.png'; }}
               />
               <div className="absolute inset-0 bg-black/40 rounded-3xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                 <Camera className="text-white" size={24} />
@@ -188,3 +206,69 @@ const ClientEditProfilePage = () => {
 };
 
 export default ClientEditProfilePage;
+
+/* =========================================================================
+   🗑️ الكود القديم (Old Code) للرجوع إليه
+   الدوال القديمة اللي كانت بتسبب مشاكل بسبب الـ undefined وغياب الـ Token
+   ========================================================================= */
+/*
+  // الـ useEffect القديم
+  useEffect(() => {
+    const fetchClientData = async () => {
+      try {
+        const userId = localStorage.getItem('userId');
+        const response = await axios.get(`http://localhost:5000/api/users/profile/${userId}`);
+        if (response.data.success) {
+          const data = response.data.data;
+          setFormData({
+            name: data.name || '',
+            email: data.email || '',
+            password: '', 
+            Phone_no1: data.Phone_no1 || '',
+            Phone_no2: data.Phone_no2 || '',
+            Date_of_Birth: data.Date_of_Birth ? data.Date_of_Birth.split('T')[0] : '',
+            gender: data.gender || 'ذكر',
+            income_level: data.income_level || '',
+            image_url: data.image_url || ''
+          });
+        }
+      } catch (err) {
+        console.error("Error fetching client data:", err);
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+    fetchClientData();
+  }, []);
+
+  // الـ handleSubmit القديم
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setStatusMsg({ type: '', text: '' });
+
+    try {
+      const userId = localStorage.getItem('userId');
+      const res = await axios.put(`http://localhost:5000/api/users/${userId}`, formData);
+      
+      if (res.data.success) {
+        localStorage.setItem('userName', formData.name);
+        localStorage.setItem('userImage', formData.image_url);
+        localStorage.setItem('userEmail', formData.email);
+
+        window.dispatchEvent(new Event('storage'));
+
+        setStatusMsg({ 
+          type: 'success', 
+          text: isRTL ? 'تم حفظ البيانات وتحديث الملف الشخصي' : 'Profile updated successfully' 
+        });
+
+        setTimeout(() => navigate('/client/profile'), 1500);
+      }
+    } catch (err) {
+      setStatusMsg({ type: 'error', text: isRTL ? 'فشل التحديث' : 'Update failed' });
+    } finally {
+      setLoading(false);
+    }
+  };
+*/
