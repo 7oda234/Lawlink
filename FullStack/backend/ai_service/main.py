@@ -8,163 +8,107 @@ import google.generativeai as genai
 from PyPDF2 import PdfReader
 from dotenv import load_dotenv
 
+# بنحمل ملف الـ .env عشان نقرأ مفتاح الـ API
 load_dotenv(dotenv_path=Path(__file__).with_name('.env'))
 
+# بنبدأ تطبيق الـ FastAPI بتاعنا
 app = FastAPI(title="Legal AI Microservice")
 
+# بنجيب مفتاح جوجل من البيئة المحيطة
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 if not GOOGLE_API_KEY:
-    raise RuntimeError("Missing GOOGLE_API_KEY environment variable for the AI microservice.")
+    raise RuntimeError("يا ريس نسيت تحط الـ API KEY في ملف الـ .env")
 
+# بنعرف جوجل بالـ مفتاح بتاعنا عشان نقدر نستخدم Gemini
 genai.configure(api_key=GOOGLE_API_KEY)
-model = genai.GenerativeModel('gemini-2.5-flash')
+model = genai.GenerativeModel('gemini-1.5-flash')
 
-# Initialize ChromaDB client from the local ai_service/chroma_db store
+# بنشغل قاعدة بيانات ChromaDB عشان البحث القانوني الذكي
 try:
     chroma_client = chromadb.PersistentClient(path="./chroma_db")
     legal_collection = chroma_client.get_or_create_collection(name="legal_knowledge_base")
 except Exception as e:
-    raise RuntimeError(f"Unable to initialize ChromaDB: {e}")
+    print(f"في مشكلة في قاعدة البيانات بس هنعديها: {e}")
 
+# بنحدد شكل البيانات اللي مستنيينها في طلبات البحث والتوقعات
 class ResearchRequest(BaseModel):
     query: str
 
-@app.get("/")
-async def health_check():
-    return {"status": "ok", "service": "Legal AI Microservice"}
+class PredictionRequest(BaseModel):
+    facts: str
+    jurisdiction: str
 
+class DraftingRequest(BaseModel):
+    documentType: str
+    parties: str
+    keyTerms: str
+
+# أول طريق: البحث القانوني (RAG)
 @app.post("/api/ai/research")
 async def ai_research(request: ResearchRequest):
     try:
         query_text = request.query.strip()
-        if not query_text:
-            raise HTTPException(status_code=400, detail="The research query cannot be empty.")
-
-        results = legal_collection.query(
-            query_texts=[query_text],
-            n_results=3,
-            include=["documents", "metadatas"]
-        )
-
-        if not results['documents'] or not results['documents'][0]:
-            context = "No relevant Egyptian legal documents found in the database."
-            sources = []
-        else:
-            context = "\n\n".join([doc for doc in results['documents'][0] if doc])
-            sources = results['metadatas'][0] if results.get('metadatas') else []
-
-        prompt = f"""
-You are an expert Egyptian legal research assistant.
-Answer the user's question using only the information available in the provided legal context.
-Frame all answers according to Egyptian law, Egyptian legal principles, and applicable Egyptian statutes.
-If the answer is not contained in the context, state that clearly and do not invent legal facts.
-
-Context:
-{context}
-
-Question: {query_text}
-
-Provide a clear, professional, and structured answer.
-"""
-
+        # بنروح ندور في الكتب القانونية اللي عندنا في الداتابيز
+        results = legal_collection.query(query_texts=[query_text], n_results=3)
+        context = "\n\n".join(results['documents'][0]) if results['documents'] else "ملقيتش حاجة تخص الموضوع ده في الداتابيز."
+        
+        # بنبعت السؤال مع شوية معلومات قانونية للموديل عشان يجاوب صح
+        prompt = f"بصفتك خبير قانوني مصري، استخدم المعلومات دي: {context}\n\nالسؤال: {query_text}\nجاوب بدقة وباحترافية."
         response = model.generate_content(prompt)
-
-        return {
-            "status": "success",
-            "answer": response.text,
-            "sources": sources
-        }
-
-    except HTTPException:
-        raise
+        return {"status": "success", "answer": response.text, "sources": results.get('metadatas', [])}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# تاني طريق: مراجعة العقود (PDF)
 @app.post("/api/ai/contract-review")
 async def contract_review(file: UploadFile = File(...)):
     try:
-        if not file.filename.lower().endswith('.pdf'):
-            raise HTTPException(status_code=400, detail="Only PDF files are supported.")
-
+        # بنقرأ ملف الـ PDF ونطلع الكلام اللي جواه
         pdf_content = await file.read()
         pdf_reader = PdfReader(io.BytesIO(pdf_content))
-
-        contract_text = ""
-        for page in pdf_reader.pages:
-            text = page.extract_text()
-            if text:
-                contract_text += text + "\n"
-
-        if not contract_text.strip():
-            raise HTTPException(status_code=400, detail="Could not extract text from the PDF. It may be scanned or encrypted.")
-
-        prompt = f"""
-You are an expert Egyptian legal counsel and contract reviewer.
-Analyze the contract below according to Egyptian contract law and the applicable Egyptian legal framework.
-Provide a structured summary that focuses on obligations, risks, and missing clauses from the perspective of Egyptian law.
-
-Please format your response into exactly three sections:
-1. Key Obligations: What are the main duties of each party?
-2. Potential Risks: Identify any unusual, highly favorable, or risky clauses.
-3. Missing Standard Clauses: Are any standard clauses (e.g., Force Majeure, Severability, Governing Law) missing?
-
-Contract Text:
-{contract_text}
-"""
-
+        contract_text = "".join([page.extract_text() for page in pdf_reader.pages])
+        
+        # بنخلي الذكاء الاصطناعي يحلل الالتزامات والمخاطر
+        prompt = f"راجع العقد ده بالقانون المصري وطلعلي الالتزامات والمخاطر والبنود اللي ناقصة.\n\nنص العقد: {contract_text}"
         response = model.generate_content(prompt)
+        return {"status": "success", "analysis": response.text}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-        return {
-            "status": "success",
-            "filename": file.filename,
-            "analysis": response.text
-        }
+# تالت طريق: الشات بوت القانوني
+@app.post("/api/ai/chat")
+async def legal_chat(request: ResearchRequest):
+    try:
+        # شات سريع للاستفسارات العامة
+        prompt = f"خليك مساعد قانوني مصري شاطر، رد على ده: {request.query}"
+        response = model.generate_content(prompt)
+        return {"status": "success", "reply": response.text}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-    except HTTPException:
-        raise
+# رابع طريق: توقع نتيجة القضية
+@app.post("/api/ai/predict")
+async def predict(request: PredictionRequest):
+    try:
+        # بنحلل الوقائع عشان نعرف القضية كسبانة ولا لأ
+        prompt = f"حلل الوقائع دي في {request.jurisdiction} حسب القانون المصري.\nالوقائع: {request.facts}\nقولي نسبة النجاح والسبب."
+        response = model.generate_content(prompt)
+        return {"status": "success", "data": {"analysis": response.text}}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# خامس طريق: كتابة مسودات العقود
+@app.post("/api/ai/draft")
+async def draft(request: DraftingRequest):
+    try:
+        # بنصيغ عقد رسمي بناءً على البيانات اللي المستخدم دخلها
+        prompt = f"اكتب مسودة {request.documentType} بالقانون المصري.\nالأطراف: {request.parties}\nالبنود الأساسية: {request.keyTerms}"
+        response = model.generate_content(prompt)
+        return {"status": "success", "data": {"draft": response.text}}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8000)))
-
-@app.post("/api/ai/chat")
-async def legal_chat(request: ResearchRequest):
-    """
-    AI-powered Egyptian legal assistant chat endpoint.
-    Searches the web and knowledge base for Egyptian law information.
-    """
-    try:
-        query_text = request.query.strip()
-        if not query_text:
-            raise HTTPException(status_code=400, detail="Query cannot be empty.")
-
-        prompt = f"""
-You are an expert Egyptian legal assistant with comprehensive knowledge of Egyptian law.
-You have access to current information about Egyptian legal systems, statutes, regulations, and court decisions.
-
-When answering questions:
-1. Focus exclusively on Egyptian law and the Egyptian legal framework
-2. Cite relevant Egyptian statutes, codes, and legal principles
-3. Reference Egyptian court rulings when applicable
-4. Explain legal concepts in Arabic and English when relevant
-5. Provide practical guidance based on Egyptian legal standards
-6. If information is not available in Egyptian law specifically, state that clearly
-
-User Question: {query_text}
-
-Provide a comprehensive, professional, and well-structured response about Egyptian law.
-Include relevant Egyptian legal references, statute numbers, and practical implications.
-"""
-
-        response = model.generate_content(prompt)
-
-        return {
-            "status": "success",
-            "reply": response.text,
-            "jurisdiction": "Egyptian Law"
-        }
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    # بنشغل السيرفر على بورت 8000
+    uvicorn.run(app, host="0.0.0.0", port=8000)
