@@ -14,7 +14,7 @@ const startServer = async () => {
         const promisePool = pool.promise(); 
         const connection = await promisePool.getConnection();
         
-        console.log('✅ MariaDB (LawLink) Connected Successfully on Port 3306!');
+        console.log('✅ MariaDB (LawLink) Connected Successfully on Port 3307!');
         
         // التأكد من وجود الاتصال قبل عمل release
         if (connection) connection.release(); 

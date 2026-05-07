@@ -6,6 +6,7 @@ import userRouter from "../modules/user/user.routes.js";
 import casesRouter from "../modules/Cases/cases.routes.js";
 import aiRouter from "../modules/Ai_tools/ai_tools.routes.js";
 import messageRouter from "../modules/Message/message.routes.js";
+import knowledgeBaseRouter from "../modules/Knowledge_base/knowledge_base.routes.js";
 
 // 📄 موديول المستندات
 import documentsRouter from "../modules/Document_folder/document_folder.routes.js"; 
@@ -33,7 +34,10 @@ export const setupAppRoutes = (app) => {
     // 💬 موديول المراسلات
     app.use("/api/messages", messageRouter);
 
-    // 📁 موديول المستندات
+    // � موديول قاعدة المعرفة
+    app.use("/api/knowledge-base", knowledgeBaseRouter);
+
+    // �📁 موديول المستندات
     app.use("/api/documents", documentsRouter);
 
     // 💳 موديول المدفوعات

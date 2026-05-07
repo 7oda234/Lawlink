@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { Upload, FileText, X, CheckCircle, Shield } from 'lucide-react';
 import { useLanguage } from '../../context/useLanguage';
 import { useTheme } from '../../context/ThemeContext';
+import dataService from '../../services/DataService';
 import "../../styles/client/ClientBase.css"; // Global Client Styles
 
 const ClientUploadDocumentsPage = () => {
   const { language } = useLanguage();
   const { mode } = useTheme();
+  const { caseId } = useParams();
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState(null); // 'success' | 'error'
+  const [errorMessage, setErrorMessage] = useState('');
 
   const isRTL = language === 'ar' || language === 'eg';
   const isDark = mode === 'dark';
@@ -19,19 +23,42 @@ const ClientUploadDocumentsPage = () => {
     if (selectedFile) {
       setFile(selectedFile);
       setUploadStatus(null);
+      setErrorMessage('');
     }
   };
 
   const handleUpload = async () => {
     if (!file) return;
+    if (!caseId) {
+      setErrorMessage('No case ID found. Please access this page from a case details route.');
+      return;
+    }
+
     setUploading(true);
-    
-    // Logic to connect with your backend document controller
-    // Simulated upload for BIS Graduation Project demo
-    setTimeout(() => {
+    setUploadStatus(null);
+    setErrorMessage('');
+
+    try {
+      const userId = localStorage.getItem('userId');
+      const formData = new FormData();
+      formData.append('document_file', file);
+      formData.append('userId', userId || '');
+      formData.append('caseId', caseId);
+
+      const response = await dataService.documents.upload(formData);
+      if (response.data?.ok) {
+        setUploadStatus('success');
+        setFile(null);
+      } else {
+        setErrorMessage(response.data?.message || 'Upload failed.');
+        setUploadStatus('error');
+      }
+    } catch (err) {
+      setErrorMessage(err.response?.data?.message || err.message || 'Upload failed.');
+      setUploadStatus('error');
+    } finally {
       setUploading(false);
-      setUploadStatus('success');
-    }, 2000);
+    }
   };
 
   const content = {
@@ -39,21 +66,21 @@ const ClientUploadDocumentsPage = () => {
       title: "Upload Case Documents",
       subtitle: "Securely add files to your legal case folder.",
       dropzone: "Click to upload or drag and drop",
-      support: "PDF, JPG, or PNG (Max 10MB)",
+      support: "Supports PDF, DOC, DOCX, TXT, XLS, PPT, CSV, JPG, PNG, GIF",
       btnUpload: "Upload to Case",
       btnCancel: "Remove",
-      success: "Document uploaded successfully to LawLink secure servers.",
-      securityNote: "All documents are encrypted with AES-256 for your privacy."
+      success: "Document uploaded successfully and stored in the case record.",
+      securityNote: "All documents are securely uploaded and metadata is saved to the LawLink database."
     },
     eg: {
       title: "رفع مستندات القضية",
       subtitle: "أضف ملفاتك بأمان إلى مجلد القضية الخاص بك.",
       dropzone: "اضغط للرفع أو قم بسحب وإفلات الملف هنا",
-      support: "PDF, JPG, أو PNG (الحد الأقصى 10 ميجابايت)",
+      support: "يدعم PDF، DOC، DOCX، TXT، XLS، PPT، CSV، JPG، PNG، GIF",
       btnUpload: "رفع إلى القضية",
       btnCancel: "إزالة",
-      success: "تم رفع المستند بنجاح إلى خوادم LawLink المشفرة.",
-      securityNote: "جميع المستندات مشفرة بمعيار AES-256 لضمان خصوصيتك."
+      success: "تم رفع المستند بنجاح وتسجيله في سجل القضية.",
+      securityNote: "يتم رفع جميع المستندات بأمان ويتم حفظ بياناتها في قاعدة بيانات LawLink."
     }
   };
 
@@ -83,7 +110,7 @@ const ClientUploadDocumentsPage = () => {
                 <p className="mb-2 text-sm font-black italic">{t.dropzone}</p>
                 <p className="text-xs text-gray-500">{t.support}</p>
               </div>
-              <input type="file" className="hidden" onChange={handleFileChange} accept=".pdf,.jpg,.png" />
+              <input type="file" className="hidden" onChange={handleFileChange} accept=".pdf,.doc,.docx,.txt,.rtf,.xls,.xlsx,.ppt,.pptx,.csv,.jpg,.jpeg,.png,.gif" />
             </label>
           ) : (
             /* Selected File Preview using ClientBase styles */
@@ -118,6 +145,12 @@ const ClientUploadDocumentsPage = () => {
               t.btnUpload
             )}
           </button>
+
+          {errorMessage && (
+            <div className="client-banner !bg-red-50 !border-red-200 !text-red-700 !opacity-100">
+              <p className="text-sm font-bold">{errorMessage}</p>
+            </div>
+          )}
 
           {/* Success Message */}
           {uploadStatus === 'success' && (

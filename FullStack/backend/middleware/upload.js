@@ -15,8 +15,8 @@ const storage = multer.diskStorage({
 
 // File filter
 const fileFilter = (req, file, cb) => {
-  // Allow images, documents, etc.
-  const allowedTypes = /jpeg|jpg|png|gif|pdf|doc|docx/;
+  // Allow standard document and image formats for legal uploads
+  const allowedTypes = /jpeg|jpg|png|gif|pdf|doc|docx|txt|rtf|xls|xlsx|ppt|pptx|csv|odt|ods|odp/;
   const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
   const mimetype = allowedTypes.test(file.mimetype);
 
@@ -31,7 +31,7 @@ const fileFilter = (req, file, cb) => {
 export const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
+    fileSize: 20 * 1024 * 1024, // 20MB limit
   },
   fileFilter: fileFilter,
 });
