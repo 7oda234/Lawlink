@@ -46,12 +46,12 @@ const ContractReviewTool = () => {
           <div className="flex-1">
             <input
               type="file"
-              accept=".pdf"
+              accept=".pdf,.doc,.docx,.txt,.rtf"
               className="w-full p-2 border border-gray-300 rounded-md file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
               onChange={(e) => setFile(e.target.files[0])}
               disabled={isLoading}
             />
-            <p className="mt-2 text-sm text-slate-500">Only contracts governed by Egyptian law should be uploaded.</p>
+            <p className="mt-2 text-sm text-slate-500">Upload standard contract file formats for Egyptian law review.</p>
             {file && <p className="mt-2 text-sm text-slate-500">Selected file: <strong>{file.name}</strong></p>}
           </div>
           <button

@@ -68,7 +68,14 @@ export const dataService = {
     addDocument: (id, documentData) => api.post(`/cases/${id}/documents`, documentData),
   },
 
-  // 💰 Financial APIs (Wallet, Payments, Installments)[cite: 3]
+  // � Document Upload APIs
+  documents: {
+    upload: (formData) => api.post('/documents', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }),
+  },
+
+  // �💰 Financial APIs (Wallet, Payments, Installments)[cite: 3]
   finance: {
     getWalletBalance: () => api.get('/wallet/balance'),
     addFunds: (amount) => api.post('/wallet/topup', { amount }),

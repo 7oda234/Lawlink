@@ -21,7 +21,7 @@ if not GOOGLE_API_KEY:
 
 # بنعرف جوجل بالـ مفتاح بتاعنا عشان نقدر نستخدم Gemini
 genai.configure(api_key=GOOGLE_API_KEY)
-model = genai.GenerativeModel('gemini-1.5-flash')
+model = genai.GenerativeModel('models/gemini-2.5-flash')
 
 # بنشغل قاعدة بيانات ChromaDB عشان البحث القانوني الذكي
 try:
@@ -99,12 +99,52 @@ async def predict(request: PredictionRequest):
 
 # خامس طريق: كتابة مسودات العقود
 @app.post("/api/ai/draft")
-async def draft(request: DraftingRequest):
+async def draft_document(request: DraftingRequest):
     try:
-        # بنصيغ عقد رسمي بناءً على البيانات اللي المستخدم دخلها
-        prompt = f"اكتب مسودة {request.documentType} بالقانون المصري.\nالأطراف: {request.parties}\nالبنود الأساسية: {request.keyTerms}"
+        # بنكتب مسودة عقد بناء على النوع والأطراف والشروط
+        prompt = f"اكتب مسودة {request.documentType} بالقانون المصري.\nالأطراف: {request.parties}\nالشروط الرئيسية: {request.keyTerms}\nاجعلها احترافية وشاملة."
         response = model.generate_content(prompt)
         return {"status": "success", "data": {"draft": response.text}}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# سادس طريق: إضافة ملفات إلى مخ المعرفة
+@app.post("/api/ai/ingest")
+async def ingest_file(file: UploadFile = File(...)):
+    try:
+        filename = file.filename or "uploaded_document.pdf"
+        if not filename.lower().endswith('.pdf'):
+            raise HTTPException(status_code=400, detail='الملف لازم يكون PDF')
+
+        pdf_content = await file.read()
+        pdf_reader = PdfReader(io.BytesIO(pdf_content))
+
+        chunks = []
+        for page in pdf_reader.pages:
+            page_text = page.extract_text() or ""
+            if page_text.strip():
+                chunks.extend([page_text[i:i+1000] for i in range(0, len(page_text), 1000)])
+
+        if not chunks:
+            raise HTTPException(status_code=400, detail='الـ PDF فاضي أو لم يتم استخراج نص منه')
+
+        ids = [f"{filename}_{i}" for i in range(len(chunks))]
+        metadatas = [{"source": filename}] * len(chunks)
+
+        legal_collection.add(
+            documents=chunks,
+            ids=ids,
+            metadatas=metadatas
+        )
+
+        return {
+            "status": "success",
+            "message": "تم إضافة الملف إلى قاعدة المعرفة بنجاح.",
+            "added_chunks": len(chunks),
+            "source": filename
+        }
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
