@@ -48,12 +48,14 @@ export const clientRespondToFees = async (caseId, response) => {
   }
 };
 
-// 5️⃣ جلب القضايا (نسخة آمنة بدون صورة لمنع الخطأ)
+// 5️⃣ جلب القضايا (🌟 التعديل: جلب صور المحامي والعميل)
 export const getCases = async () => {
   const sql = `
     SELECT c.*, 
            lawyer.name AS lawyer_name, 
-           client.name AS client_name 
+           lawyer.image_url AS lawyer_image,
+           client.name AS client_name,
+           client.image_url AS client_image
     FROM cases c
     LEFT JOIN users lawyer ON c.lawyer_id = lawyer.user_id
     LEFT JOIN users client ON c.client_id = client.user_id
@@ -69,7 +71,7 @@ export const deleteCase = async (caseId) => {
   return { ok: true, message: "تم نقل القضية للأرشيف بنجاح 🗑️" };
 };
 
-// 7️⃣ 🔥 التحديث الجديد: تأكيد دفع العميل وتغيير الحالة لـ In_Progress
+// 7️⃣ تأكيد دفع العميل وتغيير الحالة لـ In_Progress
 export const confirmPayment = async (caseId) => {
   const sql = `UPDATE cases SET status = 'In_Progress' WHERE case_id = ?`;
   await runQuery(sql, [caseId]);

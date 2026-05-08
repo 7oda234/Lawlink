@@ -8,27 +8,26 @@ const runQuery = (sql, params = []) =>
     });
   });
 
-// 1. التحقق من ربط المحامي بالقضية[cite: 9]
+// 1. التحقق من ربط المحامي بالقضية
 export const verifyLawyerCaseLink = async (caseId, lawyerId) => {
   const sql = `SELECT * FROM cases WHERE case_id = ? AND lawyer_id = ?`;
   const res = await runQuery(sql, [caseId, lawyerId]);
   return res.length > 0;
 };
 
-// 2. إنشاء ميعاد جديد (اسم الجدول: appointment)[cite: 9]
+// 2. إنشاء ميعاد جديد
 export const createAppointment = async (date, clientId, lawyerId, caseId) => {
   const sql = `INSERT INTO appointment (appointment_date, status, client_id, lawyer_id, case_id) VALUES (?, 'Scheduled', ?, ?, ?)`;
   const res = await runQuery(sql, [date, clientId, lawyerId, caseId]);
   return res.insertId;
 };
 
-// 3. 🔥 التحديث الجديد: جلب المواعيد + اسم الطرف الآخر (العميل/المحامي) + اسم القضية[cite: 9, 10]
+// 3. جلب المواعيد + اسم الطرف الآخر (العميل/المحامي) + اسم القضية
 export const getAppointmentsByUser = async (userId, role) => {
   const isLawyer = role.toLowerCase() === 'lawyer';
   const column = isLawyer ? 'lawyer_id' : 'client_id';
   const joinColumn = isLawyer ? 'client_id' : 'lawyer_id'; 
 
-  // عملنا JOIN مع جدول users لاسم العميل، و LEFT JOIN مع جدول cases لاسم القضية[cite: 9, 10]
   const sql = `
     SELECT 
         a.*, 
@@ -44,14 +43,14 @@ export const getAppointmentsByUser = async (userId, role) => {
   return await runQuery(sql, [userId]);
 };
 
-// 4. تعديل ميعاد[cite: 9]
+// 4. تعديل ميعاد
 export const updateAppointment = async (appointmentId, newDate, newStatus) => {
   const sql = `UPDATE appointment SET appointment_date = ?, status = ? WHERE appointment_id = ?`;
   const res = await runQuery(sql, [newDate, newStatus, appointmentId]);
   return res.affectedRows > 0;
 };
 
-// 5. حذف ميعاد[cite: 9]
+// 5. حذف ميعاد
 export const deleteAppointment = async (appointmentId) => {
   const sql = `DELETE FROM appointment WHERE appointment_id = ?`;
   const res = await runQuery(sql, [appointmentId]);
