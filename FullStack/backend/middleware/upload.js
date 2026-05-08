@@ -16,11 +16,30 @@ const storage = multer.diskStorage({
 // File filter
 const fileFilter = (req, file, cb) => {
   // Allow standard document and image formats for legal uploads
-  const allowedTypes = /jpeg|jpg|png|gif|pdf|doc|docx|txt|rtf|xls|xlsx|ppt|pptx|csv|odt|ods|odp/;
-  const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = allowedTypes.test(file.mimetype);
+  const allowedExtensions = /\.(jpeg|jpg|png|gif|pdf|doc|docx|txt|rtf|xls|xlsx|ppt|pptx|csv|odt|ods|odp)$/i;
+  const allowedMimeTypes = [
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'text/plain',
+    'application/rtf',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.ms-powerpoint',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    'text/csv',
+    'application/vnd.oasis.opendocument.text',
+    'application/vnd.oasis.opendocument.spreadsheet',
+    'application/vnd.oasis.opendocument.presentation'
+  ];
 
-  if (mimetype && extname) {
+  const hasValidExtension = allowedExtensions.test(file.originalname);
+  const hasValidMimeType = allowedMimeTypes.includes(file.mimetype);
+
+  if (hasValidExtension && (hasValidMimeType || file.mimetype === 'application/octet-stream')) {
     return cb(null, true);
   } else {
     cb(new Error('Invalid file type'));
