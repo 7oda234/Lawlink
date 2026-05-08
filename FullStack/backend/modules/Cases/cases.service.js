@@ -15,40 +15,51 @@ export const createCase = async (data) => {
   return { ok: true, caseId: res.insertId };
 };
 
-// 2️⃣ العميل بيبعت القضية لمحامي
+// 2️⃣ إرسال عرض لمحامي محدد
 export const sendOffer = async (caseId, lawyerId) => {
   const sql = `UPDATE cases SET lawyer_id = ?, status = 'Pending' WHERE case_id = ?`;
-  await runQuery(sql, [lawyerId, caseId]);
-  return { ok: true, message: "تم إرسال القضية للمحامي بانتظار رده ⚖️" };
+  await runQuery(sql, [parseInt(lawyerId), parseInt(caseId)]);
+  return { ok: true, message: "تم إرسال القضية للمحامي بنجاح" };
 };
 
-// 3️⃣ المحامي بيرد على القضية
+// 3️⃣ رد المحامي (تحديث الأتعاب والحالة أوتوماتيكياً)
 export const lawyerRespondToOffer = async (caseId, lawyerId, response, upfrontFee, successPercentage) => {
   if (response.toLowerCase() === 'accept') {
-    const sql = `UPDATE cases SET upfront_fee = ?, success_percentage = ?, status = 'Awaiting_Client_Approval' WHERE case_id = ? AND lawyer_id = ?`;
-    await runQuery(sql, [upfrontFee, successPercentage, caseId, lawyerId]);
-    return { ok: true, message: "تم قبول القضية وتحديد الأتعاب.. في انتظار موافقة العميل ⏳" };
+    // الكلمة التي سيقرأها الفرونت إند لتغيير الواجهة
+    const status = 'Awaiting_Client_Approval'; 
+    const sql = `UPDATE cases SET upfront_fee = ?, success_percentage = ?, status = ? WHERE case_id = ? AND lawyer_id = ?`;
+    
+    const res = await runQuery(sql, [
+        parseFloat(upfrontFee) || 0, 
+        parseFloat(successPercentage) || 0, 
+        status,
+        parseInt(caseId), 
+        parseInt(lawyerId)
+    ]);
+    
+    if (res.affectedRows === 0) throw new Error("فشل التحديث، تأكد من صحة رقم القضية.");
+    return { ok: true, message: "تم قبول القضية وإرسال العرض المالي بنجاح ⏳" };
   } else {
     const sql = `UPDATE cases SET lawyer_id = NULL, status = 'Pending' WHERE case_id = ?`;
-    await runQuery(sql, [caseId]);
-    return { ok: true, message: "تم رفض القضية وإعادتها للبحث ❌" };
+    await runQuery(sql, [parseInt(caseId)]);
+    return { ok: true, message: "تم رفض القضية وإعادتها للبحث" };
   }
 };
 
-// 4️⃣ العميل بيرد على تسعيرة المحامي
+// 4️⃣ رد العميل (الموافقة على الأتعاب)
 export const clientRespondToFees = async (caseId, response) => {
   if (response.toLowerCase() === 'accept') {
     const sql = `UPDATE cases SET status = 'Awaiting_Payment' WHERE case_id = ?`;
-    await runQuery(sql, [caseId]);
-    return { ok: true, message: "تمت الموافقة على أتعاب المحامي.. القضية الآن في انتظار الدفع المبدئي 💳" };
+    await runQuery(sql, [parseInt(caseId)]);
+    return { ok: true, message: "تمت الموافقة.. القضية في انتظار الدفع 💳" };
   } else {
     const sql = `UPDATE cases SET lawyer_id = NULL, upfront_fee = NULL, success_percentage = NULL, status = 'Pending' WHERE case_id = ?`;
-    await runQuery(sql, [caseId]);
-    return { ok: true, message: "تم رفض عرض المحامي المالي وإعادة القضية للبحث 🔄" };
+    await runQuery(sql, [parseInt(caseId)]);
+    return { ok: true, message: "تم رفض العرض المالي" };
   }
 };
 
-// 5️⃣ جلب القضايا (🌟 التعديل: جلب صور المحامي والعميل)
+// 5️⃣ جلب كافة القضايا مع بيانات المحامي والعميل
 export const getCases = async () => {
   const sql = `
     SELECT c.*, 
@@ -59,21 +70,6 @@ export const getCases = async () => {
     FROM cases c
     LEFT JOIN users lawyer ON c.lawyer_id = lawyer.user_id
     LEFT JOIN users client ON c.client_id = client.user_id
-    WHERE c.deleted_at IS NULL
-  `;
+    WHERE c.deleted_at IS NULL`;
   return await runQuery(sql);
-};
-
-// 6️⃣ مسح قضية
-export const deleteCase = async (caseId) => {
-  const sql = `UPDATE cases SET deleted_at = NOW() WHERE case_id = ?`;
-  await runQuery(sql, [caseId]);
-  return { ok: true, message: "تم نقل القضية للأرشيف بنجاح 🗑️" };
-};
-
-// 7️⃣ تأكيد دفع العميل وتغيير الحالة لـ In_Progress
-export const confirmPayment = async (caseId) => {
-  const sql = `UPDATE cases SET status = 'In_Progress' WHERE case_id = ?`;
-  await runQuery(sql, [caseId]);
-  return { ok: true, message: "تم تأكيد الدفع وتحويل القضية للعمل بنجاح 🚀" };
 };

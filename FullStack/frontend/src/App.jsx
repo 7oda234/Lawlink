@@ -73,6 +73,8 @@ const LawyerManageRequestsPage = React.lazy(() => import('./pages/Lawyer/LawyerM
 const LawyerEarningsPage = React.lazy(() => import('./pages/Lawyer/LawyerEarningsPage'));
 // 🌟 إضافة جديدة للسيناريو: صفحة إدارة العروض المالية للمحامي
 const LawyerOfferPage = React.lazy(() => import('./pages/Lawyer/LawyerOfferPage'));
+// ✅ استيراد صفحة إشعارات المحامي الجديدة
+const LawyerNotificationsPage = React.lazy(() => import('./pages/Lawyer/LawyerNotificationsPage'));
 
 // استيراد صفحات الإدارة - Importing admin pages
 const AdminDashboardPage = React.lazy(() => import('./pages/admin/AdminDashboardPage'));
@@ -189,6 +191,7 @@ const routeConfig = [
   { path: '/lawyer/requests', Component: LawyerManageRequestsPage },
   { path: '/lawyer/earnings', Component: LawyerEarningsPage },
   { path: '/lawyer/offers', Component: LawyerOfferPage }, // 🌟 سيناريو 3 و 4
+  { path: '/lawyer/notifications', Component: LawyerNotificationsPage }, // ✅ مسار إشعارات المحامي
 
   // admin routes
   { path: '/admin/dashboard', Component: AdminDashboardPage },

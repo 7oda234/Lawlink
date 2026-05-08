@@ -49,6 +49,11 @@ const Navbar = () => {
 
   const cardBg = mode === 'dark' ? 'bg-slate-900 border-slate-800' : 'bg-white border-gray-200';
 
+  // ✅ تحديد مسار الإشعارات بناءً على نوع المستخدم
+  const notificationPath = userData.role.toLowerCase() === 'lawyer' 
+    ? '/lawyer/notifications' 
+    : '/client/notifications';
+
   return (
     <nav dir={isRTL ? 'rtl' : 'ltr'} className={`fixed top-0 w-full z-[100] transition-all border-b ${
       mode === 'dark' ? 'bg-slate-950/90 border-white/5 text-white' : 'bg-white/90 border-gray-200 text-slate-900'
@@ -71,7 +76,7 @@ const Navbar = () => {
         <div className="flex items-center gap-2 md:gap-4">
           
           {isLoggedIn && (
-            <Link to="/notifications" className="relative p-2 hover:bg-gray-500/10 rounded-full transition-colors group">
+            <Link to={notificationPath} className="relative p-2 hover:bg-gray-500/10 rounded-full transition-colors group">
               <Bell size={22} className="group-hover:text-yellow-500 transition-colors" />
               {userData.unreadNotifications > 0 && (
                 <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-red-600 text-white text-[10px] font-black flex items-center justify-center rounded-full border-2 border-slate-950">

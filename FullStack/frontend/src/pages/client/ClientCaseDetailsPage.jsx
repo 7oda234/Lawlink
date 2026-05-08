@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Briefcase, CheckCircle, XCircle, User, FileText, MessageSquare, Clock, Download, ChevronDown } from 'lucide-react';
+import { Briefcase, CheckCircle, XCircle, User, FileText, MessageSquare, Clock, Download, ChevronDown, AlertCircle } from 'lucide-react';
 
 const ClientCaseDetailsPage = () => {
   const params = useParams();
@@ -16,46 +16,35 @@ const ClientCaseDetailsPage = () => {
   const BASE_URL = "http://localhost:5000";
 
   /**
-   * 🛠️ الدالة الذكية لمعالجة الصور (الحل النهائي لمنع Error 431)
-   * بتتعامل مع الـ Base64 مباشرة بدون إرهاق السيرفر
+   * 🛠️ الدالة الذكية لمعالجة الصور
    */
   const formatImg = (path) => {
     if (!path || path === "null" || path === "undefined") {
       return 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
     }
-
-    // 1. لو الصورة Base64 (زي حالة يوسف علي)
-    if (path.startsWith('data:image')) {
+    if (path.startsWith('data:image') || path.startsWith('http')) {
       return path;
     }
-
-    // 2. لو الصورة رابط خارجي
-    if (path.startsWith('http')) {
-      return path;
-    }
-
-    // 3. لو الصورة مسار ملف على السيرفر
     let cleanPath = path.replace(/^\/+/, '');
     if (cleanPath.startsWith('uploads/')) {
       return `${BASE_URL}/${cleanPath}`;
     }
-
     return `${BASE_URL}/uploads/${cleanPath}`;
   };
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchCaseDetails = async () => {
       const cleanId = routeId ? routeId.toString().replace(':', '') : null;
-      
       if (!cleanId || cleanId === 'undefined') {
         setLoading(false);
         return;
       }
 
       try {
-        setLoading(true);
-        // 1. جلب تفاصيل القضية
-        const res = await axios.get(`${BASE_URL}/api/cases`);
+        // ✅ إضافة timestamp لمنع المتصفح من حفظ الداتا القديمة (Cache Busting)
+        const timestamp = new Date().getTime();
+        const res = await axios.get(`${BASE_URL}/api/cases?t=${timestamp}`);
+        
         const allCases = res.data.cases || [];
         const found = allCases.find(c => c.case_id.toString() === cleanId);
         
@@ -63,8 +52,8 @@ const ClientCaseDetailsPage = () => {
           setCaseData(found);
         }
 
-        // 2. جلب ملفات القضية من الداتابيز
-        const docsRes = await axios.get(`${BASE_URL}/api/documents/case/${cleanId}`).catch(() => null);
+        // جلب الملفات
+        const docsRes = await axios.get(`${BASE_URL}/api/documents/case/${cleanId}?t=${timestamp}`).catch(() => null);
         if (docsRes && docsRes.data) {
           const fetchedDocs = docsRes.data.data || docsRes.data.documents || docsRes.data;
           if (Array.isArray(fetchedDocs)) {
@@ -78,7 +67,13 @@ const ClientCaseDetailsPage = () => {
         setLoading(false);
       }
     };
-    fetchData();
+
+    // جلب البيانات أول مرة
+    fetchCaseDetails();
+
+    // ✅ تفعيل التحديث التلقائي (Polling) كل 3 ثواني عشان العميل يجيله العرض فوراً
+    const interval = setInterval(fetchCaseDetails, 3000);
+    return () => clearInterval(interval);
   }, [routeId]);
 
   const handleResponse = async (response) => {
@@ -104,12 +99,12 @@ const ClientCaseDetailsPage = () => {
   const formatDate = (dateString) => {
     if (!dateString) return 'غير متوفر';
     const date = new Date(dateString);
-    return date.toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' });
+    return date.toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
   };
 
-  if (loading) return (
+  if (loading && !caseData) return (
     <div className="min-h-screen flex items-center justify-center bg-slate-950">
-      <div className="text-yellow-500 font-black italic animate-pulse text-2xl uppercase">
+      <div className="text-yellow-500 font-black italic animate-pulse text-2xl uppercase tracking-widest">
         LAWLINK IS LOADING...
       </div>
     </div>
@@ -121,9 +116,15 @@ const ClientCaseDetailsPage = () => {
     </div>
   );
 
-  const statusLower = caseData.status ? caseData.status.toLowerCase() : '';
-  const isAwaitingApproval = statusLower === 'awaiting_client_approval' || statusLower === 'pending';
-  const isOngoing = statusLower === 'ongoing' || statusLower === 'in_progress';
+  // ✅ تحديد حالة القضية بدقة شديدة
+  const statusStr = caseData.status || '';
+  const statusClean = statusStr.trim().toLowerCase();
+
+  const isPending = statusClean === 'pending' || statusClean === '';
+  const isAwaitingClient = statusClean === 'awaiting_client_approval';
+  const isAwaitingPayment = statusClean === 'awaiting_payment';
+  const isOngoing = statusClean === 'ongoing' || statusClean === 'in_progress';
+  const isClosed = statusClean === 'closed' || statusClean === 'resolved';
 
   return (
     <div className="min-h-screen pt-28 pb-16 bg-slate-950 text-white px-6 font-['Cairo']" dir="rtl">
@@ -142,27 +143,42 @@ const ClientCaseDetailsPage = () => {
               </p>
             </div>
           </div>
+          
           <div className={`px-4 py-2 rounded-full text-[10px] font-black uppercase italic border ${
-            isOngoing ? 'border-green-500 text-green-500 bg-green-500/10' : 'border-yellow-500 text-yellow-500 bg-yellow-500/10'
+            isOngoing ? 'border-green-500 text-green-500 bg-green-500/10' : 
+            isAwaitingClient || isAwaitingPayment ? 'border-yellow-500 text-yellow-500 bg-yellow-500/10' :
+            'border-slate-500 text-slate-400 bg-slate-800'
           }`}>
-            {caseData.status.replace(/_/g, ' ')}
+            {statusStr ? statusStr.replace(/_/g, ' ').toUpperCase() : 'PENDING'}
           </div>
         </div>
 
         {/* Description */}
         <div className="mb-10 p-6 bg-slate-950/50 rounded-2xl border border-white/5 text-slate-300 text-lg leading-relaxed shadow-inner">
           <h4 className="text-white font-black italic mb-2 text-sm uppercase opacity-50">وصف القضية:</h4>
-          {caseData.description}
+          {caseData.description || "لا يوجد وصف متوفر."}
         </div>
 
-        {/* 1) حالة انتظار العرض - تظهر الأزرار */}
-        {isAwaitingApproval ? (
+        {/* ======================= UI Logic ======================= */}
+
+        {/* 1) حالة "الانتظار" - المحامي لسه ماردش */}
+        {isPending && (
+          <div className="p-10 text-center bg-slate-950/50 rounded-[2rem] border border-white/5 opacity-80 mt-12 shadow-inner">
+            <Clock size={48} className="mx-auto mb-4 text-yellow-500 opacity-50 animate-pulse" />
+            <p className="font-black italic tracking-widest text-lg uppercase">
+              {caseData.lawyer_id ? 'في انتظار مراجعة المحامي للقضية ⏳' : 'جاري البحث عن محامي مناسب 🔍'}
+            </p>
+            <p className="text-sm font-bold opacity-40 mt-2">سيتم إشعارك فوراً عند تحديث الحالة وتلقي العرض.</p>
+          </div>
+        )}
+
+        {/* 2) حالة "موافقة العميل" - المحامي بعت العرض المالي */}
+        {isAwaitingClient && (
           <div className="bg-yellow-500/5 border border-yellow-500/30 p-8 rounded-[2.5rem] relative mt-12 animate-in fade-in zoom-in duration-500 shadow-xl">
-            <div className="absolute -top-4 right-10 bg-yellow-500 text-black text-[10px] font-black px-4 py-1.5 rounded-full uppercase italic shadow-lg">
+            <div className="absolute -top-4 right-10 bg-yellow-500 text-black text-[10px] font-black px-4 py-1.5 rounded-full uppercase italic shadow-lg animate-bounce">
               عرض مالي بانتظار موافقتك
             </div>
             
-            {/* كارت المحامي - مُعدل بالدالة الذكية */}
             <div className="flex items-center gap-4 mb-8 bg-slate-950 p-4 rounded-2xl border border-white/5 w-fit">
               <div className="w-16 h-16 rounded-2xl bg-slate-900 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg overflow-hidden border border-yellow-500/50">
                 <img 
@@ -210,12 +226,25 @@ const ClientCaseDetailsPage = () => {
               </button>
             </div>
           </div>
-        ) 
-        
-        : isOngoing ? (
+        )}
+
+        {/* 3) حالة "انتظار الدفع" - العميل وافق ومستنيين الفيزا */}
+        {isAwaitingPayment && (
+          <div className="p-10 text-center bg-yellow-500/10 rounded-[2rem] border border-yellow-500/30 mt-12 shadow-xl animate-in fade-in">
+            <h3 className="text-2xl font-black italic text-yellow-500 mb-4">في انتظار الدفع 💳</h3>
+            <p className="text-sm font-bold opacity-80 mb-6 text-yellow-100">لقد وافقت على عرض المحامي، يرجى سداد الدفعة المقدمة لبدء العمل في القضية.</p>
+            <button 
+              onClick={() => navigate('/client/payments')} 
+              className="bg-yellow-500 text-black font-black py-4 px-10 rounded-xl italic uppercase hover:scale-105 transition-all shadow-lg shadow-yellow-500/20"
+            >
+              الذهاب لصفحة الدفع الآن
+            </button>
+          </div>
+        )}
+
+        {/* 4) حالة "قيد التنفيذ" - القضية شغالة */}
+        {isOngoing && (
           <div className="mt-12 space-y-6 animate-in slide-in-from-bottom-5 duration-700">
-             
-             {/* حالة القضية ومعلومات المحامي */}
              <div className="bg-green-500/10 border border-green-500/20 p-8 rounded-[2.5rem] flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xl">
                 <div>
                   <h3 className="text-2xl font-black italic text-green-500 mb-2">القضية قيد التنفيذ</h3>
@@ -238,7 +267,6 @@ const ClientCaseDetailsPage = () => {
                 </div>
              </div>
 
-             {/* الإحصائيات (Stats) */}
              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <button 
                   onClick={() => setShowDocs(!showDocs)}
@@ -264,7 +292,6 @@ const ClientCaseDetailsPage = () => {
                 </div>
              </div>
 
-             {/* قائمة المستندات */}
              {showDocs && (
                 <div className="bg-slate-950 p-6 rounded-2xl border border-white/10 animate-in fade-in slide-in-from-top-4 shadow-2xl">
                   <h4 className="font-black italic mb-4 text-yellow-500 border-b border-white/10 pb-2 flex items-center gap-2">
@@ -297,15 +324,17 @@ const ClientCaseDetailsPage = () => {
                   </div>
                 </div>
              )}
-
           </div>
-        ) 
-        
-        : (
-          <div className="p-10 text-center bg-slate-950/50 rounded-[2rem] border border-white/5 opacity-50 mt-12">
-            <p className="font-black italic tracking-widest text-sm uppercase">
-              STATUS: {caseData.status ? caseData.status.replace(/_/g, ' ') : 'UNKNOWN'}
+        )}
+
+        {/* Fallback - في حالة إن الحالة مش متعرفة صح */}
+        {!isPending && !isAwaitingClient && !isAwaitingPayment && !isOngoing && !isClosed && (
+          <div className="p-10 text-center bg-slate-950/50 rounded-[2rem] border border-red-500/30 mt-12 shadow-inner">
+            <AlertCircle size={48} className="mx-auto mb-4 text-red-500 opacity-50" />
+            <p className="font-black italic tracking-widest text-lg uppercase text-red-500">
+              STATUS ERROR: {statusStr || 'EMPTY'}
             </p>
+            <p className="text-sm font-bold opacity-60 mt-2">يرجى التواصل مع الدعم الفني، هناك خطأ في حالة القضية.</p>
           </div>
         )}
 

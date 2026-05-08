@@ -15,6 +15,9 @@ import paymentRouter from "../modules/Payment/payment.routes.js";
 // 📅 موديول المواعيد 
 import appointmentRouter from "../modules/Appointment/appointment.routes.js"; 
 
+// 🔔 موديول الإشعارات (الجديد)
+import notificationRouter from "../modules/Notification_folder/notification.routes.js"; // 👈 استيراد مسار الإشعارات
+
 // ❌ (تم إيقافه - كود قديم) 
 // import OpenAI from "openai";
 
@@ -34,10 +37,10 @@ export const setupAppRoutes = (app) => {
     // 💬 موديول المراسلات
     app.use("/api/messages", messageRouter);
 
-    // � موديول قاعدة المعرفة
+    // 📚 موديول قاعدة المعرفة
     app.use("/api/knowledge-base", knowledgeBaseRouter);
 
-    // �📁 موديول المستندات
+    // 📁 موديول المستندات
     app.use("/api/documents", documentsRouter);
 
     // 💳 موديول المدفوعات
@@ -46,6 +49,9 @@ export const setupAppRoutes = (app) => {
     // 📅 موديول المواعيد 
     app.use("/api/appointments", appointmentRouter);
     
+    // 🔔 موديول الإشعارات 
+    app.use("/api/notifications", notificationRouter); // 👈 ربط الـ API بتاع الإشعارات بالسيستم
+
     // 🤖 الكود الجديد: موديول الذكاء الاصطناعي (المربوط مع React وسيرفر البايثون)
     app.use('/api/v1/ai-tools', aiRouter);
 

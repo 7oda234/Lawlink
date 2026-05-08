@@ -56,3 +56,10 @@ export const deleteAppointment = async (appointmentId) => {
   const res = await runQuery(sql, [appointmentId]);
   return res.affectedRows > 0;
 };
+
+// 6. جلب بيانات ميعاد محدد (لإرسال الإشعارات عند التعديل)
+export const getAppointmentById = async (appointmentId) => {
+  const sql = `SELECT * FROM appointment WHERE appointment_id = ?`;
+  const res = await runQuery(sql, [appointmentId]);
+  return res.length > 0 ? res[0] : null;
+};

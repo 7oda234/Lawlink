@@ -1,4 +1,5 @@
 import * as paymentsService from "./payment.service.js";
+import * as notificationService from "../Notification_folder/notification.service.js"; // 👈 استيراد الإشعارات
 
 export const handleVisaPayment = async (req, res) => {
   try {
@@ -18,6 +19,11 @@ export const handleVisaPayment = async (req, res) => {
 
     // 5. إصدار الفاتورة تلقائياً
     const invoice = await paymentsService.createInvoice(paymentId);
+
+    // 🔔 إشعار للمحامي بوصول الفلوس وبدء القضية
+    if (lawyerId) {
+      await notificationService.createNotification(lawyerId, `تم إضافة ${initialPaidAmount} جنيه إلى محفظتك. القضية الآن قيد العمل 🚀`);
+    }
 
     res.status(200).json({
       ok: true,

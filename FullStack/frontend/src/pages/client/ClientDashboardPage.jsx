@@ -10,7 +10,8 @@ import {
   ChevronRight,
   Gavel,
   Clock,
-  Sparkles 
+  Sparkles,
+  FileText // 👈 تم إضافة الأيقونة هنا
 } from 'lucide-react';
 import { useLanguage } from '../../context/useLanguage';
 import { useTheme } from '../../context/ThemeContext';
@@ -114,7 +115,9 @@ const ClientDashboardPage = () => {
         {/* Quick Actions Bar */}
         <div className="mb-12">
             <h2 className="client-label !mb-6 opacity-40 italic !text-xs uppercase tracking-widest">{isRTL ? 'إجراءات سريعة' : 'Quick Actions'}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            
+            {/* 👈 التعديل هنا: تم جعل الـ Grid يستوعب 5 عناصر ليتناسب مع زرار العروض الجديد */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
                 
                 {/* Submit New Case */}
                 <Link to="/client/cases/new" className="group relative flex items-center justify-between p-6 bg-yellow-500 rounded-3xl transition-all hover:scale-[1.02] hover:shadow-2xl shadow-yellow-500/20">
@@ -134,14 +137,28 @@ const ClientDashboardPage = () => {
                   <ChevronRight size={20} className="text-black/50 group-hover:translate-x-1 transition-transform" />
                 </Link>
 
-                {/* 🌟 الزرار المطابق تماماً لصورة العميل: Book Meeting */}
+                {/* 🌟 زرار عروض المحامين (تم إضافته) */}
+                <Link to="/client/cases" className="group relative flex items-center justify-between p-6 bg-slate-900 border border-white/5 rounded-3xl transition-all hover:scale-[1.02] hover:border-orange-500/50 shadow-xl">
+                    <div className="flex items-center gap-4">
+                        <div className="w-14 h-14 rounded-2xl bg-slate-950 flex items-center justify-center border border-white/10 group-hover:border-orange-500/30 transition-colors">
+                            <FileText size={24} className="text-orange-500" />
+                        </div>
+                        <div>
+                            <p className="text-white font-black italic text-lg leading-tight tracking-wide">{isRTL ? 'عروض المحامين' : 'Lawyer Offers'}</p>
+                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">{isRTL ? 'مراجعة الأسعار' : 'Review Quotes'}</p>
+                        </div>
+                    </div>
+                    <ChevronRight size={20} className="text-slate-600 group-hover:text-orange-500 group-hover:translate-x-1 transition-all" />
+                </Link>
+
+                {/* Book Meeting */}
                 <Link to="/client/appointments" className="group relative flex items-center justify-between p-6 bg-slate-900 border border-white/5 rounded-3xl transition-all hover:scale-[1.02] hover:border-yellow-500/50 shadow-xl">
                     <div className="flex items-center gap-4">
                         <div className="w-14 h-14 rounded-2xl bg-slate-950 flex items-center justify-center border border-white/10 group-hover:border-yellow-500/30 transition-colors">
                             <Calendar size={24} className="text-yellow-500" />
                         </div>
                         <div>
-                            <p className="text-white font-black italic text-xl leading-tight tracking-wide">Book Meeting</p>
+                            <p className="text-white font-black italic text-lg leading-tight tracking-wide">Book Meeting</p>
                             <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">Meet a Specialist</p>
                         </div>
                     </div>

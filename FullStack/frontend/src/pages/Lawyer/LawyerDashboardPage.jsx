@@ -115,12 +115,19 @@ const LawyerDashboardPage = () => {
           ))}
         </div>
 
-        {/* Quick Access */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        {/* Quick Access - تم تعديل الـ Grid ليستوعب 6 عناصر بشكل متناسق */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
           <Link to="/lawyer/cases" className="group p-6 bg-yellow-500 rounded-[2rem] transition-all hover:scale-[1.03] shadow-xl shadow-yellow-500/10">
             <Briefcase size={28} className="text-black mb-4" />
             <h3 className="text-black font-black italic text-base uppercase leading-tight">{isRTL ? 'القضايا' : 'My Cases'}</h3>
             <p className="text-black/50 text-[9px] font-bold uppercase mt-1">{isRTL ? 'إدارة الملفات' : 'Folder Manager'}</p>
+          </Link>
+
+          {/* ✅ زرار الـ Offers اللي كان ناقص */}
+          <Link to="/lawyer/offers" className="group p-6 bg-slate-900 border border-white/5 rounded-[2rem] transition-all hover:scale-[1.03] hover:border-orange-500/50 shadow-xl shadow-orange-500/5 flex flex-col justify-center">
+              <DollarSign size={28} className="text-orange-500 mb-3 group-hover:scale-110 transition-transform" />
+              <h3 className="text-white font-black italic text-base uppercase leading-tight tracking-wide">{isRTL ? 'عروض الأسعار' : 'My Offers'}</h3>
+              <p className="text-slate-400 text-[9px] font-bold uppercase tracking-widest mt-1">{isRTL ? 'إدارة الطلبات' : 'Manage Requests'}</p>
           </Link>
 
           <Link to="/lawyer/messages" className="group p-6 bg-slate-900 border border-white/5 rounded-[2rem] transition-all hover:scale-[1.03] hover:border-emerald-500/50">
@@ -131,8 +138,8 @@ const LawyerDashboardPage = () => {
 
           <Link to="/lawyer/appointments" className="group p-6 bg-slate-900 border border-white/5 rounded-[2rem] transition-all hover:scale-[1.03] hover:border-blue-500/50 shadow-xl shadow-blue-500/5 flex flex-col justify-center">
               <Calendar size={28} className="text-blue-500 mb-3 group-hover:rotate-12 transition-transform" />
-              <h3 className="text-white font-black italic text-xl uppercase leading-tight tracking-wide">BOOK & EDIT</h3>
-              <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">SCHEDULE CONTROL</p>
+              <h3 className="text-white font-black italic text-base uppercase leading-tight tracking-wide">{isRTL ? 'تحديد موعد' : 'Book'}</h3>
+              <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest mt-1">{isRTL ? 'تحكم بالمواعيد' : 'SCHEDULE CONTROL'}</p>
           </Link>
 
           <Link to="/lawyer/calendar" className="group p-6 bg-slate-900 border border-white/5 rounded-[2rem] transition-all hover:scale-[1.03] hover:border-purple-500/50">

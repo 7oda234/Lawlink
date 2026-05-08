@@ -1,4 +1,5 @@
 import * as appService from "./appointment.service.js";
+import * as notificationService from "../Notification_folder/notification.service.js"; // 👈 استيراد الإشعارات
 
 // حجز ميعاد مع التحقق من التبعية للقضية
 export const bookAppointment = async (req, res) => {
@@ -14,6 +15,12 @@ export const bookAppointment = async (req, res) => {
     }
 
     const appointmentId = await appService.createAppointment(appointmentDate, clientId, lawyerId, caseId);
+    
+    // 🔔 إشعار للمحامي والعميل بتأكيد الميعاد
+    const msg = `تم حجز موعد جديد يوم ${appointmentDate} 📅`;
+    await notificationService.createNotification(lawyerId, msg);
+    await notificationService.createNotification(clientId, msg);
+
     res.status(201).json({ ok: true, message: "تم حجز الميعاد بنجاح ✅", appointmentId });
   } catch (err) { 
       res.status(500).json({ ok: false, message: err.message }); 
@@ -39,6 +46,16 @@ export const modifyAppointment = async (req, res) => {
     const isSuccess = await appService.updateAppointment(appointmentId, appointmentDate, status);
     
     if (!isSuccess) return res.status(404).json({ ok: false, message: "الميعاد غير موجود" });
+
+    // 🔔 جلب بيانات الميعاد عشان نبعت الإشعارات للطرفين
+    const appointmentDetails = await appService.getAppointmentById(appointmentId);
+    if (appointmentDetails) {
+        const { client_id, lawyer_id } = appointmentDetails;
+        const msg = `تم تعديل موعد المقابلة إلى ${appointmentDate} 🔄`;
+        await notificationService.createNotification(client_id, msg);
+        await notificationService.createNotification(lawyer_id, msg);
+    }
+
     res.status(200).json({ ok: true, message: "تم تحديث الميعاد بنجاح ✏️" });
   } catch (err) { 
       res.status(500).json({ ok: false, message: err.message }); 
