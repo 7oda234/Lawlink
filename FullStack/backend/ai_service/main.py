@@ -66,12 +66,17 @@ async def contract_review(file: UploadFile = File(...)):
         # بنقرأ ملف الـ PDF ونطلع الكلام اللي جواه
         pdf_content = await file.read()
         pdf_reader = PdfReader(io.BytesIO(pdf_content))
-        contract_text = "".join([page.extract_text() for page in pdf_reader.pages])
+        contract_text = "".join([page.extract_text() or "" for page in pdf_reader.pages])
+
+        if not contract_text.strip():
+            raise HTTPException(status_code=400, detail='لم يتم استخراج نص من ملف PDF. الرجاء رفع ملف PDF يحتوي على نص قابل للقراءة.')
         
         # بنخلي الذكاء الاصطناعي يحلل الالتزامات والمخاطر
         prompt = f"راجع العقد ده بالقانون المصري وطلعلي الالتزامات والمخاطر والبنود اللي ناقصة.\n\nنص العقد: {contract_text}"
         response = model.generate_content(prompt)
         return {"status": "success", "analysis": response.text}
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
