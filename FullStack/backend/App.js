@@ -2,19 +2,26 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import path from 'path';
+import { fileURLToPath } from 'url'; // 👈 استيراد مهم جداً لمسارات ES Modules
 import { activityLogger } from './middleware/audit.js';
 import { setupAppRoutes } from './controllers/app.controller.js';
+
+// ==========================================
+// 📍 تحديد المسار المطلق للمشروع (أدق من process.cwd)
+// ==========================================
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export const bootstrap = () => {
     const app = express();
 
     // ==========================================
-    // ✅ الحل الجذري لمشكلة مسار الـ Uploads
+    // ✅ الحل الجذري والنهائي لمسار الصور والملفات
     // ==========================================
-    // process.cwd() بيشاور على المجلد الرئيسي للمشروع (backend)
-    app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+    // السطر ده بيخلي السيرفر يفتح فولدر uploads للمتصفح عشان يعرض الصور والـ PDF
+    app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-    // Middlewares الأساسية
+    // Middlewares الأساسية (الشغل القديم بتاعك)
     // قفلنا حماية الـ Cross-Origin للريسورسز عشان React يقدر يقرأ الـ PDF
     app.use(helmet({
         crossOriginResourcePolicy: false,

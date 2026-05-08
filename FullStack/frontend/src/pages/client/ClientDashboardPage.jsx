@@ -10,7 +10,7 @@ import {
   ChevronRight,
   Gavel,
   Clock,
-  Sparkles // أيقونة للذكاء الاصطناعي
+  Sparkles 
 } from 'lucide-react';
 import { useLanguage } from '../../context/useLanguage';
 import { useTheme } from '../../context/ThemeContext';
@@ -111,61 +111,62 @@ const ClientDashboardPage = () => {
           ))}
         </div>
 
-        {/* ✅ المطور: Quick Actions Bar الجديد */}
+        {/* Quick Actions Bar */}
         <div className="mb-12">
             <h2 className="client-label !mb-6 opacity-40 italic !text-xs uppercase tracking-widest">{isRTL ? 'إجراءات سريعة' : 'Quick Actions'}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 
                 {/* Submit New Case */}
                 <Link to="/client/cases/new" className="group relative flex items-center justify-between p-6 bg-yellow-500 rounded-3xl transition-all hover:scale-[1.02] hover:shadow-2xl shadow-yellow-500/20">
-            <div className="flex items-center gap-4">
-                <div className="p-3 bg-black/10 rounded-2xl group-hover:bg-black/20 transition-colors">
-                    <Plus size={24} className="text-black" />
-                </div>
-                <div>
-                    <p className="text-black font-black italic text-lg leading-tight">
-                        {isRTL ? 'رفع قضية' : 'Submit Case'}
-                    </p>
-                    <p className="text-black/70 text-[10px] font-bold uppercase mt-1">
-                        {isRTL ? 'بدء إجراءات قانونية' : 'Start legal action'}
-                    </p>
-                </div>
-            </div>
-            <ChevronRight size={20} className="text-black/50 group-hover:translate-x-1 transition-transform" />
-        </Link>
+                  <div className="flex items-center gap-4">
+                      <div className="p-3 bg-black/10 rounded-2xl group-hover:bg-black/20 transition-colors">
+                          <Plus size={24} className="text-black" />
+                      </div>
+                      <div>
+                          <p className="text-black font-black italic text-lg leading-tight">
+                              {isRTL ? 'رفع قضية' : 'Submit Case'}
+                          </p>
+                          <p className="text-black/70 text-[10px] font-bold uppercase mt-1">
+                              {isRTL ? 'بدء إجراءات' : 'Start legal action'}
+                          </p>
+                      </div>
+                  </div>
+                  <ChevronRight size={20} className="text-black/50 group-hover:translate-x-1 transition-transform" />
+                </Link>
 
-                {/* Book Appointment */}
-                <Link to="/find-lawyer" className="group relative flex items-center justify-between p-6 bg-slate-900 border border-white/5 rounded-3xl transition-all hover:scale-[1.02] hover:border-yellow-500/50">
+                {/* 🌟 الزرار المطابق تماماً لصورة العميل: Book Meeting */}
+                <Link to="/client/appointments" className="group relative flex items-center justify-between p-6 bg-slate-900 border border-white/5 rounded-3xl transition-all hover:scale-[1.02] hover:border-yellow-500/50 shadow-xl">
                     <div className="flex items-center gap-4">
-                        <div className="p-3 bg-white/5 rounded-2xl group-hover:bg-yellow-500/10 transition-colors">
+                        <div className="w-14 h-14 rounded-2xl bg-slate-950 flex items-center justify-center border border-white/10 group-hover:border-yellow-500/30 transition-colors">
                             <Calendar size={24} className="text-yellow-500" />
                         </div>
                         <div>
-                            <p className="text-white font-black italic text-lg leading-tight">{isRTL ? 'حجز موعد' : 'Book Meeting'}</p>
-                            <p className="text-white/40 text-[10px] font-bold uppercase">{isRTL ? 'مقابلة محامي متخصص' : 'Meet a specialist'}</p>
+                            <p className="text-white font-black italic text-xl leading-tight tracking-wide">Book Meeting</p>
+                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">Meet a Specialist</p>
                         </div>
                     </div>
-                    <ChevronRight size={20} className="text-white/20 group-hover:translate-x-1 transition-transform" />
+                    <ChevronRight size={20} className="text-slate-600 group-hover:text-yellow-500 group-hover:translate-x-1 transition-all" />
                 </Link>
-                {/* NEW: Chat with Lawyer - لون أخضر مريح للمراسلات */}
-        <Link to="/client/messages" className="group relative flex items-center justify-between p-6 bg-emerald-600 rounded-3xl transition-all hover:scale-[1.02] hover:shadow-2xl shadow-emerald-600/30">
-            <div className="flex items-center gap-4">
-                <div className="p-3 bg-white/10 rounded-2xl group-hover:bg-white/20 transition-colors">
-                    <MessageSquare size={24} className="text-white" />
-                </div>
-                <div>
-                    <p className="text-white font-black italic text-lg leading-tight">
-                        {isRTL ? 'مراسلة محامي' : 'Chat with Lawyer'}
-                    </p>
-                    <p className="text-emerald-100/70 text-[10px] font-bold uppercase mt-1">
-                        {isRTL ? 'تواصل مباشر مع محاميك' : 'Direct communication'}
-                    </p>
-                </div>
-            </div>
-            <ChevronRight size={20} className="text-white/50 group-hover:translate-x-1 transition-transform" />
-        </Link>
 
-                {/* AI Chatbot - الميزة الجديدة */}
+                {/* Chat with Lawyer */}
+                <Link to="/client/messages" className="group relative flex items-center justify-between p-6 bg-emerald-600 rounded-3xl transition-all hover:scale-[1.02] hover:shadow-2xl shadow-emerald-600/30">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-white/10 rounded-2xl group-hover:bg-white/20 transition-colors">
+                            <MessageSquare size={24} className="text-white" />
+                        </div>
+                        <div>
+                            <p className="text-white font-black italic text-lg leading-tight">
+                                {isRTL ? 'مراسلة محامي' : 'Chat Lawyer'}
+                            </p>
+                            <p className="text-emerald-100/70 text-[10px] font-bold uppercase mt-1">
+                                {isRTL ? 'تواصل مباشر' : 'Direct comms'}
+                            </p>
+                        </div>
+                    </div>
+                    <ChevronRight size={20} className="text-white/50 group-hover:translate-x-1 transition-transform" />
+                </Link>
+
+                {/* AI Chatbot */}
                 <Link to="/ai-chat" className="group relative flex items-center justify-between p-6 bg-indigo-600 rounded-3xl transition-all hover:scale-[1.02] hover:shadow-2xl shadow-indigo-600/30">
                     <div className="flex items-center gap-4">
                         <div className="p-3 bg-white/10 rounded-2xl group-hover:bg-white/20 transition-colors">
@@ -182,6 +183,7 @@ const ClientDashboardPage = () => {
             </div>
         </div>
 
+        {/* ... باقي الأقسام ... */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
           <div className="lg:col-span-2 client-card !p-8">
             <div className="flex items-center justify-between mb-8">
@@ -259,7 +261,7 @@ const ClientDashboardPage = () => {
                 </div>
               )}
             </div>
-            <button onClick={() => navigate('/find-lawyer')} className="w-full mt-6 py-4 border border-dashed border-yellow-500/30 rounded-2xl text-[10px] font-black uppercase italic text-yellow-500 hover:bg-yellow-500 hover:text-black transition-all">
+            <button onClick={() => navigate('/client/appointments')} className="w-full mt-6 py-4 border border-dashed border-yellow-500/30 rounded-2xl text-[10px] font-black uppercase italic text-yellow-500 hover:bg-yellow-500 hover:text-black transition-all">
                 Schedule Meeting
             </button>
           </div>

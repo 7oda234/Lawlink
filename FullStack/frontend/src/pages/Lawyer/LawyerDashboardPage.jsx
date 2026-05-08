@@ -67,7 +67,7 @@ const LawyerDashboardPage = () => {
     <div className={`min-h-screen p-4 md:p-8 pt-24 ${isDark ? 'bg-[#0a0c10] text-white' : 'bg-slate-50 text-slate-900'}`} dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-7xl mx-auto space-y-10">
         
-        {/* ✅ الـ Stats القديمة (زي ما هي في صورة image_b6afcd.png) */}
+        {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
             { label: 'ACTIVE CASES', value: cases.length, icon: Briefcase, color: 'text-blue-500' },
@@ -86,7 +86,7 @@ const LawyerDashboardPage = () => {
           ))}
         </div>
 
-        {/* 🚀 الـ Quick Access المطور (بناءً على طلبك الأخير) */}
+        {/* Quick Access */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           <Link to="/lawyer/cases" className="group p-6 bg-yellow-500 rounded-[2rem] transition-all hover:scale-[1.03] shadow-xl shadow-yellow-500/10">
             <Briefcase size={28} className="text-black mb-4" />
@@ -100,11 +100,11 @@ const LawyerDashboardPage = () => {
             <p className="text-white/30 text-[9px] font-bold uppercase mt-1">{isRTL ? 'رد مباشر' : 'Live response'}</p>
           </Link>
 
-          {/* زر حجز أو تعديل المواعيد للمحامي */}
-          <Link to="/lawyer/appointments/manage" className="group p-6 bg-slate-900 border border-white/5 rounded-[2rem] transition-all hover:scale-[1.03] hover:border-blue-500/50 shadow-xl shadow-blue-500/5">
-            <Calendar size={28} className="text-blue-500 mb-4 group-hover:rotate-12 transition-transform" />
-            <h3 className="text-white font-black italic text-base uppercase leading-tight">{isRTL ? 'حجز / تعديل' : 'Book & Edit'}</h3>
-            <p className="text-white/30 text-[9px] font-bold uppercase mt-1">{isRTL ? 'إدارة المواعيد' : 'Schedule Control'}</p>
+          {/* 🌟 الزرار المطابق تماماً لصورة المحامي: BOOK & EDIT */}
+          <Link to="/lawyer/appointments" className="group p-6 bg-slate-900 border border-white/5 rounded-[2rem] transition-all hover:scale-[1.03] hover:border-blue-500/50 shadow-xl shadow-blue-500/5 flex flex-col justify-center">
+              <Calendar size={28} className="text-blue-500 mb-3 group-hover:rotate-12 transition-transform" />
+              <h3 className="text-white font-black italic text-xl uppercase leading-tight tracking-wide">BOOK & EDIT</h3>
+              <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">SCHEDULE CONTROL</p>
           </Link>
 
           <Link to="/lawyer/calendar" className="group p-6 bg-slate-900 border border-white/5 rounded-[2rem] transition-all hover:scale-[1.03] hover:border-purple-500/50">
@@ -120,10 +120,9 @@ const LawyerDashboardPage = () => {
           </Link>
         </div>
 
-        {/* ✅ الأقسام الرئيسية: المواعيد المفتوحة والرسائل */}
+        {/* Sections */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           
-          {/* قسم المواعيد بتفاصيل العميل والقضية */}
           <div className="bg-slate-900/40 rounded-[3rem] p-10 border border-white/5">
             <h3 className="text-xl font-black italic mb-8 uppercase flex items-center gap-2">
               <Calendar className="text-blue-500" size={20} />
@@ -135,15 +134,17 @@ const LawyerDashboardPage = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 rounded-2xl bg-slate-950 flex items-center justify-center font-black text-yellow-500 border border-white/5 uppercase">
-                        {app.client_name?.substring(0, 1)}
+                        {app.partner_name?.substring(0, 1) || 'C'}
                       </div>
                       <div>
-                        <p className="text-sm font-black italic uppercase text-white">{app.client_name}</p>
+                        <p className="text-sm font-black italic uppercase text-white">{app.partner_name}</p>
                         <p className="text-[10px] font-bold opacity-40 uppercase mt-1 tracking-widest">{app.case_title}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-black italic text-yellow-500">{app.appointment_time}</p>
+                      <p className="text-sm font-black italic text-yellow-500">
+                        {new Date(app.appointment_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </p>
                       <p className="text-[8px] font-black uppercase opacity-40">{new Date(app.appointment_date).toLocaleDateString()}</p>
                     </div>
                   </div>
@@ -152,7 +153,6 @@ const LawyerDashboardPage = () => {
             </div>
           </div>
 
-          {/* قسم الرسائل مع زر Reply شغال */}
           <div className="bg-slate-900/40 rounded-[3rem] p-10 border border-white/5">
             <h3 className="text-xl font-black italic mb-8 uppercase flex items-center gap-2">
               <MessageSquare className="text-emerald-500" size={20} />
@@ -163,7 +163,7 @@ const LawyerDashboardPage = () => {
                 <div key={msg.case_id} className="flex items-center justify-between p-5 rounded-[2rem] bg-white/5 hover:bg-white/[0.08] transition-all group">
                   <div className="flex items-center gap-4">
                     <div className="w-14 h-14 rounded-full bg-emerald-500/10 flex items-center justify-center font-black text-emerald-500 text-lg uppercase">
-                        {msg.client_name?.substring(0, 1)}
+                        {msg.client_name?.substring(0, 1) || 'C'}
                     </div>
                     <div>
                       <h4 className="font-black italic text-sm text-white">{msg.client_name}</h4>
@@ -182,7 +182,6 @@ const LawyerDashboardPage = () => {
           </div>
 
         </div>
-
       </div>
     </div>
   );
