@@ -5,21 +5,21 @@ import { Calendar, Clock, User, Edit, Briefcase, Plus } from 'lucide-react';
 const ClientAppointmentsPage = () => {
   const [appointments, setAppointments] = useState([]);
   const [linkedCases, setLinkedCases] = useState([]);
-  
   const [newAppt, setNewAppt] = useState({ caseId: '', date: '' });
   const [editingAppt, setEditingAppt] = useState(null);
   const [editDate, setEditDate] = useState('');
 
   const userId = localStorage.getItem('userId');
+  const BASE_URL = "http://localhost:5000";
 
   const fetchData = async () => {
     try {
-      // جلب المواعيد باستخدام الـ Route الخاص بك
-      const apptRes = await axios.get(`http://localhost:5000/api/appointments/list?userId=${userId}&role=client`);
+      // جلب المواعيد الخاصة بالعميل
+      const apptRes = await axios.get(`${BASE_URL}/api/appointments/list?userId=${userId}&role=client`);
       if (apptRes.data.ok) setAppointments(apptRes.data.data);
 
-      // جلب قضايا العميل المربوطة بمحامين فقط
-      const casesRes = await axios.get(`http://localhost:5000/api/cases`);
+      // جلب القضايا المفتوحة والمربوطة بمحامي
+      const casesRes = await axios.get(`${BASE_URL}/api/cases`);
       const active = casesRes.data.cases.filter(c => c.client_id == userId && c.lawyer_id != null);
       setLinkedCases(active);
     } catch (err) {
@@ -27,132 +27,161 @@ const ClientAppointmentsPage = () => {
     }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { 
+    fetchData(); 
+  }, []);
 
-  // حجز ميعاد (POST /api/appointments/book)
-  const handleBook = async (e) => {
+  /**
+   * 🛠️ الدالة الذكية لحل مشكلة ظهور الصور (يوسف علي) 
+   * بتتعامل مع الـ Base64 مباشرة عشان تتجنب Error 431
+   */
+  const formatImg = (path) => {
+    if (!path || path === "null" || path === "undefined") {
+      return 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+    }
+
+    // 1. لو الصورة عبارة عن كود Base64 (زي حالة يوسف علي)
+    // بنرجعها زي ما هي عشان الـ Browser يعرضها فوراً
+    if (path.startsWith('data:image')) {
+      return path;
+    }
+
+    // 2. لو الصورة رابط خارجي كامل
+    if (path.startsWith('http')) {
+      return path;
+    }
+
+    // 3. لو الصورة مسار ملف على السيرفر (زي حالة سارة الحلي)
+    // بننظف المسار ونضيف الـ BASE_URL مرة واحدة بس
+    let cleanPath = path.replace(/^\/+/, '');
+    if (cleanPath.startsWith('uploads/')) {
+      return `${BASE_URL}/${cleanPath}`;
+    }
+
+    return `${BASE_URL}/uploads/${cleanPath}`;
+  };
+
+  const handleCreateSubmit = async (e) => {
     e.preventDefault();
-    const selectedCase = linkedCases.find(c => c.case_id == newAppt.caseId);
-    if (!selectedCase) return alert("اختر قضية صالحة");
-
     try {
-      await axios.post('http://localhost:5000/api/appointments/book', {
-        appointmentDate: newAppt.date, // 👈 متطابق مع الباك إند
+      const selectedCase = linkedCases.find(c => c.case_id == newAppt.caseId);
+      const res = await axios.post(`${BASE_URL}/api/appointments/book`, {
+        appointmentDate: newAppt.date,
         clientId: userId,
         lawyerId: selectedCase.lawyer_id,
-        caseId: selectedCase.case_id
+        caseId: newAppt.caseId
       });
-      alert("تم حجز الموعد بنجاح! 📅");
-      setNewAppt({ caseId: '', date: '' });
-      fetchData();
-    } catch (err) { 
-        alert(err.response?.data?.message || "حدث خطأ أثناء الحجز"); 
+      if (res.data.ok) {
+        setNewAppt({ caseId: '', date: '' });
+        fetchData();
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || "خطأ في عملية الحجز");
     }
   };
 
-  // تعديل ميعاد (PUT /api/appointments/update/:id)
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:5000/api/appointments/update/${editingAppt.appointment_id}`, {
+      const res = await axios.put(`${BASE_URL}/api/appointments/update/${editingAppt.appointment_id}`, {
         appointmentDate: editDate,
-        status: 'Rescheduled' // 👈 الحالة بتتغير لـ Rescheduled أوتوماتيك
+        status: 'Rescheduled'
       });
-      alert("تم تعديل الموعد بنجاح 🔄");
-      setEditingAppt(null);
-      fetchData();
-    } catch (err) { alert("حدث خطأ أثناء التعديل"); }
-  };
-
-  const formatForInput = (dateString) => {
-    const d = new Date(dateString);
-    return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+      if (res.data.ok) {
+        setEditingAppt(null);
+        fetchData();
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
-    <div className="min-h-screen pt-28 pb-16 bg-slate-950 text-white px-6" dir="rtl">
-      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-10">
-        
-        {/* عمود الحجز الجديد */}
-        <div className="bg-slate-900 p-8 rounded-[2.5rem] border border-white/5 h-fit shadow-2xl">
-          <h2 className="text-2xl font-black italic mb-6 flex items-center gap-3">
-            <Calendar className="text-yellow-500" /> حجز موعد للمتابعة
+    <div className="min-h-screen bg-slate-900 text-white p-8 font-['Cairo']" dir="rtl">
+      <div className="max-w-6xl mx-auto">
+        <h1 className="text-4xl font-black mb-8 text-yellow-500 flex items-center gap-3">
+          <Calendar size={40} /> مواعيدي القانونية
+        </h1>
+
+        {/* 📋 نموذج حجز موعد جديد */}
+        <div className="bg-slate-800/50 p-8 rounded-[2.5rem] border border-white/5 mb-12 shadow-2xl backdrop-blur-sm">
+          <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+            <Plus className="text-yellow-500" /> حجز جلسة استشارة جديدة
           </h2>
-          {linkedCases.length === 0 ? (
-            <p className="text-sm text-yellow-500 bg-yellow-500/10 p-4 rounded-xl border border-yellow-500/20 italic">
-              عذراً، يجب أن يكون لديك قضية قيد العمل مع محامي لتتمكن من حجز موعد.
-            </p>
-          ) : (
-            <form onSubmit={handleBook} className="space-y-5">
-              <div>
-                <label className="block text-xs font-bold text-slate-400 mb-2 uppercase">اختر القضية والمحامي</label>
-                <select 
-                  required 
-                  value={newAppt.caseId} 
-                  onChange={(e) => setNewAppt({ ...newAppt, caseId: e.target.value })}
-                  className="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 focus:outline-none focus:border-yellow-500 text-sm"
-                >
-                  <option value="">-- اختر القضية --</option>
-                  {linkedCases.map(c => (
-                    <option key={c.case_id} value={c.case_id}>
-                      {c.title} (المحامي: {c.lawyer_name})
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-400 mb-2 uppercase">التاريخ والوقت</label>
-                <input 
-                  type="datetime-local" required
-                  value={newAppt.date} onChange={(e) => setNewAppt({ ...newAppt, date: e.target.value })}
-                  className="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 focus:outline-none focus:border-yellow-500" dir="ltr"
-                />
-              </div>
-              <button type="submit" className="w-full bg-yellow-500 text-black font-black py-4 rounded-2xl italic flex items-center justify-center gap-2 hover:bg-yellow-400">
-                <Plus size={20} /> تأكيد الحجز
-              </button>
-            </form>
-          )}
+          <form onSubmit={handleCreateSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <select 
+              required value={newAppt.caseId} 
+              onChange={(e) => setNewAppt({...newAppt, caseId: e.target.value})}
+              className="bg-slate-950 border border-white/10 rounded-xl p-4 focus:outline-none focus:border-yellow-500 text-white transition-all"
+            >
+              <option value="">اختر القضية / المحامي</option>
+              {linkedCases.map(c => (
+                <option key={c.case_id} value={c.case_id}>{c.title} (المحامي: {c.lawyer_name})</option>
+              ))}
+            </select>
+            <input 
+              type="datetime-local" required value={newAppt.date} 
+              onChange={(e) => setNewAppt({...newAppt, date: e.target.value})}
+              className="bg-slate-950 border border-white/10 rounded-xl p-4 focus:outline-none focus:border-yellow-500 text-white" 
+              dir="ltr"
+            />
+            <button type="submit" className="bg-yellow-500 text-black font-black rounded-xl hover:bg-yellow-400 shadow-lg shadow-yellow-500/10 transition-all active:scale-95">
+              تأكيد حجز الموعد
+            </button>
+          </form>
         </div>
 
-        {/* عمود المواعيد الحالية */}
-        <div className="lg:col-span-2 space-y-6">
-          <h2 className="text-3xl font-black italic uppercase tracking-tighter mb-4">مواعيدي القادمة</h2>
-          
-          {appointments.length === 0 ? (
-            <div className="bg-slate-900 p-10 rounded-[2.5rem] border border-white/5 text-center text-slate-500 font-bold">لا توجد مواعيد حالياً.</div>
-          ) : appointments.map((app) => (
-            <div key={app.appointment_id} className="bg-slate-900 p-6 rounded-[2rem] border border-white/5 flex flex-col sm:flex-row items-center gap-6 justify-between hover:border-yellow-500/30 transition-all">
-              
-              <div className="flex items-center gap-5 w-full">
-                <div className="w-16 h-16 rounded-full border-2 border-yellow-500 flex items-center justify-center bg-slate-950 overflow-hidden shrink-0">
-                  {app.partner_image ? <img src={`http://localhost:5000${app.partner_image}`} className="w-full h-full object-cover" /> : <User size={28} className="text-yellow-500/50" />}
+        {/* 🗂️ عرض البطاقات الكحلية للمواعيد */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {appointments.map(appt => (
+            <div key={appt.appointment_id} className="bg-slate-800 border border-white/5 p-6 rounded-[2rem] hover:border-yellow-500/30 transition-all shadow-xl group">
+              <div className="flex items-start justify-between">
+                <div className="flex gap-4 items-center">
+                  <div className="w-16 h-16 rounded-2xl bg-slate-950 flex items-center justify-center overflow-hidden border border-white/5 shadow-inner">
+                    <img 
+                      src={formatImg(appt.partner_image)} 
+                      alt={appt.partner_name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => { 
+                        e.target.src = 'https://cdn-icons-png.flaticon.com/512/149/149071.png'; 
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-lg text-white">{appt.partner_name}</h3>
+                    <p className="text-slate-400 text-sm flex items-center gap-1">
+                      <Briefcase size={14} /> {appt.case_title}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-black text-lg text-white">{app.partner_name}</h3>
-                  <div className="flex items-center gap-2 text-xs text-slate-400 font-bold mt-1">
-                    <Briefcase size={14} className="text-yellow-500" /> {app.case_title || 'قضية غير معروفة'}
-                  </div>
-                  <div className="flex items-center gap-2 text-xs font-black mt-2 bg-slate-950 px-3 py-1.5 rounded-lg w-fit text-white">
-                    <Clock size={14} className="text-blue-500" /> 
-                    {new Date(app.appointment_date).toLocaleString('en-GB')}
-                  </div>
+                <span className={`px-4 py-1 rounded-full text-xs font-bold ${
+                  appt.status === 'Scheduled' ? 'bg-green-500/10 text-green-500' : 'bg-yellow-500/10 text-yellow-500'
+                }`}>
+                  {appt.status === 'Scheduled' ? 'مؤكد' : 'معدل'}
+                </span>
+              </div>
+
+              <div className="mt-6 flex flex-wrap gap-4">
+                <div className="bg-slate-950 px-4 py-2 rounded-xl flex items-center gap-2 border border-white/5">
+                  <Calendar size={16} className="text-yellow-500" />
+                  <span className="text-sm font-bold text-slate-300">
+                    {new Date(appt.appointment_date).toLocaleDateString('ar-EG')}
+                  </span>
+                </div>
+                <div className="bg-slate-950 px-4 py-2 rounded-xl flex items-center gap-2 border border-white/5">
+                  <Clock size={16} className="text-yellow-500" />
+                  <span className="text-sm font-bold text-slate-300" dir="ltr">
+                    {new Date(appt.appointment_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </span>
                 </div>
               </div>
 
-              <div className="flex flex-col items-center sm:items-end gap-3 shrink-0">
-                <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase italic tracking-widest ${
-                  app.status === 'Rescheduled' ? 'bg-orange-500/10 text-orange-500 border border-orange-500/20' : 
-                  app.status === 'Scheduled' ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-slate-800 text-white'
-                }`}>
-                  {app.status}
-                </span>
-                
+              <div className="mt-6">
                 <button 
-                  onClick={() => { setEditingAppt(app); setEditDate(formatForInput(app.appointment_date)); }}
-                  className="bg-white/5 hover:bg-yellow-500 hover:text-black p-2 rounded-xl transition-colors border border-white/10 text-slate-300"
+                  onClick={() => { setEditingAppt(appt); setEditDate(appt.appointment_date.slice(0,16)); }}
+                  className="w-full bg-white/5 hover:bg-white/10 text-slate-300 p-2 rounded-xl border border-white/10 transition-colors flex items-center justify-center gap-2"
                 >
-                  <Edit size={18} />
+                  <Edit size={18} /> تعديل الموعد
                 </button>
               </div>
             </div>
@@ -160,20 +189,21 @@ const ClientAppointmentsPage = () => {
         </div>
       </div>
 
-      {/* مودال التعديل */}
+      {/* 🔄 مودال إعادة الجدولة */}
       {editingAppt && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 p-8 rounded-[2.5rem] border border-yellow-500/30 max-w-md w-full">
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-900 p-8 rounded-[2.5rem] border border-yellow-500/30 max-w-md w-full shadow-2xl">
             <h3 className="text-xl font-black mb-4 text-white">إعادة جدولة الموعد</h3>
-            <p className="text-sm text-slate-400 mb-6">تعديلك للموعد سيقوم بتغيير حالته إلى "Rescheduled".</p>
             <form onSubmit={handleEditSubmit} className="space-y-6">
               <input 
-                type="datetime-local" required value={editDate} onChange={(e) => setEditDate(e.target.value)}
-                className="w-full bg-slate-950 border border-white/10 rounded-xl p-4 focus:outline-none focus:border-yellow-500 text-white" dir="ltr"
+                type="datetime-local" required value={editDate} 
+                onChange={(e) => setEditDate(e.target.value)}
+                className="w-full bg-slate-950 border border-white/10 rounded-xl p-4 text-white focus:border-yellow-500 focus:outline-none" 
+                dir="ltr"
               />
               <div className="flex gap-3">
-                <button type="submit" className="flex-1 bg-yellow-500 text-black font-black py-3 rounded-xl hover:bg-yellow-400">تأكيد</button>
-                <button type="button" onClick={() => setEditingAppt(null)} className="flex-1 bg-slate-800 text-white font-black py-3 rounded-xl hover:bg-slate-700">إلغاء</button>
+                <button type="submit" className="flex-1 bg-yellow-500 text-black font-black py-3 rounded-xl hover:bg-yellow-400 transition-colors">تأكيد</button>
+                <button type="button" onClick={() => setEditingAppt(null)} className="flex-1 bg-slate-800 text-white py-3 rounded-xl hover:bg-slate-700 transition-colors">إلغاء</button>
               </div>
             </form>
           </div>

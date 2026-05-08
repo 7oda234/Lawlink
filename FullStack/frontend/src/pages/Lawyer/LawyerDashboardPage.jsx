@@ -22,6 +22,7 @@ const LawyerDashboardPage = () => {
   const [loading, setLoading] = useState(true);
 
   const userId = localStorage.getItem('userId');
+  const BASE_URL = "http://localhost:5000"; // تعريف الـ URL الأساسي
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -31,18 +32,18 @@ const LawyerDashboardPage = () => {
         const token = localStorage.getItem('token');
         const config = { headers: { Authorization: `Bearer ${token}` } };
 
-        const profileRes = await axios.get(`http://localhost:5000/api/users/profile/${userId}`, config);
+        const profileRes = await axios.get(`${BASE_URL}/api/users/profile/${userId}`, config);
         if (profileRes.data.success || profileRes.data.ok) {
           setProfile(profileRes.data.data || profileRes.data.user);
         }
 
-        const casesRes = await axios.get(`http://localhost:5000/api/cases`, config);
+        const casesRes = await axios.get(`${BASE_URL}/api/cases`, config);
         const lawyerCases = (casesRes.data.cases || []).filter(c => 
             c.lawyer_id === parseInt(userId) && c.deleted_at === null
         );
         setCases(lawyerCases);
 
-        const appRes = await axios.get(`http://localhost:5000/api/appointments/list?userId=${userId}&role=lawyer`, config);
+        const appRes = await axios.get(`${BASE_URL}/api/appointments/list?userId=${userId}&role=lawyer`, config);
         if (appRes.data.ok) {
           setAppointments(appRes.data.data);
         }
@@ -54,6 +55,34 @@ const LawyerDashboardPage = () => {
     };
     fetchDashboardData();
   }, [userId, navigate]);
+
+  /**
+   * 🛠️ الدالة الذكية لمعالجة الصور (الحل النهائي لمنع Error 431)
+   * بتتعرف على الـ Base64 وبتعرضه فوراً بدون إرهاق السيرفر
+   */
+  const formatImg = (path) => {
+    if (!path || path === "null" || path === "undefined") {
+      return 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+    }
+
+    // 1. لو الصورة Base64 (زي حالة يوسف علي)
+    if (path.startsWith('data:image')) {
+      return path;
+    }
+
+    // 2. لو الصورة رابط خارجي
+    if (path.startsWith('http')) {
+      return path;
+    }
+
+    // 3. لو الصورة مسار ملف على السيرفر
+    let cleanPath = path.replace(/^\/+/, '');
+    if (cleanPath.startsWith('uploads/')) {
+      return `${BASE_URL}/${cleanPath}`;
+    }
+
+    return `${BASE_URL}/uploads/${cleanPath}`;
+  };
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-slate-950">
@@ -100,7 +129,6 @@ const LawyerDashboardPage = () => {
             <p className="text-white/30 text-[9px] font-bold uppercase mt-1">{isRTL ? 'رد مباشر' : 'Live response'}</p>
           </Link>
 
-          {/* 🌟 الزرار المطابق تماماً لصورة المحامي: BOOK & EDIT */}
           <Link to="/lawyer/appointments" className="group p-6 bg-slate-900 border border-white/5 rounded-[2rem] transition-all hover:scale-[1.03] hover:border-blue-500/50 shadow-xl shadow-blue-500/5 flex flex-col justify-center">
               <Calendar size={28} className="text-blue-500 mb-3 group-hover:rotate-12 transition-transform" />
               <h3 className="text-white font-black italic text-xl uppercase leading-tight tracking-wide">BOOK & EDIT</h3>
@@ -133,8 +161,14 @@ const LawyerDashboardPage = () => {
                 <div key={app.appointment_id} className="p-6 rounded-[2rem] bg-white/5 border border-white/5 hover:border-yellow-500/20 transition-all">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-2xl bg-slate-950 flex items-center justify-center font-black text-yellow-500 border border-white/5 uppercase">
-                        {app.partner_name?.substring(0, 1) || 'C'}
+                      {/* عرض الصورة باستخدام الدالة الذكية */}
+                      <div className="w-12 h-12 rounded-2xl bg-slate-950 overflow-hidden border border-white/5 shadow-inner">
+                        <img 
+                          src={formatImg(app.partner_image)} 
+                          alt={app.partner_name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => { e.target.src = 'https://cdn-icons-png.flaticon.com/512/149/149071.png' }}
+                        />
                       </div>
                       <div>
                         <p className="text-sm font-black italic uppercase text-white">{app.partner_name}</p>
@@ -162,8 +196,14 @@ const LawyerDashboardPage = () => {
               {cases.slice(0, 4).map((msg) => (
                 <div key={msg.case_id} className="flex items-center justify-between p-5 rounded-[2rem] bg-white/5 hover:bg-white/[0.08] transition-all group">
                   <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-full bg-emerald-500/10 flex items-center justify-center font-black text-emerald-500 text-lg uppercase">
-                        {msg.client_name?.substring(0, 1) || 'C'}
+                    {/* عرض صورة العميل باستخدام الدالة الذكية */}
+                    <div className="w-14 h-14 rounded-full bg-emerald-500/10 overflow-hidden flex items-center justify-center border border-white/5 shadow-inner">
+                        <img 
+                          src={formatImg(msg.client_image)} 
+                          alt={msg.client_name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => { e.target.src = 'https://cdn-icons-png.flaticon.com/512/149/149071.png' }}
+                        />
                     </div>
                     <div>
                       <h4 className="font-black italic text-sm text-white">{msg.client_name}</h4>
