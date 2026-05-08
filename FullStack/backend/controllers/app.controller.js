@@ -16,7 +16,7 @@ import paymentRouter from "../modules/Payment/payment.routes.js";
 import appointmentRouter from "../modules/Appointment/appointment.routes.js"; 
 
 // 🔔 موديول الإشعارات (الجديد)
-import notificationRouter from "../modules/Notification_folder/notification.routes.js"; // 👈 استيراد مسار الإشعارات
+import notificationRouter from "../modules/Notification/notification.routes.js"; // 👈 استيراد مسار الإشعارات
 
 // ❌ (تم إيقافه - كود قديم) 
 // import OpenAI from "openai";

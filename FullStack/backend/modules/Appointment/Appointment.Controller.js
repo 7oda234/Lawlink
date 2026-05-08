@@ -1,5 +1,5 @@
 import * as appService from "./appointment.service.js";
-import * as notificationService from "../Notification_folder/notification.service.js"; // 👈 استيراد الإشعارات
+import * as notificationService from "../Notification/notification.service.js"; // 👈 استيراد الإشعارات
 
 // حجز ميعاد مع التحقق من التبعية للقضية
 export const bookAppointment = async (req, res) => {

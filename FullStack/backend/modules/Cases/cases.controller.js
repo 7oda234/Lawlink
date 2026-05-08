@@ -1,6 +1,6 @@
 import * as casesService from "./cases.service.js";
 import * as documentService from "../Document_folder/document_folder.service.js"; // 👈 استيراد ملف المستندات
-import * as notificationService from "../Notification_folder/notification.service.js"; // 👈 استيراد الإشعارات
+import * as notificationService from "../Notification/notification.service.js"; // 👈 استيراد الإشعارات
 
 // ➕ إنشاء قضية مع حفظ الملفات المرفوعة
 export const handleCreateCase = async (req, res) => {

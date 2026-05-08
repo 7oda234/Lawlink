@@ -1,5 +1,5 @@
 import * as paymentsService from "./payment.service.js";
-import * as notificationService from "../Notification_folder/notification.service.js"; // 👈 استيراد الإشعارات
+import { someFunction } from '../Notification/notification.service.js'; // 👈 استيراد الإشعارات
 
 export const handleVisaPayment = async (req, res) => {
   try {
