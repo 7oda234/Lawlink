@@ -110,6 +110,7 @@ const TermsPrivacyPage = React.lazy(() => import('./pages/utility/TermsPrivacyPa
 const NotFoundPage = React.lazy(() => import('./pages/utility/NotFoundPage'));
 
 // AI Tools
+const AIToolsPage = React.lazy(() => import('./pages/AiTools/AIToolsPage'));
 const ResearchTool = React.lazy(() => import('./pages/AiTools/ResearchTool'));
 const DocumentDraftingTool = React.lazy(() => import('./pages/AiTools/DocumentDraftingTool'));
 const ContractReviewTool = React.lazy(() => import('./pages/AiTools/ContractReviewTool'));
@@ -226,6 +227,7 @@ const routeConfig = [
   { path: '*', Component: NotFoundPage },
 
   // AI Tools
+  { path: '/ai-tools', Component: AIToolsPage },
   { path: '/ai-tools/research', Component: ResearchTool },
   { path: '/ai-tools/document-drafting', Component: DocumentDraftingTool },
   { path: '/ai-tools/contract-review', Component: ContractReviewTool },
