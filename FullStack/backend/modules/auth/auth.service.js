@@ -25,51 +25,30 @@ const normalizeEmail = (email) => String(email || "").trim().toLowerCase();
 // ---------------------------------------------------------
 export const login = async (email, password) => {
   try {
-    const cleanEmail = normalizeEmail(email);
+    const cleanEmail = normalizeEmail(email); // بننظف الإيميل الأول
 
-    // البحث في جدول users
+    // بنروح ندور في جدول users على حد عنده الإيميل ده
     const users = await runQuery(
       "SELECT * FROM users WHERE email = ? LIMIT 1", 
       [cleanEmail]
     );
     
     if (!users.length) {
-      return { ok: false, message: "عفواً، هذا البريد الإلكتروني غير مسجل لدينا." };
+      return { ok: false, message: "عفواً، هذا البريد الإلكتروني غير مسجل لدينا." }; // لو ملقيناش حد
     }
 
     const userRow = users[0];
+    const isMatch = await bcrypt.compare(String(password), userRow.password); // بنفك شفرة الباسورد ونشوفه صح ولا لاء
+    if (!isMatch) return { ok: false, message: "كلمة المرور غير صحيحة." };
 
-    // التحقق من كلمة المرور المشفرة
-    const isMatch = await bcrypt.compare(String(password), userRow.password);
-    if (!isMatch) {
-      return { ok: false, message: "كلمة المرور التي أدخلتها غير صحيحة." };
-    }
-
-    // ✅ جلب البروفايل كامل شامل الصورة (image_url) وعدد التنبيهات (unread_notifications)
-    const fullProfile = await runQuery(`
-      SELECT u.user_id, u.name, u.role, u.email, u.gender, u.Phone_no1, u.Date_of_Birth, u.image_url,
-            l.license_number, l.rating_avg, l.verified, l.years_experience,
-            a.authority_level,
-            (SELECT COUNT(*) FROM notification n WHERE n.user_id = u.user_id AND n.is_read = 0) AS unread_notifications
-      FROM users u
-      LEFT JOIN lawyer l ON u.user_id = l.user_id
-      LEFT JOIN admin a ON u.user_id = a.user_id
-      WHERE u.user_id = ?`, [userRow.user_id]);
-
-    // إنشاء توكن الدخول
-    const token = jwt.sign(
-      { id: userRow.user_id, role: userRow.role }, 
-      JWT_SECRET, 
-      { expiresIn: "7d" }
-    );
-
+    // بنعمل "أمارة" (Token) للمستخدم عشان يفضل فاتح حسابه 7 أيام
+    const token = jwt.sign({ id: userRow.user_id, role: userRow.role }, JWT_SECRET, { expiresIn: "7d" });
+    
     return { 
       ok: true, 
       token, 
-      role: userRow.role, 
-      user: fullProfile[0] 
+      user: { id: userRow.user_id, name: userRow.name, role: userRow.role } 
     };
-
   } catch (err) {
     console.error("❌ Login Service Error:", err);
     throw err;
@@ -136,21 +115,18 @@ export const register = async (userData) => {
 // ---------------------------------------------------------
 export const getMe = async (userId) => {
   try {
-    // ✅ تصليح الكويري: شيلنا الجدول الوهمي بتاع الصورة، وصلحنا الـ WHERE عشان تاخد userId
+    // ✅ تم التعديل هنا: نستخدم n.receiver_id بدلاً من n.user_id عشان يطابق الجدول الجديد
     const fullProfile = await runQuery(`
       SELECT u.user_id, u.name, u.role, u.email, u.gender, u.Phone_no1, u.Date_of_Birth, u.image_url, 
             l.license_number, l.rating_avg, l.verified, l.years_experience,
             a.authority_level,
-            (SELECT COUNT(*) FROM notification n WHERE n.user_id = u.user_id AND n.is_read = 0) AS unread_notifications
+            (SELECT COUNT(*) FROM notification n WHERE n.receiver_id = u.user_id AND n.is_read = 0) AS unread_notifications
       FROM users u
       LEFT JOIN lawyer l ON u.user_id = l.user_id
       LEFT JOIN admin a ON u.user_id = a.user_id
-      LEFT JOIN client c ON u.user_id = c.user_id
       WHERE u.user_id = ?`, [userId]);
 
-    if (!fullProfile.length) return { ok: false, message: "المستخدم غير موجود." };
-
-    return { ok: true, user: fullProfile[0] };
+    return fullProfile.length > 0 ? fullProfile[0] : null; // لو لقيته هاته، ملقيتوش ارجع بإيدك فاضية
   } catch (err) {
     console.error("❌ GetMe Service Error:", err);
     throw err;

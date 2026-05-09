@@ -63,36 +63,65 @@ const ClientAppointmentsPage = () => {
 
   const handleCreateSubmit = async (e) => {
     e.preventDefault();
+
+    if (!userId) {
+      alert('User not found. Please login again.');
+      return;
+    }
+
+    const selectedCase = linkedCases.find(c => c.case_id == newAppt.caseId);
+    if (!selectedCase?.lawyer_id) {
+      alert('Please select a valid case');
+      return;
+    }
+
+    const trimmedDate = (newAppt.date || '').trim();
+    if (!trimmedDate) {
+      alert('Please select a valid appointment date/time');
+      return;
+    }
+
     try {
-      const selectedCase = linkedCases.find(c => c.case_id == newAppt.caseId);
       const res = await axios.post(`${BASE_URL}/api/appointments/book`, {
-        appointmentDate: newAppt.date,
+        appointmentDate: trimmedDate,
         clientId: userId,
         lawyerId: selectedCase.lawyer_id,
         caseId: newAppt.caseId
       });
-      if (res.data.ok) {
+
+      if (res.data?.ok) {
         setNewAppt({ caseId: '', date: '' });
         fetchData();
+      } else {
+        alert(res.data?.message || 'Failed to book appointment');
       }
     } catch (err) {
-      alert(err.response?.data?.message || "خطأ في عملية الحجز");
+      alert(err.response?.data?.message || 'Failed to book appointment');
     }
   };
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
+
+    const trimmed = (editDate || '').trim();
+    if (!trimmed) {
+      alert('Please select a valid appointment date/time');
+      return;
+    }
+
     try {
       const res = await axios.put(`${BASE_URL}/api/appointments/update/${editingAppt.appointment_id}`, {
-        appointmentDate: editDate,
-        status: 'Rescheduled'
+        appointmentDate: trimmed
       });
-      if (res.data.ok) {
+
+      if (res.data?.ok) {
         setEditingAppt(null);
         fetchData();
+      } else {
+        alert(res.data?.message || 'Failed to update appointment');
       }
     } catch (err) {
-      console.error(err);
+      alert(err.response?.data?.message || 'Failed to update appointment');
     }
   };
 

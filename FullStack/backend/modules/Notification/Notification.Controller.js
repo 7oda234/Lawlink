@@ -1,70 +1,96 @@
-import * as notificationService from "./notification.service.js";
-import db from "../../db/Connection.js";
+import * as notificationService from "./Notification.Service.js";
 
-const runQuery = (sql, params = []) =>
-  new Promise((resolve, reject) => {
-    db.query(sql, params, (err, result) => {
-      if (err) return reject(err);
-      resolve(result);
-    });
-  });
-
-// جلب إشعارات مستخدم معين
+// عرض كل الإشعارات الخاصة بمستخدم معين
 export const handleGetNotifications = async (req, res) => {
   try {
     const { userId } = req.params;
-    const sql = `SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC`;
-    const notifications = await runQuery(sql, [userId]);
-    res.status(200).json({ ok: true, data: notifications });
+    const { limit = 20, offset = 0, type } = req.query;
+
+    if (!userId) {
+      return res.status(400).json({ ok: false, message: "User ID is required" });
+    }
+
+    let notifications;
+    if (type) {
+      notifications = await notificationService.getNotificationsByType(
+        userId,
+        type,
+        parseInt(limit),
+        parseInt(offset)
+      );
+    } else {
+      notifications = await notificationService.getNotificationsByReceiver(
+        userId,
+        parseInt(limit),
+        parseInt(offset)
+      );
+    }
+
+    // معالجة البيانات بشكل آمن
+    const parsedNotifications = notifications.map((notif) => {
+      let safeMetadata = null;
+      if (notif.metadata) {
+        try {
+          safeMetadata = typeof notif.metadata === 'string' ? JSON.parse(notif.metadata) : notif.metadata;
+        } catch (e) {
+          console.error(`⚠️ خطأ في قراءة بيانات الإشعار رقم: ${notif.notification_id}`);
+        }
+      }
+      return { ...notif, metadata: safeMetadata };
+    });
+
+    res.status(200).json({ ok: true, data: parsedNotifications });
+  } catch (err) {
+    console.error("❌ Error fetching notifications:", err);
+    res.status(500).json({ ok: false, message: "حدث خطأ داخلي في الخادم أثناء جلب الإشعارات" });
+  }
+};
+
+// جلب عدد الإشعارات غير المقروءة
+export const handleGetUnreadCount = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    if (!userId) {
+        return res.status(400).json({ ok: false, message: "User ID is required" });
+    }
+
+    const count = await notificationService.getUnreadCount(userId);
+    res.status(200).json({ ok: true, data: { unreadCount: count } });
   } catch (err) {
     res.status(500).json({ ok: false, message: err.message });
   }
 };
 
-// تحديث إشعار واحد كمقروء
+// تحديد إشعار معين كمقروء
 export const handleMarkAsRead = async (req, res) => {
   try {
-    const { id } = req.params;
-    const sql = `UPDATE notifications SET is_read = 1 WHERE notification_id = ?`;
-    await runQuery(sql, [id]);
-    res.status(200).json({ ok: true, message: "تم تحديث الحالة" });
+    const { notificationId } = req.params;
+    await notificationService.markAsRead(notificationId);
+    res.status(200).json({ ok: true, message: "تم التحديد كمقروء بنجاح" });
   } catch (err) {
     res.status(500).json({ ok: false, message: err.message });
   }
 };
 
-// تحديد كل إشعارات اليوزر كمقروءة
+// تحديد كل الإشعارات كمقروءة لمستخدم معين
 export const handleMarkAllAsRead = async (req, res) => {
   try {
     const { userId } = req.params;
-    const sql = `UPDATE notifications SET is_read = 1 WHERE user_id = ?`;
-    await runQuery(sql, [userId]);
-    res.status(200).json({ ok: true, message: "تم تحديد الكل كمقروء" });
+    await notificationService.markAllAsRead(userId);
+    res.status(200).json({ ok: true, message: "تم تحديد كل الإشعارات كمقروءة بنجاح" });
   } catch (err) {
     res.status(500).json({ ok: false, message: err.message });
   }
 };
 
-// حذف إشعار واحد
+// حذف إشعار معين
 export const handleDeleteNotification = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const sql = `DELETE FROM notifications WHERE notification_id = ?`;
-    await runQuery(sql, [id]);
-    res.status(200).json({ ok: true, message: "تم الحذف" });
-  } catch (err) {
-    res.status(500).json({ ok: false, message: err.message });
-  }
-};
-
-// مسح كل إشعارات اليوزر
-export const handleDeleteAllNotifications = async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const sql = `DELETE FROM notifications WHERE user_id = ?`;
-    await runQuery(sql, [userId]);
-    res.status(200).json({ ok: true, message: "تم مسح كافة التنبيهات" });
-  } catch (err) {
-    res.status(500).json({ ok: false, message: err.message });
-  }
+    try {
+      const { notificationId } = req.params;
+      await notificationService.deleteNotification(notificationId);
+      res.status(200).json({ ok: true, message: "تم حذف الإشعار بنجاح" });
+    } catch (err) {
+      res.status(500).json({ ok: false, message: err.message });
+    }
 };

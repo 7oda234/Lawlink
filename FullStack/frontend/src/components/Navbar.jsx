@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Sun, Moon, Globe, Bell, User, LogOut, LayoutDashboard, ChevronDown } from 'lucide-react'; 
 import { useLanguage } from '../context/useLanguage'; 
 import { useTheme } from '../context/ThemeContext'; 
+import axios from 'axios'; // ✅ تم استيراد axios
 import logoImage from '../Assets/logo/logo lawlink half.png'; 
 
 const Navbar = () => {
@@ -16,7 +17,7 @@ const Navbar = () => {
 
   const isLoggedIn = !!localStorage.getItem('token'); 
 
-  // ✅ الجزء الجديد: جعل بيانات المستخدم State لتحديثها تلقائياً
+  // ✅ 1. الحالة الابتدائية (Initial State)
   const [userData, setUserData] = useState({
     name: localStorage.getItem('userName') || 'مستخدم',
     role: localStorage.getItem('userRole') || 'Client',
@@ -24,22 +25,53 @@ const Navbar = () => {
     unreadNotifications: parseInt(localStorage.getItem('unreadNotifications')) || 0
   });
 
-  // ✅ إضافة مستمع للأحداث (EventListener) لضمان تحديث الصورة والاسم فوراً عند التعديل
+  // ✅ 2. جلب البيانات من السيرفر مباشرة لضمان ظهور الصورة
   useEffect(() => {
-    const handleSync = () => {
-      setUserData({
-        name: localStorage.getItem('userName') || 'مستخدم',
-        role: localStorage.getItem('userRole') || 'Client',
-        image: localStorage.getItem('userImage') || 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
-        unreadNotifications: parseInt(localStorage.getItem('unreadNotifications')) || 0
-      });
+    const fetchUserData = async () => {
+      const userId = localStorage.getItem('userId');
+      const token = localStorage.getItem('token');
+
+      // تحديث الإشعارات من اللوكال ستوريدج تحسباً لأي تغيير
+      const unread = parseInt(localStorage.getItem('unreadNotifications')) || 0;
+
+      // لو مفيش تسجيل دخول، نحدث الإشعارات بس ونخرج
+      if (!userId || userId === 'undefined' || userId === 'null' || !token) {
+        setUserData(prev => ({ ...prev, unreadNotifications: unread }));
+        return;
+      }
+
+      try {
+        const response = await axios.get(`http://localhost:5000/api/users/profile/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (response.data.success || response.data.ok) {
+          const data = response.data.data || response.data.user || response.data;
+          
+          // تأمين مسار الصورة
+          let finalImage = data.image_url;
+          if (finalImage && !finalImage.startsWith('http') && !finalImage.startsWith('data:image')) {
+            finalImage = `http://localhost:5000${finalImage.startsWith('/') ? '' : '/'}${finalImage}`;
+          }
+
+          setUserData(prev => ({
+            ...prev,
+            name: data.name || prev.name,
+            role: data.role || prev.role,
+            image: finalImage || 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
+            unreadNotifications: unread
+          }));
+
+          // تحديث اللوكال ستوريدج برضه عشان لو صفحة تانية احتاجها
+          if (finalImage) localStorage.setItem('userImage', finalImage);
+        }
+      } catch (err) {
+        console.error("❌ خطأ في جلب بيانات الـ Navbar:", err);
+      }
     };
 
-    window.addEventListener('storage', handleSync); // يتنصت على التغييرات من صفحات التعديل
-    handleSync(); // تحديث البيانات عند تغيير المسار (Navigate)
-
-    return () => window.removeEventListener('storage', handleSync);
-  }, [location.pathname]);
+    fetchUserData();
+  }, [location.pathname]); // ✅ التحديث بيحصل مع كل تنقل بين الصفحات
 
   const handleLogout = () => {
     localStorage.clear(); 
@@ -108,7 +140,7 @@ const Navbar = () => {
                   src={userData.image} 
                   alt="User" 
                   className="w-10 h-10 rounded-full object-cover border-2 border-yellow-500"
-                  onError={(e) => { e.target.src = 'https://cdn-icons-png.flaticon.com/512/149/149071.png' }} // ✅ حماية
+                  onError={(e) => { e.target.src = 'https://cdn-icons-png.flaticon.com/512/149/149071.png' }} // ✅ حماية الصورة
                 />
                 <ChevronDown size={16} className={`transition-transform ${isMenuOpen ? 'rotate-180' : ''}`} />
               </button>

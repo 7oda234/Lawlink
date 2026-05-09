@@ -1,19 +1,25 @@
-import pool from '../db/Connection.js'; // تأكد إن المسار بيطلع برا فولدر middleware ويروح لـ config
+import db from '../db/Connection.js'; // اتأكد إن المسار لملف الـ Connection صح
 
 export const activityLogger = async (req, res, next) => {
-    res.on('finish', async () => {
-        const userId = req.user?.user_id || req.user?.id || req.body?.user_id || null;
-        const action = `${req.method} ${req.originalUrl}`;
+    // بناخد بيانات بسيطة عن الحركة اللي حصلت
+    const { method, url, ip } = req;
+    const userId = req.user?.id || null; // لو اليوزر عامل لوجن بناخد الـ ID بتاعه
 
-        try {
-            await pool.query(
-                'INSERT INTO activity_log (user_id, action) VALUES (?, ?)',
-                [userId, action]
-            );
-            console.log(`📝 Logged action: ${action}${userId ? ` for user ${userId}` : ''}`);
-        } catch (err) {
-            console.error('❌ Activity Log Error:', err.message);
+    try {
+        // ✅ بنستخدم try/catch عشان لو الداتابيز فيها مشكلة، السيرفر مايوقعش واليوزر يكمل عادي
+        const sql = `INSERT INTO activity_log (user_id, action, ip_address) VALUES (?, ?, ?)`;
+        
+        // 🛡️ الحركة دي بتمنع الـ Loop: لو الـ db مش Promise بنشغله عادي، ولو Promise بنعمله await
+        if (db.promise) {
+            await db.promise().query(sql, [userId, `${method} ${url}`, ip]);
+        } else {
+            // لو إنت أصلاً معدل ملف الـ Connection ومخليه .promise()
+            await db.query(sql, [userId, `${method} ${url}`, ip]);
         }
-    });
-    next();
+    } catch (err) {
+        // 🤫 بنطبع رسالة بسيطة في السطر ده بدل ما نملى التيرمينال
+        console.log("⚠️ Activity Log skipped due to DB configuration.");
+    }
+
+    next(); // 👈 السطر ده أهم حاجة عشان يخلي الطلب يكمل وما يوقفش السيرفر
 };

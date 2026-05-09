@@ -14,7 +14,7 @@ const LoginPage = () => {
   
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
     setValidationErrors({});
@@ -35,10 +35,11 @@ const LoginPage = () => {
         password: password
       });
 
-      const user = response.data.user || response.data.data?.user; 
-      const token = response.data.token || response.data.data?.token;
+      // التعامل مع هيكلية الرد سواء كانت داخل data أو مباشرة
+      const responseData = response.data.data || response.data;
+      const { user, token } = responseData;
 
-      // ✅ الحل السحري: سحبنا الـ ID بأي اسم الباك إند بيبعته بيه
+      // 1. ✅ استخراج الـ ID بأي مسمى يبعته الباك إند
       const finalUserId = user.id || user.user_id || user.userId;
 
       if (!finalUserId) {
@@ -50,7 +51,7 @@ const LoginPage = () => {
       const userRoleFromDB = user.role.toLowerCase();
       const currentSelectedPortal = selectedRole.toLowerCase();
 
-      // التحقق من البوابة
+      // 2. التحقق من البوابة المختار الدخول منها
       if (userRoleFromDB !== 'admin' && userRoleFromDB !== currentSelectedPortal) {
         setError(`⚠️ الحساب مسجل كـ [${user.role}]؛ يرجى الدخول من بوابة ${user.role === 'Lawyer' ? 'المحامي' : 'العميل'}.`);
         setLoading(false);
@@ -59,23 +60,37 @@ const LoginPage = () => {
 
       setFailedAttempts(0);
 
-      // ✅ تخزين البيانات بشكل آمن وسليم
+      // 3. 🖼️ معالجة رابط الصورة (الحل النهائي للصورة)
+      const serverURL = "http://localhost:5000";
+      let finalUserImage = 'https://cdn-icons-png.flaticon.com/512/149/149071.png'; // الصورة الافتراضية
+
+      if (user.image_url) {
+          // لو الرابط كامل يبدأ بـ http نأخذه كما هو، لو مسار جزئي ندمجه مع رابط السيرفر
+          finalUserImage = user.image_url.startsWith('http') 
+              ? user.image_url 
+              : `${serverURL}${user.image_url}`;
+      }
+
+      // 4. ✅ تخزين البيانات في الـ LocalStorage بالأسماء اللي الـ Navbar مستنيها
       localStorage.setItem('token', token);
-      localStorage.setItem('userId', finalUserId); // 👈 هنا بقى هيتخزن الرقم صح!
+      localStorage.setItem('userId', finalUserId);
       localStorage.setItem('userRole', user.role);
       localStorage.setItem('userName', user.name);
-      localStorage.setItem('userImage', user.image_url || 'https://cdn-icons-png.flaticon.com/512/149/149071.png');
+      localStorage.setItem('userImage', finalUserImage); // 👈 الرابط الكامل للصورة
 
-      // التوجيه بناءً على الصلاحية
-      if (userRoleFromDB === 'admin') navigate('/admin/dashboard');
-      else if (currentSelectedPortal === 'lawyer') navigate('/lawyer/dashboard');
-      else navigate('/client/dashboard');
+      // 5. التوجيه بناءً على الصلاحية
+      if (userRoleFromDB === 'admin') {
+          navigate('/admin/dashboard');
+      } else if (currentSelectedPortal === 'lawyer') {
+          navigate('/lawyer/dashboard');
+      } else {
+          navigate('/client/dashboard');
+      }
 
     } catch (err) {
       setFailedAttempts(prev => prev + 1);
-
       if (err.response) {
-        setError("❌ البريد الإلكتروني أو كلمة المرور غير صحيحة. حاول مرة أخرى.");
+        setError(err.response.data.message || "❌ البريد الإلكتروني أو كلمة المرور غير صحيحة.");
       } else {
         setError("🔌 عذراً، تعذر الاتصال بالسيرفر. تأكد من تشغيل الـ Backend.");
       }

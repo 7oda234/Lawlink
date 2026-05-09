@@ -1,9 +1,13 @@
 import db from "../../db/Connection.js";
 
+// 🛠️ ضفنا كونسول هنا عشان لو الداتابيز رفضت استعلام، يقولك السبب فوراً في التيرمينال
 const runQuery = (sql, params = []) =>
   new Promise((resolve, reject) => {
     db.query(sql, params, (err, result) => {
-      if (err) return reject(err);
+      if (err) {
+        console.error(`🔴 SQL Error: ${err.sqlMessage || err.message}`);
+        return reject(err);
+      }
       resolve(result);
     });
   });

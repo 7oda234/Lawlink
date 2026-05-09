@@ -3,6 +3,8 @@ dotenv.config();
 
 import { bootstrap } from './App.js'; 
 import pool from './db/Connection.js'; 
+import http from 'http';
+import { initializeNotificationSocket } from './modules/Notification/NotificationSocket.js';
 
 const PORT = process.env.PORT || 5000;
 
@@ -20,10 +22,21 @@ const startServer = async () => {
         if (connection) connection.release(); 
 
         const app = bootstrap(); 
+        
+        // 🔔 Initialize Socket.IO for real-time notifications
+        const server = http.createServer(app);
+        const io = initializeNotificationSocket(server, {
+            corsOrigin: process.env.CORS_ORIGIN || ['http://localhost:5173', 'http://localhost:5000'],
+        });
+        
+        // Make io instance globally available for other modules
+        global.io = io;
+        console.log('🔌 Socket.IO initialized for real-time notifications');
 
-        app.listen(PORT, () => {
+        server.listen(PORT, () => {
             console.log(`🚀 LawLink Server is running on: http://localhost:${PORT}`);
             console.log(`📝 Environment loaded: (${Object.keys(process.env).length}) variables detected.`);
+            console.log(`🔔 Real-time notifications enabled via Socket.IO`);
         });
 
     } catch (err) {

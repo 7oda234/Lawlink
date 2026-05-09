@@ -19,7 +19,7 @@ const ClientNotificationsPage = () => {
   // دالة جلب البيانات من الباك إند
   const fetchNotifications = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/notifications/${userId}`);
+      const response = await fetch(`http://localhost:5000/api/notification/${userId}`);
       const result = await response.json();
       if (result.ok) {
         setNotifications(result.data);
@@ -61,7 +61,7 @@ const ClientNotificationsPage = () => {
   // تحديث إشعار واحد
   const markAsRead = async (id) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/notifications/read/${id}`, { method: 'PUT' });
+      const response = await fetch(`http://localhost:5000/api/notification/read/${id}`, { method: 'PUT' });
       if (response.ok) {
         setNotifications(notifications.map(n => n.notification_id === id ? { ...n, is_read: 1 } : n));
       }
@@ -71,7 +71,7 @@ const ClientNotificationsPage = () => {
   // تحديد الكل كمقروء (ربط حقيقي بالباك إند)
   const markAllRead = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/notifications/read-all/${userId}`, { method: 'PUT' });
+      const response = await fetch(`http://localhost:5000/api/notification/read-all/${userId}`, { method: 'PUT' });
       if (response.ok) {
         setNotifications(notifications.map(n => ({ ...n, is_read: 1 })));
       }
@@ -81,7 +81,7 @@ const ClientNotificationsPage = () => {
   // حذف إشعار واحد
   const deleteNotification = async (id) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/notifications/${id}`, { method: 'DELETE' });
+      const response = await fetch(`http://localhost:5000/api/notification/${id}`, { method: 'DELETE' });
       if (response.ok) {
         setNotifications(notifications.filter(n => n.notification_id !== id));
       }
@@ -92,7 +92,7 @@ const ClientNotificationsPage = () => {
   const clearAll = async () => {
     if (window.confirm(isRTL ? "هل أنت متأكد من مسح كافة التنبيهات؟" : "Are you sure you want to clear all?")) {
       try {
-        const response = await fetch(`http://localhost:5000/api/notifications/all/${userId}`, { method: 'DELETE' });
+        const response = await fetch(`http://localhost:5000/api/notification/all/${userId}`, { method: 'DELETE' });
         if (response.ok) setNotifications([]);
       } catch (err) { console.error(err); }
     }

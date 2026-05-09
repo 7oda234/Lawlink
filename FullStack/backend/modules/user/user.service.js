@@ -4,13 +4,22 @@ import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = "lawlink_secret_key"; 
 
+
+// دالة الـ runQuery دي بقت "المنقذ" عشان التيرمينال يفضل نضيف من التحذيرات
+const runQuery = (sql, params = []) =>
+  new Promise((resolve, reject) => {
+    pool.query(sql, params, (err, result) => {
+      if (err) return reject(err); // لو السيكوال زعلت مننا
+      resolve(result); // لو الاستعلام اتنفذ تمام
+    });
+  });
+
+
 // ✅ 1. جلب التخصصات الفريدة (قديم)
 export const getLawyerSpecializationsService = async () => {
     try {
-        const [rows] = await pool.promise().query(
-            `SELECT DISTINCT spec_name FROM lawyer_specializations`
-        );
-        return rows.map(row => row.spec_name);
+        const rows = await runQuery(`SELECT DISTINCT spec_name FROM lawyer_specializations`);
+        return rows.map(row => row.spec_name); // بنطلع أسماء التخصصات بس
     } catch (error) {
         throw new Error("خطأ في جلب التخصصات: " + error.message);
     }
@@ -154,14 +163,26 @@ export const updateUserService = async (userId, userData) => {
 
 // ✅ 5. تسجيل الدخول (Login)
 export const loginService = async (email, password) => {
-    const [users] = await pool.promise().query(`SELECT * FROM users WHERE email = ? AND deleted_at IS NULL`, [email]);
+    // بنروح نجيب اليوزر اللي إيميله كذا ولسه متمسحش
+    const [users] = await pool.promise().query(
+        `SELECT * FROM users WHERE email = ? AND deleted_at IS NULL`, 
+        [email]
+    );
+
     if (users.length === 0) throw new Error("الحساب غير موجود");
     
     const user = users[0];
+    
+    // بنقارن الباسورد اللي اليوزر كتبه باللي متشفر عندنا
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) throw new Error("كلمة المرور غير صحيحة.");
     
-    const token = jwt.sign({ userId: user.user_id, role: user.role }, JWT_SECRET, { expiresIn: '1d' });
+    // بنعمل التوكن (الأمارة) عشان يفضل داخل
+    const token = jwt.sign(
+        { userId: user.user_id, role: user.role }, 
+        JWT_SECRET, 
+        { expiresIn: '1d' }
+    );
     
     return { 
         token, 
@@ -170,7 +191,7 @@ export const loginService = async (email, password) => {
             name: user.name, 
             role: user.role, 
             email: user.email, 
-            image_url: user.image_url 
+            image_url: user.image_url // ✅ دي اللي هتروح للـ localStorage
         } 
     };
 };
@@ -249,7 +270,7 @@ export const getUserByIdService = async (userId) => {
 // ✅ 7. الحذف المنطقي (Logic Delete)
 export const deleteUserService = async (userId) => {
     try {
-        await pool.promise().query(`UPDATE users SET deleted_at = NOW() WHERE user_id = ?`, [userId]);
+        await runQuery(`UPDATE users SET deleted_at = NOW() WHERE user_id = ?`, [userId]); 
     } catch (error) { 
         throw new Error("خطأ أثناء الحذف: " + error.message); 
     }

@@ -78,15 +78,26 @@ const LawyerSchedulePage = () => {
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
+
+    const trimmed = (editDate || '').trim();
+    if (!trimmed) {
+      alert('Please select a valid appointment date/time');
+      return;
+    }
+
     try {
-      await axios.put(`${BASE_URL}/api/appointments/update/${editingAppt.appointment_id}`, {
-        appointmentDate: editDate,
-        status: 'Rescheduled'
+      const res = await axios.put(`${BASE_URL}/api/appointments/update/${editingAppt.appointment_id}`, {
+        appointmentDate: trimmed
       });
-      setEditingAppt(null);
-      fetchData();
-    } catch (err) { 
-      console.error(err); 
+
+      if (res.data?.ok) {
+        setEditingAppt(null);
+        fetchData();
+      } else {
+        alert(res.data?.message || 'Failed to update appointment');
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to update appointment');
     }
   };
 
