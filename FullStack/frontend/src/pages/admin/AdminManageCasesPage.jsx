@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { 
-  Scale, Search, Edit3, Trash2, ExternalLink, 
+  Scale, Search, Edit3, Trash2, 
   CheckCircle, Loader2, AlertCircle
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import AdminLayout from '../../components/AdminLayout';
 import { useLanguage } from '../../context/LanguageContextObject';
 
@@ -147,9 +148,9 @@ const AdminManageCasesPage = () => {
                   <button onClick={() => handleDelete(item.case_id)} className="p-2 hover:bg-red-50 rounded-lg text-red-500">
                     <Trash2 size={18} />
                   </button>
-                  <button className="p-2 hover:bg-page rounded-lg text-accent">
-                    <ExternalLink size={18} />
-                  </button>
+                  <Link to={`/admin/cases/${item.case_id}/edit`} className="p-2 hover:bg-page rounded-lg text-accent">
+                    <Edit3 size={18} />
+                  </Link>
                 </div>
               </div>
             ))}

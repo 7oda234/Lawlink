@@ -2,8 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { 
   Users, Search, Mail, Phone, CreditCard, 
-  ExternalLink, Loader2, AlertCircle, Filter, UserCheck 
+  Edit3, Loader2, AlertCircle 
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import AdminLayout from '../../components/AdminLayout';
 import { useLanguage } from '../../context/LanguageContextObject';
 
@@ -114,9 +115,9 @@ const AdminManageClientsPage = () => {
                       {new Date(client.created_at).toLocaleDateString('ar-EG')}
                     </span>
                   </div>
-                  <button className="p-2 hover:bg-page rounded-lg text-accent transition-colors" title="ملف العميل">
-                    <ExternalLink size={20} />
-                  </button>
+                  <Link to={`/admin/users/${client.user_id}/edit`} className="p-2 hover:bg-page rounded-lg text-accent transition-colors" title="تعديل بيانات العميل">
+                    <Edit3 size={20} />
+                  </Link>
                 </div>
               </div>
             ))}

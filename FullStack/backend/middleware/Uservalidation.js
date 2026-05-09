@@ -24,8 +24,8 @@ export const validateRegister = (req, res, next) => {
     }
 
     // شروط خاصة بناءً على الـ Role
-    if (role === 'Lawyer' && (!req.body.license_number || !req.body.specialization)) {
-        return res.status(400).json({ success: false, message: "المحامي يجب أن يدخل رقم الرخصة والتخصص" });
+    if (role === 'Lawyer' && !req.body.license_number) {
+        return res.status(400).json({ success: false, message: "المحامي يجب أن يدخل رقم الرخصة" });
     }
     
     if (role === 'Client' && req.body.income_level === undefined) {

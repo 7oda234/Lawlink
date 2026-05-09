@@ -107,6 +107,11 @@ export const dataService = {
     adminGetFinancialLogs: () => api.get('/admin/financial-logs'), // مهم للأدمن[cite: 3]
   },
 
+  admin: {
+    getAIUsageLogs: () => api.get('/admin/ai-usage'),
+    getSystemLogs: () => api.get('/admin/system-logs'),
+  },
+
   // 🤖 AI Tools APIs
   aiTools: {
     research: (query) => api.post('/v1/ai-tools/research', query),

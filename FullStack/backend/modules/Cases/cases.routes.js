@@ -35,7 +35,13 @@ router.put("/client-respond", casesController.handleClientResponse);
 // 6️⃣ مسح قضية (DELETE /api/cases/:id)
 router.delete("/:id", casesController.handleDeleteCase); 
 
-// 7️⃣ تأكيد الدفع (PUT /api/cases/confirm-payment)
+// 🔍 جلب تفاصيل قضية واحدة (GET /api/cases/:id)
+router.get("/:id", casesController.handleGetCaseById);
+
+// 7️⃣ تحديث بيانات قضية (PATCH /api/cases/:id)
+router.patch("/:id", casesController.handleUpdateCase);
+
+// 8️⃣ تأكيد الدفع (PUT /api/cases/confirm-payment)
 router.put("/confirm-payment", casesController.handlePaymentConfirmation);
 
 export default router;

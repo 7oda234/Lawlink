@@ -7,13 +7,23 @@ const router = express.Router();
 // 🚀✅ (الجديد) المسار الجديد للمحامين (لازم يكون فوق خالص)
 router.get('/lawyers', userController.getLawyers);
 
+// 0. جلب كل المستخدمين (GET /api/users)
+router.get('/', userController.getAllUsers);
+
 // 1. التخصصات (GET /api/users/specializations)
 router.get('/specializations', userController.getSpecializations);
+
+// 1.5. جلب بيانات مستخدم بواسطة البريد الإلكتروني
+router.get('/edit-details', userController.getUserByEmail);
 
 // 2. البحث (GET /api/users/search)
 router.get('/search', userController.searchUsers);
 
+// 1.6. جلب بيانات مستخدم بواسطة الـ ID
+router.get('/:id', userController.getUserById);
+
 // 3. تسجيل مستخدم جديد
+router.post('/', validateRegister, userController.register);
 router.post('/register', validateRegister, userController.register);
 
 // 4. تسجيل الدخول (POST /api/users/login)

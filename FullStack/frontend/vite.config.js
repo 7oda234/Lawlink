@@ -19,6 +19,13 @@ export default defineConfig({
   // ὚1 إعدادات الخادم التطوير - Development server settings
   server: {
     host: '0.0.0.0',  // الإذاعة علا جميع أجهزة النبِوة - Listen on all network interfaces
-    port: 5173  // رقم بورت الخادم - Server port number
+    port: 5173,  // رقم بورت الخادم - Server port number
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+        secure: false,
+      }
+    }
   }
 })

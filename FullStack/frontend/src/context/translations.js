@@ -37,7 +37,9 @@ export const translations = {
         systemSection: "System", 
         financialOverview: "Financial Overview", // FIXED
         reports: "Reports", 
-        logs: "Logs"
+        logs: "Logs",
+        notifications: "Notifications",
+        aiUsage: "AI Usage"
       },
       financial: { // Added for the new page content[cite: 2]
         title: "Financial Intelligence",
@@ -118,7 +120,9 @@ export const translations = {
         systemSection: "النظام", 
         financialOverview: "نظرة عامة مالية", // FIXED
         reports: "التقارير", 
-        logs: "السجلات"
+        logs: "السجلات",
+        notifications: "الإشعارات",
+        aiUsage: "استخدام الذكاء الاصطناعي"
       },
       financial: { // Added for the new page content[cite: 2]
         title: "الذكاء المالي",
@@ -198,7 +202,9 @@ export const translations = {
         systemSection: "النظام", 
         financialOverview: "الحسابات والفلوس", // FIXED
         reports: "التقارير", 
-        logs: "السجلات"
+        logs: "السجلات",
+        notifications: "الإشعارات",
+        aiUsage: "استخدام الذكاء الاصطناعي"
       },
       financial: { // Added for the new page content[cite: 2]
         title: "نظرة على الخزنة",

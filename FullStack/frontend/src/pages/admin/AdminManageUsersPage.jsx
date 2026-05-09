@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { 
   Users, Search, Mail, Phone, Shield, 
-  Edit, Trash2, UserPlus, Filter, Loader2, AlertCircle 
+  Edit, Trash2, UserPlus, Loader2, AlertCircle 
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import AdminLayout from '../../components/AdminLayout';
@@ -156,7 +156,7 @@ const AdminManageUsersPage = () => {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex justify-center gap-2">
-                          <Link to={`/admin/users/edit?email=${user.email}`} className="p-2 hover:bg-page rounded-lg text-muted transition-colors">
+                          <Link to={`/admin/users/${user.user_id}/edit`} className="p-2 hover:bg-page rounded-lg text-muted transition-colors">
                             <Edit size={16} />
                           </Link>
                           <button 

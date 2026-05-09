@@ -195,6 +195,57 @@ export const getUserProfileService = async (userId) => {
     return rows[0];
 };
 
+export const getAllUsersService = async () => {
+    const [rows] = await pool.promise().query(
+        `SELECT u.user_id, u.name, u.email, u.role, u.gender, u.Phone_no1, u.Phone_no2, u.Date_of_Birth,
+                u.image_url, u.created_at, l.license_number, l.years_experience, l.verified,
+                a.authority_level, c.income_level
+         FROM users u
+         LEFT JOIN lawyer l ON u.user_id = l.user_id
+         LEFT JOIN admin a ON u.user_id = a.user_id
+         LEFT JOIN client c ON u.user_id = c.user_id
+         WHERE u.deleted_at IS NULL
+         ORDER BY u.created_at DESC`
+    );
+    return rows;
+};
+
+export const getUserByEmailService = async (email) => {
+    const [rows] = await pool.promise().query(
+        `SELECT u.user_id, u.name, u.email, u.role, u.gender, u.Phone_no1, u.Phone_no2, u.Date_of_Birth,
+                u.image_url, u.created_at, l.license_number, l.years_experience, l.verified,
+                a.authority_level, c.income_level,
+                GROUP_CONCAT(ls.spec_name SEPARATOR ',') AS specializations
+         FROM users u
+         LEFT JOIN lawyer l ON u.user_id = l.user_id
+         LEFT JOIN admin a ON u.user_id = a.user_id
+         LEFT JOIN client c ON u.user_id = c.user_id
+         LEFT JOIN lawyer_specializations ls ON l.user_id = ls.lawyer_id
+         WHERE u.email = ? AND u.deleted_at IS NULL
+         GROUP BY u.user_id
+         LIMIT 1`, [email]
+    );
+    return rows.length > 0 ? rows[0] : null;
+};
+
+export const getUserByIdService = async (userId) => {
+    const [rows] = await pool.promise().query(
+        `SELECT u.user_id, u.name, u.email, u.role, u.gender, u.Phone_no1, u.Phone_no2, u.Date_of_Birth,
+                u.image_url, u.created_at, l.license_number, l.years_experience, l.verified,
+                a.authority_level, c.income_level,
+                GROUP_CONCAT(ls.spec_name SEPARATOR ',') AS specializations
+         FROM users u
+         LEFT JOIN lawyer l ON u.user_id = l.user_id
+         LEFT JOIN admin a ON u.user_id = a.user_id
+         LEFT JOIN client c ON u.user_id = c.user_id
+         LEFT JOIN lawyer_specializations ls ON l.user_id = ls.lawyer_id
+         WHERE u.user_id = ? AND u.deleted_at IS NULL
+         GROUP BY u.user_id
+         LIMIT 1`, [userId]
+    );
+    return rows.length > 0 ? rows[0] : null;
+};
+
 // ✅ 7. الحذف المنطقي (Logic Delete)
 export const deleteUserService = async (userId) => {
     try {

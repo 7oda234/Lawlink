@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { 
   User, Mail, Phone, ShieldCheck, Loader2, CheckCircle2, 
@@ -9,11 +10,13 @@ import { useLanguage } from '../../context/LanguageContextObject';
 
 const AdminEditUserPage = () => {
   const { t } = useLanguage();
-  
+  const { userId } = useParams();
+
   // حالات الصفحة
   const [searchEmail, setSearchEmail] = useState('');
   const [isEditing, setIsConfirmEditing] = useState(false);
   const [status, setStatus] = useState({ type: '', message: '' });
+  const [loading, setLoading] = useState(false);
   
   // بيانات النموذج تطابق أعمدة SQL
   const [formData, setFormData] = useState({
@@ -30,6 +33,30 @@ const AdminEditUserPage = () => {
     years_experience: '',   
     authority_level: ''    
   });
+
+  const fetchUserById = async (id) => {
+    setLoading(true);
+    setStatus({ type: 'loading', message: 'جاري جلب بيانات المستخدم...' });
+    setIsConfirmEditing(false);
+
+    try {
+      const response = await axios.get(`/api/users/${id}`);
+      setFormData(response.data);
+      setStatus({ type: '', message: '' });
+      setIsConfirmEditing(true);
+    } catch {
+      setStatus({ type: 'error', message: 'المستخدم غير موجود أو حدث خطأ في النظام.' });
+      setIsConfirmEditing(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (userId) {
+      fetchUserById(userId);
+    }
+  }, [userId]);
 
   // البحث عن المستخدم ببياناته الكاملة[cite: 11]
   const handleSearch = async (e) => {

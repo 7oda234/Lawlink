@@ -86,9 +86,12 @@ const AdminManageLawyersPage = React.lazy(() => import('./pages/admin/AdminManag
 const AdminApproveLawyersPage = React.lazy(() => import('./pages/admin/AdminApproveLawyersPage'));
 const AdminManageClientsPage = React.lazy(() => import('./pages/admin/AdminManageClientsPage'));
 const AdminManageCasesPage = React.lazy(() => import('./pages/admin/AdminManageCasesPage'));
+const AdminEditCasePage = React.lazy(() => import('./pages/admin/AdminEditCasePage'));
 const AdminCaseMonitoringPage = React.lazy(() => import('./pages/admin/AdminCaseMonitoringPage'));
 const AdminReportsPage = React.lazy(() => import('./pages/admin/AdminReportsPage'));
 const AdminSystemLogsPage = React.lazy(() => import('./pages/admin/AdminSystemLogsPage'));
+const AdminNotificationsPage = React.lazy(() => import('./pages/admin/AdminNotificationsPage'));
+const AdminAiUsagePage = React.lazy(() => import('./pages/admin/AdminAiUsagePage'));
 const AdminFinancialOverview = React.lazy(() => import('./pages/admin/AdminFinancialOverviewPage'));
 
 // استيراد صفحات القضايا - Importing case pages
@@ -203,9 +206,13 @@ const routeConfig = [
   { path: '/admin/lawyers/approve', Component: AdminApproveLawyersPage },
   { path: '/admin/clients', Component: AdminManageClientsPage },
   { path: '/admin/cases', Component: AdminManageCasesPage },
+  { path: '/admin/cases/:caseId/edit', Component: AdminEditCasePage },
   { path: '/admin/cases/monitoring', Component: AdminCaseMonitoringPage },
   { path: '/admin/reports', Component: AdminReportsPage },
   { path: '/admin/logs', Component: AdminSystemLogsPage },
+  { path: '/admin/notifications', Component: AdminNotificationsPage },
+  { path: '/admin/ai-usage', Component: AdminAiUsagePage },
+  { path: '/admin/ai-tools', Component: AIToolsPage },
   { path: '/admin/financial-overview', Component: AdminFinancialOverview },
 
   // case routes
@@ -274,16 +281,18 @@ const AppRoutes = () => {
 // مكون المحتوى الرئيسي للتطبيق - Main content component for the app
 const AppContent = () => {
   const { mode } = useTheme();
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
 
   return (
     <div className={`min-h-screen ${mode === 'dark' ? 'bg-slate-950 text-white' : 'bg-gray-50 text-slate-900'}`}>
-      <Navbar />
-      <main className="max-w-7xl mx-auto px-4 pt-24 min-h-screen">
+      {!isAdminRoute && <Navbar />}
+      <main className={`max-w-7xl mx-auto px-4 ${isAdminRoute ? 'pt-0' : 'pt-24'} min-h-screen`}>
         <React.Suspense fallback={<div className="text-center py-20 italic font-black uppercase tracking-widest animate-pulse">Loading LawLink Archive...</div>}>
           <AppRoutes />
         </React.Suspense>
       </main>
-      <Footer />
+      {!isAdminRoute && <Footer />}
     </div>
   );
 };

@@ -115,7 +115,32 @@ export const handleDeleteCase = async (req, res) => {
   }
 };
 
-// 💳 4. تأكيد الدفع
+// 🔍 جلب تفاصيل قضية واحدة
+export const handleGetCaseById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const caseData = await casesService.getCaseById(id);
+    if (!caseData) {
+      return res.status(404).json({ ok: false, message: 'القضية غير موجودة.' });
+    }
+    res.status(200).json({ ok: true, data: caseData });
+  } catch (err) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+};
+
+// تحديث حالة أو بيانات قضية
+export const handleUpdateCase = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await casesService.updateCase(id, req.body);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+};
+
+// �💳 4. تأكيد الدفع
 export const handlePaymentConfirmation = async (req, res) => {
   try {
     const { caseId } = req.body;

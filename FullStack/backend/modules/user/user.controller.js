@@ -28,8 +28,39 @@ export const getUserProfile = async (req, res) => {
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
 
+export const getAllUsers = async (req, res) => {
+    try {
+        const users = await userService.getAllUsersService();
+        res.status(200).json(users);
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+};
+
+export const getUserByEmail = async (req, res) => {
+    try {
+        const user = await userService.getUserByEmailService(req.query.email);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'المستخدم غير موجود.' });
+        }
+        res.status(200).json(user);
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+};
+
+export const getUserById = async (req, res) => {
+    try {
+        const user = await userService.getUserByIdService(req.params.id);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'المستخدم غير موجود.' });
+        }
+        res.status(200).json(user);
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+};
+
 export const searchUsers = async (req, res) => {
     try {
+        if (req.query.email) {
+            const user = await userService.getUserByEmailService(req.query.email);
+            return user ? res.status(200).json(user) : res.status(404).json({ success: false, message: 'المستخدم غير موجود.' });
+        }
         const data = await userService.searchUsersService(req.query.term);
         res.status(200).json({ success: true, data });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }

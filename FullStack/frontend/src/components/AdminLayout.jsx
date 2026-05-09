@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, Users, ShieldCheck, 
-  BarChart3, FileCode, LogOut, Banknote,
-  Search, Bell, ChevronRight, ChevronLeft
+  BarChart3, FileCode, MessageSquare, Cpu,
+  LogOut, Banknote, Search, Bell, ChevronRight, ChevronLeft
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContextObject';
 import dataService from '../services/DataService'; // للربط بالباك إند[cite: 3]
@@ -63,6 +63,23 @@ const AdminLayout = ({ children, title, description }) => {
             <ShieldCheck size={20} />
             <span className="text-sm font-bold">{t('admin.sidebar.approveLawyers')}</span>
           </Link>
+          <Link to="/admin/clients" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive('/admin/clients') ? 'bg-yellow-500 text-slate-950' : 'text-gray-400 hover:bg-white/5'}`}>
+            <Users size={20} />
+            <span className="text-sm font-bold">{t('admin.sidebar.manageClients')}</span>
+          </Link>
+
+          {/* إدارة القضايا */}
+          <div className="pt-6 pb-2 px-4">
+            <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">{t('admin.sidebar.casesSection')}</span>
+          </div>
+          <Link to="/admin/cases" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive('/admin/cases') ? 'bg-yellow-500 text-slate-950' : 'text-gray-400 hover:bg-white/5'}`}>
+            <FileCode size={20} />
+            <span className="text-sm font-bold">{t('admin.sidebar.manageCases')}</span>
+          </Link>
+          <Link to="/admin/cases/monitoring" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive('/admin/cases/monitoring') ? 'bg-yellow-500 text-slate-950' : 'text-gray-400 hover:bg-white/5'}`}>
+            <BarChart3 size={20} />
+            <span className="text-sm font-bold">{t('admin.sidebar.monitorCases')}</span>
+          </Link>
 
           {/* إدارة النظام[cite: 4] */}
           <div className="pt-6 pb-2 px-4">
@@ -75,6 +92,22 @@ const AdminLayout = ({ children, title, description }) => {
           <Link to="/admin/reports" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive('/admin/reports') ? 'bg-yellow-500 text-slate-950' : 'text-gray-400 hover:bg-white/5'}`}>
             <BarChart3 size={20} />
             <span className="text-sm font-bold">{t('admin.sidebar.reports')}</span>
+          </Link>
+          <Link to="/admin/logs" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive('/admin/logs') ? 'bg-yellow-500 text-slate-950' : 'text-gray-400 hover:bg-white/5'}`}>
+            <FileCode size={20} />
+            <span className="text-sm font-bold">{t('admin.sidebar.logs')}</span>
+          </Link>
+          <Link to="/admin/notifications" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive('/admin/notifications') ? 'bg-yellow-500 text-slate-950' : 'text-gray-400 hover:bg-white/5'}`}>
+            <MessageSquare size={20} />
+            <span className="text-sm font-bold">{t('admin.sidebar.notifications')}</span>
+          </Link>
+          <Link to="/admin/ai-usage" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive('/admin/ai-usage') ? 'bg-yellow-500 text-slate-950' : 'text-gray-400 hover:bg-white/5'}`}>
+            <Cpu size={20} />
+            <span className="text-sm font-bold">{t('admin.sidebar.aiUsage')}</span>
+          </Link>
+          <Link to="/admin/ai-tools" className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive('/admin/ai-tools') ? 'bg-yellow-500 text-slate-950' : 'text-gray-400 hover:bg-white/5'}`}>
+            <Cpu size={20} />
+            <span className="text-sm font-bold">AI Tools</span>
           </Link>
         </nav>
 

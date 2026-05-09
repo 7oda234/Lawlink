@@ -2,7 +2,8 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, Users, Gavel, 
-  Banknote, BarChart3, ShieldCheck 
+  Banknote, BarChart3, ShieldCheck, 
+  FileCode, MessageSquare, Cpu 
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContextObject';
 
@@ -18,10 +19,18 @@ const AdminSidebar = () => {
     { group: t('admin.sidebar.usersSection'), items: [
       { path: '/admin/users', icon: Users, label: t('admin.sidebar.manageUsers') },
       { path: '/admin/lawyers/approve', icon: ShieldCheck, label: t('admin.sidebar.approveLawyers') },
+      { path: '/admin/clients', icon: Users, label: t('admin.sidebar.manageClients') },
+    ]},
+    { group: t('admin.sidebar.casesSection'), items: [
+      { path: '/admin/cases', icon: FileCode, label: t('admin.sidebar.manageCases') },
+      { path: '/admin/cases/monitoring', icon: BarChart3, label: t('admin.sidebar.monitorCases') },
     ]},
     { group: t('admin.sidebar.systemSection'), items: [
       { path: '/admin/financial-overview', icon: Banknote, label: t('admin.sidebar.financialOverview') },
       { path: '/admin/reports', icon: BarChart3, label: t('admin.sidebar.reports') },
+      { path: '/admin/logs', icon: FileCode, label: t('admin.sidebar.logs') },
+      { path: '/admin/notifications', icon: MessageSquare, label: t('admin.sidebar.notifications') },
+      { path: '/admin/ai-usage', icon: Cpu, label: t('admin.sidebar.aiUsage') },
     ]}
   ];
 

@@ -2,6 +2,7 @@
 import authRouter from "../modules/auth/auth.routes.js"; 
 import userRouter from "../modules/user/user.routes.js";
 import casesRouter from "../modules/Cases/cases.routes.js";
+import adminRouter from "../modules/admin/admin.routes.js";
 import aiRouter from "../modules/Ai_tools/ai_tools.routes.js";
 import messageRouter from "../modules/Message/message.routes.js";
 import knowledgeBaseRouter from "../modules/Knowledge_base/knowledge_base.routes.js";
@@ -39,6 +40,9 @@ export const setupAppRoutes = (app) => {
 
     // 📚 موديول قاعدة المعرفة
     app.use("/api/knowledge-base", knowledgeBaseRouter);
+
+    // 🔐 موديول الإدارة
+    app.use("/api/admin", adminRouter);
 
     // 📁 موديول المستندات
     app.use("/api/documents", documentsRouter);
