@@ -8,6 +8,11 @@ const ClientPaymentPage = () => {
   const [pendingCase, setPendingCase] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
+  
+  // ✅ 1. حالات جديدة لتاريخ الانتهاء والأخطاء
+  const [expiryDate, setExpiryDate] = useState('');
+  const [expiryError, setExpiryError] = useState('');
+  
   const userId = localStorage.getItem('userId');
 
   useEffect(() => {
@@ -26,8 +31,59 @@ const ClientPaymentPage = () => {
     fetchPendingPayment();
   }, []);
 
+  // ✅ 2. دالة تنسيق تاريخ الفيزا (MM/YY) وتصحيح الأشهر الخاطئة
+  const handleExpiryChange = (e) => {
+    let input = e.target.value.replace(/\D/g, ''); // السماح بالأرقام فقط
+
+    if (input.length >= 2) {
+      // منع كتابة شهر أكبر من 12 أو 00
+      let month = parseInt(input.substring(0, 2), 10);
+      if (month > 12) input = '12' + input.substring(2);
+      if (month === 0) input = '01' + input.substring(2);
+    }
+
+    // إضافة الـ Slash التلقائية
+    let formatted = input;
+    if (input.length >= 3) {
+      formatted = input.substring(0, 2) + '/' + input.substring(2, 4);
+    }
+
+    setExpiryDate(formatted);
+    setExpiryError(''); // إخفاء الخطأ بمجرد محاولة التعديل
+  };
+
+  // ✅ 3. دالة التحقق من صلاحية البطاقة (ألّا تكون منتهية)
+  const validateExpiry = () => {
+    if (expiryDate.length !== 5) {
+      setExpiryError("صيغة التاريخ غير مكتملة");
+      return false;
+    }
+
+    const [monthStr, yearStr] = expiryDate.split('/');
+    const expMonth = parseInt(monthStr, 10);
+    const expYear = parseInt("20" + yearStr, 10);
+
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth() + 1; // الأشهر تبدأ من 0
+    const currentYear = currentDate.getFullYear();
+
+    // البطاقة منتهية إذا كانت السنة أقدم من الحالية، أو نفس السنة لكن الشهر أقدم
+    if (expYear < currentYear || (expYear === currentYear && expMonth < currentMonth)) {
+      setExpiryError("البطاقة منتهية الصلاحية");
+      return false;
+    }
+
+    return true;
+  };
+
   const handlePayment = async (e) => {
     e.preventDefault();
+
+    // ✅ التحقق قبل تنفيذ الدفع
+    if (!validateExpiry()) {
+      return; 
+    }
+
     setIsProcessing(true);
     try {
       const paymentPayload = {
@@ -65,6 +121,8 @@ const ClientPaymentPage = () => {
   return (
     <div className="min-h-screen pt-28 pb-16 bg-slate-950 text-white px-6" dir="rtl">
       <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10">
+        
+        {/* ملخص الدفع */}
         <div className="bg-slate-900 p-10 rounded-[3rem] border border-white/5 shadow-2xl h-fit">
           <div className="flex items-center gap-3 mb-8 text-yellow-500">
             <ShieldCheck size={28} />
@@ -86,6 +144,8 @@ const ClientPaymentPage = () => {
             </div>
           </div>
         </div>
+
+        {/* نموذج الدفع */}
         <div className="bg-slate-900 p-10 rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden">
           {isProcessing && (
             <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center z-50 rounded-[3rem]">
@@ -93,17 +153,46 @@ const ClientPaymentPage = () => {
               <p className="text-yellow-500 font-black text-xl animate-pulse">جاري معالجة الدفع...</p>
             </div>
           )}
+          
           <form onSubmit={handlePayment} className="space-y-6">
-            <h2 className="text-2xl font-black uppercase tracking-widest mb-8"><CreditCard className="inline ml-3 text-yellow-500" />بيانات البطاقة</h2>
+            <h2 className="text-2xl font-black uppercase tracking-widest mb-8">
+              <CreditCard className="inline ml-3 text-yellow-500" />
+              بيانات البطاقة
+            </h2>
+            
             <input type="text" required placeholder="اسم حامل البطاقة" className="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:border-yellow-500" dir="ltr" />
-            <input type="text" required maxLength="19" placeholder="0000 0000 0000 0000" className="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white tracking-widest font-mono" dir="ltr" />
-            <div className="grid grid-cols-2 gap-6">
-              <input type="text" required maxLength="5" placeholder="MM/YY" className="bg-slate-950 border border-white/10 rounded-2xl p-4 font-mono" dir="ltr" />
-              <input type="password" required maxLength="3" placeholder="CVV" className="bg-slate-950 border border-white/10 rounded-2xl p-4 font-mono" dir="ltr" />
+            
+            <input type="text" required maxLength="19" placeholder="0000 0000 0000 0000" className="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-white tracking-widest font-mono focus:outline-none focus:border-yellow-500" dir="ltr" />
+            
+            <div className="grid grid-cols-2 gap-6 relative">
+              {/* ✅ حقل تاريخ الانتهاء المربوط بالحالة والـ Error */}
+              <div className="flex flex-col">
+                <input 
+                  type="text" 
+                  required 
+                  maxLength="5" 
+                  placeholder="MM/YY" 
+                  value={expiryDate}
+                  onChange={handleExpiryChange}
+                  className={`bg-slate-950 border rounded-2xl p-4 font-mono text-white transition-colors focus:outline-none ${
+                    expiryError ? 'border-red-500 focus:border-red-500' : 'border-white/10 focus:border-yellow-500'
+                  }`} 
+                  dir="ltr" 
+                />
+                {expiryError && (
+                  <span className="text-red-500 text-xs font-bold mt-2 pr-2">{expiryError}</span>
+                )}
+              </div>
+              
+              <input type="password" required maxLength="3" placeholder="CVV" className="bg-slate-950 border border-white/10 rounded-2xl p-4 font-mono text-white focus:outline-none focus:border-yellow-500" dir="ltr" />
             </div>
-            <button type="submit" className="w-full bg-yellow-500 text-black font-black py-5 rounded-2xl italic uppercase hover:bg-yellow-400 shadow-xl shadow-yellow-500/20 text-xl">دفع {pendingCase?.upfront_fee} EGP</button>
+
+            <button type="submit" className="w-full bg-yellow-500 text-black font-black py-5 rounded-2xl italic uppercase hover:bg-yellow-400 shadow-xl shadow-yellow-500/20 text-xl mt-4">
+              دفع {pendingCase?.upfront_fee} EGP
+            </button>
           </form>
         </div>
+        
       </div>
     </div>
   );
