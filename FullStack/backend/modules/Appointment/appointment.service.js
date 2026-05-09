@@ -1,6 +1,5 @@
 import db from "../../db/Connection.js";
 
-// 🛠️ ضفنا كونسول هنا عشان لو الداتابيز رفضت استعلام، يقولك السبب فوراً في التيرمينال
 const runQuery = (sql, params = []) =>
   new Promise((resolve, reject) => {
     db.query(sql, params, (err, result) => {
@@ -12,21 +11,19 @@ const runQuery = (sql, params = []) =>
     });
   });
 
-// 1. التحقق من ربط المحامي بالقضية
 export const verifyLawyerCaseLink = async (caseId, lawyerId) => {
   const sql = `SELECT * FROM cases WHERE case_id = ? AND lawyer_id = ?`;
   const res = await runQuery(sql, [caseId, lawyerId]);
   return res.length > 0;
 };
 
-// 2. إنشاء ميعاد جديد
 export const createAppointment = async (date, clientId, lawyerId, caseId) => {
   const sql = `INSERT INTO appointment (appointment_date, status, client_id, lawyer_id, case_id) VALUES (?, 'Scheduled', ?, ?, ?)`;
   const res = await runQuery(sql, [date, clientId, lawyerId, caseId]);
   return res.insertId;
 };
 
-// 3. جلب المواعيد + اسم الطرف الآخر (العميل/المحامي) + اسم القضية
+// 🔥 الحل السحري هنا: استخدمنا DATE_FORMAT عشان الداتابيز ترجع النص سليم 100% 
 export const getAppointmentsByUser = async (userId, role) => {
   const isLawyer = role.toLowerCase() === 'lawyer';
   const column = isLawyer ? 'lawyer_id' : 'client_id';
@@ -34,7 +31,12 @@ export const getAppointmentsByUser = async (userId, role) => {
 
   const sql = `
     SELECT 
-        a.*, 
+        a.appointment_id, 
+        a.status, 
+        a.client_id, 
+        a.lawyer_id, 
+        a.case_id,
+        DATE_FORMAT(a.appointment_date, '%Y-%m-%dT%H:%i') AS appointment_date,
         u.name AS partner_name, 
         u.image_url AS partner_image,
         c.title AS case_title
@@ -47,21 +49,19 @@ export const getAppointmentsByUser = async (userId, role) => {
   return await runQuery(sql, [userId]);
 };
 
-// 4. تعديل ميعاد
+// ✅ منعنا ظهور خطأ لو اليوزر داس تعديل ومغيرش حاجة
 export const updateAppointment = async (appointmentId, newDate, newStatus) => {
   const sql = `UPDATE appointment SET appointment_date = ?, status = ? WHERE appointment_id = ?`;
   const res = await runQuery(sql, [newDate, newStatus, appointmentId]);
-  return res.affectedRows > 0;
+  return res !== null; 
 };
 
-// 5. حذف ميعاد
 export const deleteAppointment = async (appointmentId) => {
   const sql = `DELETE FROM appointment WHERE appointment_id = ?`;
   const res = await runQuery(sql, [appointmentId]);
   return res.affectedRows > 0;
 };
 
-// 6. جلب بيانات ميعاد محدد (لإرسال الإشعارات عند التعديل)
 export const getAppointmentById = async (appointmentId) => {
   const sql = `SELECT * FROM appointment WHERE appointment_id = ?`;
   const res = await runQuery(sql, [appointmentId]);

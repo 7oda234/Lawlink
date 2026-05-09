@@ -14,11 +14,9 @@ const ClientAppointmentsPage = () => {
 
   const fetchData = async () => {
     try {
-      // جلب المواعيد الخاصة بالعميل
       const apptRes = await axios.get(`${BASE_URL}/api/appointments/list?userId=${userId}&role=client`);
       if (apptRes.data.ok) setAppointments(apptRes.data.data);
 
-      // جلب القضايا المفتوحة والمربوطة بمحامي
       const casesRes = await axios.get(`${BASE_URL}/api/cases`);
       const active = casesRes.data.cases.filter(c => c.client_id == userId && c.lawyer_id != null);
       setLinkedCases(active);
@@ -31,34 +29,42 @@ const ClientAppointmentsPage = () => {
     fetchData(); 
   }, []);
 
-  /**
-   * 🛠️ الدالة الذكية لحل مشكلة ظهور الصور (يوسف علي) 
-   * بتتعامل مع الـ Base64 مباشرة عشان تتجنب Error 431
-   */
   const formatImg = (path) => {
     if (!path || path === "null" || path === "undefined") {
       return 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
     }
-
-    // 1. لو الصورة عبارة عن كود Base64 (زي حالة يوسف علي)
-    // بنرجعها زي ما هي عشان الـ Browser يعرضها فوراً
-    if (path.startsWith('data:image')) {
-      return path;
-    }
-
-    // 2. لو الصورة رابط خارجي كامل
-    if (path.startsWith('http')) {
-      return path;
-    }
-
-    // 3. لو الصورة مسار ملف على السيرفر (زي حالة سارة الحلي)
-    // بننظف المسار ونضيف الـ BASE_URL مرة واحدة بس
+    if (path.startsWith('data:image')) return path;
+    if (path.startsWith('http')) return path;
+    
     let cleanPath = path.replace(/^\/+/, '');
     if (cleanPath.startsWith('uploads/')) {
       return `${BASE_URL}/${cleanPath}`;
     }
-
     return `${BASE_URL}/uploads/${cleanPath}`;
+  };
+
+  /**
+   * 🚀 الدالة دي هتقرأ النص اللي جي من الباك إند زي ما هو وتقسمه للعرض
+   */
+  const getExactTime = (dateStr) => {
+    if (!dateStr) return { date: '', time: '', inputFormat: '' };
+    try {
+      const [datePart, timePart] = dateStr.split('T');
+      const [year, month, day] = datePart.split('-');
+      const [hourStr, minuteStr] = timePart.split(':');
+      
+      let hour = parseInt(hourStr, 10);
+      const ampm = hour >= 12 ? 'م' : 'ص';
+      hour = hour % 12 || 12; 
+
+      return {
+        date: `${day}/${month}/${year}`,
+        time: `${hour}:${minuteStr} ${ampm}`,
+        inputFormat: dateStr // e.g. "2026-05-10T14:30"
+      };
+    } catch (e) {
+      return { date: 'تاريخ غير صالح', time: '', inputFormat: '' };
+    }
   };
 
   const handleCreateSubmit = async (e) => {
@@ -132,7 +138,6 @@ const ClientAppointmentsPage = () => {
           <Calendar size={40} /> مواعيدي القانونية
         </h1>
 
-        {/* 📋 نموذج حجز موعد جديد */}
         <div className="bg-slate-800/50 p-8 rounded-[2.5rem] border border-white/5 mb-12 shadow-2xl backdrop-blur-sm">
           <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
             <Plus className="text-yellow-500" /> حجز جلسة استشارة جديدة
@@ -160,7 +165,6 @@ const ClientAppointmentsPage = () => {
           </form>
         </div>
 
-        {/* 🗂️ عرض البطاقات الكحلية للمواعيد */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {appointments.map(appt => (
             <div key={appt.appointment_id} className="bg-slate-800 border border-white/5 p-6 rounded-[2rem] hover:border-yellow-500/30 transition-all shadow-xl group">
@@ -194,20 +198,23 @@ const ClientAppointmentsPage = () => {
                 <div className="bg-slate-950 px-4 py-2 rounded-xl flex items-center gap-2 border border-white/5">
                   <Calendar size={16} className="text-yellow-500" />
                   <span className="text-sm font-bold text-slate-300">
-                    {new Date(appt.appointment_date).toLocaleDateString('ar-EG')}
+                    {getExactTime(appt.appointment_date).date}
                   </span>
                 </div>
                 <div className="bg-slate-950 px-4 py-2 rounded-xl flex items-center gap-2 border border-white/5">
                   <Clock size={16} className="text-yellow-500" />
                   <span className="text-sm font-bold text-slate-300" dir="ltr">
-                    {new Date(appt.appointment_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {getExactTime(appt.appointment_date).time}
                   </span>
                 </div>
               </div>
 
               <div className="mt-6">
                 <button 
-                  onClick={() => { setEditingAppt(appt); setEditDate(appt.appointment_date.slice(0,16)); }}
+                  onClick={() => { 
+                    setEditingAppt(appt); 
+                    setEditDate(getExactTime(appt.appointment_date).inputFormat); 
+                  }}
                   className="w-full bg-white/5 hover:bg-white/10 text-slate-300 p-2 rounded-xl border border-white/10 transition-colors flex items-center justify-center gap-2"
                 >
                   <Edit size={18} /> تعديل الموعد
@@ -218,7 +225,6 @@ const ClientAppointmentsPage = () => {
         </div>
       </div>
 
-      {/* 🔄 مودال إعادة الجدولة */}
       {editingAppt && (
         <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-slate-900 p-8 rounded-[2.5rem] border border-yellow-500/30 max-w-md w-full shadow-2xl">

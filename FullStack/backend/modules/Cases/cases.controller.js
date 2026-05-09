@@ -1,6 +1,6 @@
 import * as casesService from "./cases.service.js";
 import * as documentService from "../Document_folder/document_folder.service.js"; // 👈 استيراد ملف المستندات
-import * as notificationService from "../Notification/notification.service.js"; // 👈 استيراد الإشعارات
+//import * as notificationService from "../Notification/notification.service.js"; // 👈 استيراد الإشعارات
 
 // ➕ إنشاء قضية مع حفظ الملفات المرفوعة
 export const handleCreateCase = async (req, res) => {
@@ -20,9 +20,9 @@ export const handleCreateCase = async (req, res) => {
     }
 
     // 🔔 إشعار للعميل بإنشاء القضية
-    if (req.body.client_id) {
-        await notificationService.createNotification(req.body.client_id, "تم إنشاء قضيتك ورفع الملفات بنجاح 📁");
-    }
+    // if (req.body.client_id) {
+    //     await notificationService.createNotification(req.body.client_id, "تم إنشاء قضيتك ورفع الملفات بنجاح 📁");
+    // }
 
     res.status(201).json({ 
         ok: true, 
@@ -52,7 +52,7 @@ export const handleSendOffer = async (req, res) => {
     const result = await casesService.sendOffer(caseId, lawyerId);
     
     // 🔔 إشعار للمحامي بوجود قضية جديدة معروضة عليه
-    await notificationService.createNotification(lawyerId, "لديك طلب قضية جديد في انتظار المراجعة 📩");
+    //await notificationService.createNotification(lawyerId, "لديك طلب قضية جديد في انتظار المراجعة 📩");
     
     res.status(200).json(result);
   } catch (err) {
@@ -67,14 +67,14 @@ export const handleLawyerResponse = async (req, res) => {
     const result = await casesService.lawyerRespondToOffer(caseId, lawyerId, response, upfrontFee, successPercentage);
     
     // 🔔 إشعار للعميل إن المحامي رد على القضية
-    const clientId = await notificationService.getClientIdByCase(caseId);
-    if (clientId) {
-        if (response.toLowerCase() === 'accept') {
-            await notificationService.createNotification(clientId, "المحامي وافق على قضيتك وأرسل لك عرض الأتعاب ⚖️");
-        } else {
-            await notificationService.createNotification(clientId, "نعتذر، المحامي رفض استلام القضية في الوقت الحالي ❌");
-        }
-    }
+    // const clientId = await notificationService.getClientIdByCase(caseId);
+    // if (clientId) {
+    //     if (response.toLowerCase() === 'accept') {
+    //         await notificationService.createNotification(clientId, "المحامي وافق على قضيتك وأرسل لك عرض الأتعاب ⚖️");
+    //     } else {
+    //         await notificationService.createNotification(clientId, "نعتذر، المحامي رفض استلام القضية في الوقت الحالي ❌");
+    //     }
+    // }
 
     res.status(200).json(result);
   } catch (err) {
@@ -89,14 +89,14 @@ export const handleClientResponse = async (req, res) => {
     const result = await casesService.clientRespondToFees(caseId, response);
     
     // 🔔 إشعار للمحامي برد العميل على العرض
-    const lawyerId = await notificationService.getLawyerIdByCase(caseId);
-    if (lawyerId) {
-        if (response.toLowerCase() === 'accept') {
-            await notificationService.createNotification(lawyerId, "العميل وافق على عرض الأتعاب الخاص بك، في انتظار الدفع 💳");
-        } else {
-            await notificationService.createNotification(lawyerId, "العميل رفض عرض الأتعاب الخاص بك 🔄");
-        }
-    }
+    // const lawyerId = await notificationService.getLawyerIdByCase(caseId);
+    // if (lawyerId) {
+    //     if (response.toLowerCase() === 'accept') {
+    //         await notificationService.createNotification(lawyerId, "العميل وافق على عرض الأتعاب الخاص بك، في انتظار الدفع 💳");
+    //     } else {
+    //         await notificationService.createNotification(lawyerId, "العميل رفض عرض الأتعاب الخاص بك 🔄");
+    //     }
+    // }
 
     res.status(200).json(result);
   } catch (err) {

@@ -1,5 +1,5 @@
 import * as appService from "./appointment.service.js";
-import * as notificationService from "../Notification/notification.service.js"; 
+//import * as notificationService from "../Notification/notification.service.js"; 
 
 // 🛠️ دالة مساعدة لتظبيط صيغة التاريخ عشان تقبلها الـ MySQL
 const formatDateTime = (dateString) => {
@@ -33,13 +33,13 @@ export const bookAppointment = async (req, res) => {
     const appointmentId = await appService.createAppointment(finalDate, clientId, lawyerId, caseId);
     
     // 🔔 الإشعارات جوه Try/Catch عشان لو فشلت متوقعش الحجز كله
-    try {
-      const msg = `تم حجز موعد جديد يوم ${finalDate} 📅`;
-      await notificationService.createNotification(lawyerId, msg);
-      await notificationService.createNotification(clientId, msg);
-    } catch (notifErr) {
-      console.error("⚠️ Notification Error (Booking):", notifErr.message);
-    }
+    // try {
+    //   const msg = `تم حجز موعد جديد يوم ${finalDate} 📅`;
+    //   await notificationService.createNotification(lawyerId, msg);
+    //   await notificationService.createNotification(clientId, msg);
+    // } catch (notifErr) {
+    //   console.error("⚠️ Notification Error (Booking):", notifErr.message);
+    // }
 
     res.status(201).json({ ok: true, message: "تم حجز الميعاد بنجاح ✅", appointmentId });
   } catch (err) { 
@@ -81,18 +81,18 @@ export const modifyAppointment = async (req, res) => {
 
     if (!isSuccess) return res.status(404).json({ ok: false, message: "الميعاد غير موجود" });
 
-    // 🔔 الإشعارات
-    const appointmentDetails = await appService.getAppointmentById(appointmentId);
-    if (appointmentDetails) {
-        const { client_id, lawyer_id } = appointmentDetails;
-        const msg = `تم تعديل موعد المقابلة إلى ${finalDate} 🔄`;
-        try {
-            await notificationService.createNotification(client_id, msg);
-            await notificationService.createNotification(lawyer_id, msg);
-        } catch(notifErr) {
-            console.error("⚠️ Notification Error (Update):", notifErr.message);
-        }
-    }
+    // // 🔔 الإشعارات
+    // const appointmentDetails = await appService.getAppointmentById(appointmentId);
+    // if (appointmentDetails) {
+    //     const { client_id, lawyer_id } = appointmentDetails;
+    //     const msg = `تم تعديل موعد المقابلة إلى ${finalDate} 🔄`;
+    //     try {
+    //         await notificationService.createNotification(client_id, msg);
+    //         await notificationService.createNotification(lawyer_id, msg);
+    //     } catch(notifErr) {
+    //         console.error("⚠️ Notification Error (Update):", notifErr.message);
+    //     }
+    // }
 
     res.status(200).json({ ok: true, message: "تم تحديث الميعاد بنجاح ✏️" });
   } catch (err) { 
