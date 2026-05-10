@@ -16,6 +16,9 @@ import paymentRouter from "../modules/Payment/payment.routes.js";
 // 📅 موديول المواعيد 
 import appointmentRouter from "../modules/Appointment/appointment.routes.js"; 
 
+// ⚖️ موديول جلسات المحكمة (الإضافة الجديدة)
+import courtSessionsRouter from "../modules/Court_Session/Court.route.js";
+
 // 🔔 موديول الإشعارات (الجديد)
 //import notificationRouter from "../modules/Notification/notification.routes.js"; // 👈 استيراد مسار الإشعارات
 
@@ -52,6 +55,9 @@ export const setupAppRoutes = (app) => {
 
     // 📅 موديول المواعيد 
     app.use("/api/appointments", appointmentRouter);
+    
+    // ⚖️ موديول جلسات المحكمة (الجديد)
+    app.use("/api/court-sessions", courtSessionsRouter);
     
     // 🔔 موديول الإشعارات 
    // app.use("/api/notification", notificationRouter); // 👈 ربط الـ API بتاع الإشعارات بالسيستم

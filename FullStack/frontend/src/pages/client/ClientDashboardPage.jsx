@@ -11,7 +11,8 @@ import {
   Gavel,
   Clock,
   Sparkles,
-  FileText // 👈 تم إضافة الأيقونة هنا
+  FileText,
+  MapPin
 } from 'lucide-react';
 import { useLanguage } from '../../context/useLanguage';
 import { useTheme } from '../../context/ThemeContext';
@@ -27,6 +28,7 @@ const ClientDashboardPage = () => {
   const [profile, setProfile] = useState(null);
   const [activeCases, setActiveCases] = useState([]);
   const [appointments, setAppointments] = useState([]);
+  const [lawyersList, setLawyersList] = useState([]); 
   const [loading, setLoading] = useState(true);
 
   const userId = localStorage.getItem('userId');
@@ -59,6 +61,11 @@ const ClientDashboardPage = () => {
         const appRes = await axios.get(`http://localhost:5000/api/appointments/list?userId=${userId}&role=client`);
         if (appRes.data.ok) setAppointments(appRes.data.data);
 
+        const lawyersRes = await axios.get(`http://localhost:5000/api/users/lawyers`);
+        if (lawyersRes.data.success) {
+            setLawyersList(lawyersRes.data.data);
+        }
+
       } catch (err) {
         console.error("❌ خطأ في جلب بيانات الداشبورد:", err.response?.data || err.message);
       } finally {
@@ -84,16 +91,29 @@ const ClientDashboardPage = () => {
     { icon: CreditCard, value: profile?.income_level || '0', label: isRTL ? 'مستوى الدخل' : 'Income Level', colorClass: 'text-purple-500', bgClass: 'bg-purple-500/10' }
   ];
 
+  const lawyerOffices = activeCases.reduce((acc, currentCase) => {
+    if (currentCase.lawyer_id) {
+      const lawyerDetails = lawyersList.find(l => l.user_id === currentCase.lawyer_id);
+      
+      if (lawyerDetails && lawyerDetails.office_address) {
+        if (!acc.find(item => item.lawyer_id === currentCase.lawyer_id)) {
+          acc.push({
+            lawyer_id: currentCase.lawyer_id,
+            lawyer_name: lawyerDetails.name || currentCase.lawyer_name,
+            office_address: lawyerDetails.office_address
+          });
+        }
+      }
+    }
+    return acc;
+  }, []);
+
   return (
     <div className={`client-page-wrapper ${isDark ? 'dark-mode' : 'light-mode'}`} dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
-        <div className="mb-10 pt-24 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div>
-            <h1 className="client-h1 !mb-1 italic">{isRTL ? 'لوحة تحكم العميل' : 'Client Dashboard'}</h1>
-            <p className="client-subtitle">{isRTL ? 'إدارة ملفاتك القانونية ومتابعة العروض.' : 'Manage your legal cases and track offers.'}</p>
-          </div>
+        <div className="mb-10 pt-24 flex justify-end">
           <div className="ai-icon-wrapper !mb-0 !w-14 !h-14"><Gavel /></div>
         </div>
 
@@ -116,10 +136,8 @@ const ClientDashboardPage = () => {
         <div className="mb-12">
             <h2 className="client-label !mb-6 opacity-40 italic !text-xs uppercase tracking-widest">{isRTL ? 'إجراءات سريعة' : 'Quick Actions'}</h2>
             
-            {/* 👈 التعديل هنا: تم جعل الـ Grid يستوعب 5 عناصر ليتناسب مع زرار العروض الجديد */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
                 
-                {/* Submit New Case */}
                 <Link to="/client/cases/new" className="group relative flex items-center justify-between p-6 bg-yellow-500 rounded-3xl transition-all hover:scale-[1.02] hover:shadow-2xl shadow-yellow-500/20">
                   <div className="flex items-center gap-4">
                       <div className="p-3 bg-black/10 rounded-2xl group-hover:bg-black/20 transition-colors">
@@ -137,21 +155,21 @@ const ClientDashboardPage = () => {
                   <ChevronRight size={20} className="text-black/50 group-hover:translate-x-1 transition-transform" />
                 </Link>
 
-                {/* 🌟 زرار عروض المحامين (تم إضافته) */}
                 <Link to="/client/cases" className="group relative flex items-center justify-between p-6 bg-slate-900 border border-white/5 rounded-3xl transition-all hover:scale-[1.02] hover:border-orange-500/50 shadow-xl">
                     <div className="flex items-center gap-4">
                         <div className="w-14 h-14 rounded-2xl bg-slate-950 flex items-center justify-center border border-white/10 group-hover:border-orange-500/30 transition-colors">
                             <FileText size={24} className="text-orange-500" />
                         </div>
                         <div>
-                            <p className="text-white font-black italic text-lg leading-tight tracking-wide">{isRTL ? 'عروض المحامين' : 'Lawyer Offers'}</p>
-                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">{isRTL ? 'مراجعة الأسعار' : 'Review Quotes'}</p>
+                            <p className="text-white font-black italic text-lg leading-tight tracking-wide">{isRTL ? 'عروض المحامين' : 'Lawyer Offers'}
+                            </p>
+                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">{isRTL ? 'مراجعة الأسعار' : 'Review Quotes'}
+                            </p>
                         </div>
                     </div>
                     <ChevronRight size={20} className="text-slate-600 group-hover:text-orange-500 group-hover:translate-x-1 transition-all" />
                 </Link>
 
-                {/* Book Meeting */}
                 <Link to="/client/appointments" className="group relative flex items-center justify-between p-6 bg-slate-900 border border-white/5 rounded-3xl transition-all hover:scale-[1.02] hover:border-yellow-500/50 shadow-xl">
                     <div className="flex items-center gap-4">
                         <div className="w-14 h-14 rounded-2xl bg-slate-950 flex items-center justify-center border border-white/10 group-hover:border-yellow-500/30 transition-colors">
@@ -165,7 +183,6 @@ const ClientDashboardPage = () => {
                     <ChevronRight size={20} className="text-slate-600 group-hover:text-yellow-500 group-hover:translate-x-1 transition-all" />
                 </Link>
 
-                {/* Chat with Lawyer */}
                 <Link to="/client/messages" className="group relative flex items-center justify-between p-6 bg-emerald-600 rounded-3xl transition-all hover:scale-[1.02] hover:shadow-2xl shadow-emerald-600/30">
                     <div className="flex items-center gap-4">
                         <div className="p-3 bg-white/10 rounded-2xl group-hover:bg-white/20 transition-colors">
@@ -183,7 +200,6 @@ const ClientDashboardPage = () => {
                     <ChevronRight size={20} className="text-white/50 group-hover:translate-x-1 transition-transform" />
                 </Link>
 
-                {/* AI Chatbot */}
                 <Link to="/ai-chat" className="group relative flex items-center justify-between p-6 bg-indigo-600 rounded-3xl transition-all hover:scale-[1.02] hover:shadow-2xl shadow-indigo-600/30">
                     <div className="flex items-center gap-4">
                         <div className="p-3 bg-white/10 rounded-2xl group-hover:bg-white/20 transition-colors">
@@ -200,8 +216,8 @@ const ClientDashboardPage = () => {
             </div>
         </div>
 
-        {/* ... باقي الأقسام ... */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+        {/* Case Management Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-16">
           <div className="lg:col-span-2 client-card !p-8">
             <div className="flex items-center justify-between mb-8">
               <h2 className="client-label !mb-0">{isRTL ? 'إدارة القضايا' : 'Case Management'}</h2>
@@ -211,41 +227,56 @@ const ClientDashboardPage = () => {
             </div>
             
             <div className="space-y-4 max-h-[500px] overflow-y-auto no-scrollbar pr-2">
-              {activeCases.length > 0 ? activeCases.map((item) => (
-                <Link 
-                  key={item.case_id} 
-                  to={`/client/cases/${item.case_id}`} 
-                  className={`client-banner !justify-between !p-5 transition-all group border ${
-                    item.status === 'Awaiting_Client_Approval' 
-                    ? 'border-yellow-500 bg-yellow-500/5 shadow-lg shadow-yellow-500/5' 
-                    : 'border-white/5 hover:border-yellow-500/30'
-                  }`}
-                >
-                  <div className="flex items-center gap-5">
-                    <div className={`p-4 rounded-2xl border ${item.status === 'Awaiting_Client_Approval' ? 'bg-yellow-500 text-black border-yellow-400' : 'bg-slate-950 border-white/5'}`}>
-                      <Briefcase size={20} className={item.status === 'Awaiting_Client_Approval' ? "animate-pulse" : "text-yellow-500/50"} />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-3 mb-1">
-                        <p className="font-black text-base italic truncate uppercase tracking-tighter">{item.title}</p>
-                        {item.status === 'Awaiting_Client_Approval' && (
-                          <span className="bg-yellow-500 text-black text-[9px] font-black px-2 py-0.5 rounded italic animate-bounce">OFFER RECEIVED</span>
-                        )}
+              {activeCases.length > 0 ? activeCases.map((item) => {
+                const caseLawyer = lawyersList.find(l => l.user_id === item.lawyer_id);
+                const caseOfficeAddress = caseLawyer ? caseLawyer.office_address : null;
+
+                return (
+                  <Link 
+                    key={item.case_id} 
+                    to={`/client/cases/${item.case_id}`} 
+                    className={`client-banner !justify-between !p-5 transition-all group border ${
+                      item.status === 'Awaiting_Client_Approval' 
+                      ? 'border-yellow-500 bg-yellow-500/5 shadow-lg shadow-yellow-500/5' 
+                      : 'border-white/5 hover:border-yellow-500/30'
+                    }`}
+                  >
+                    <div className="flex items-center gap-5">
+                      <div className={`p-4 rounded-2xl border ${item.status === 'Awaiting_Client_Approval' ? 'bg-yellow-500 text-black border-yellow-400' : 'bg-slate-950 border-white/5'}`}>
+                        <Briefcase size={20} className={item.status === 'Awaiting_Client_Approval' ? "animate-pulse" : "text-yellow-500/50"} />
                       </div>
-                      <p className="text-[10px] font-bold opacity-40 uppercase tracking-widest flex items-center gap-2">
-                        {item.category} 
-                        <span className="w-1 h-1 bg-white/20 rounded-full"></span>
-                        {item.lawyer_name ? (
-                            <span className="text-yellow-500/80">Lawyer: {item.lawyer_name}</span>
-                        ) : (
-                            <span className="italic">Searching for Law Expert...</span>
-                        )}
-                      </p>
+                      <div className="min-w-0 w-full">
+                        <div className="flex items-center gap-3 mb-1">
+                          <p className="font-black text-base italic truncate uppercase tracking-tighter">{item.title}</p>
+                          {item.status === 'Awaiting_Client_Approval' && (
+                            <span className="bg-yellow-500 text-black text-[9px] font-black px-2 py-0.5 rounded italic animate-bounce shrink-0">OFFER RECEIVED</span>
+                          )}
+                        </div>
+                        
+                        <div className="space-y-1">
+                          <p className="text-[10px] font-bold opacity-40 uppercase tracking-widest flex items-center gap-2 flex-wrap">
+                            {item.category} 
+                            <span className="w-1 h-1 bg-white/20 rounded-full"></span>
+                            {item.lawyer_name ? (
+                                <span className="text-yellow-500/80">Lawyer: {item.lawyer_name}</span>
+                            ) : (
+                                <span className="italic">Searching for Law Expert...</span>
+                            )}
+                          </p>
+
+                          {item.lawyer_name && caseOfficeAddress && (
+                            <div className="text-[10px] font-bold text-gray-400 flex items-start gap-1 mt-2 italic">
+                              <MapPin size={12} className="text-yellow-500/60 shrink-0 mt-0.5" />
+                              <span className="break-words leading-relaxed w-full pr-2">{caseOfficeAddress}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <ChevronRight size={20} className="text-yellow-500 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-                </Link>
-              )) : (
+                    <ChevronRight size={20} className="text-yellow-500 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all shrink-0" />
+                  </Link>
+                );
+              }) : (
                 <div className="text-center py-12 border-2 border-dashed border-white/5 rounded-[2rem]">
                     <Briefcase size={40} className="mx-auto mb-4 opacity-10" />
                     <p className="client-banner-text">{isRTL ? 'لا توجد قضايا نشطة حالياً.' : 'No active cases in your record.'}</p>
@@ -256,17 +287,18 @@ const ClientDashboardPage = () => {
 
           <div className="client-card !p-8">
             <h2 className="client-label !mb-8">{isRTL ? 'المواعيد' : 'Appointments'}</h2>
-            <div className="space-y-4">
+            <div className="space-y-4 max-h-[400px] overflow-y-auto no-scrollbar">
               {appointments.length > 0 ? appointments.map((app) => (
                 <div key={app.appointment_id} className="client-banner flex-col items-start !gap-3 !p-5 !border-white/5 hover:!border-yellow-500/20 transition-all">
-                  <div className="flex items-center gap-2 w-full bg-slate-950/50 p-2 rounded-lg">
-                    <Clock size={14} className="text-yellow-500" />
-                    <p className="text-[11px] font-black italic tracking-tight">
+                  {/* 🚀✅ التعديل هنا: items-start وشيلنا truncate عشان التاريخ ميتضربش بنقط */}
+                  <div className="flex items-start gap-2 w-full bg-slate-950/50 p-3 rounded-lg">
+                    <Clock size={14} className="text-yellow-500 shrink-0 mt-0.5" />
+                    <p className="text-[10.5px] xl:text-[11px] font-black italic tracking-tight break-words leading-relaxed w-full">
                       {new Date(app.appointment_date).toLocaleDateString()} @ {new Date(app.appointment_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>
                   </div>
-                  <div className="w-full pl-1">
-                    <p className="text-xs font-black italic uppercase">
+                  <div className="w-full pl-1 mt-1">
+                    <p className="text-xs font-black italic uppercase truncate text-gray-300">
                         {app.partner_name || 'Lawyer Pending'}
                     </p>
                   </div>
@@ -282,6 +314,34 @@ const ClientDashboardPage = () => {
                 Schedule Meeting
             </button>
           </div>
+
+          <div className="client-card !p-8">
+            <h2 className="client-label !mb-8">{isRTL ? 'مكاتب المحامين' : 'Lawyers Offices'}</h2>
+            <div className="space-y-4 max-h-[400px] overflow-y-auto no-scrollbar">
+              {lawyerOffices.length > 0 ? lawyerOffices.map((item, index) => (
+                <div key={index} className="client-banner flex-col items-start !gap-3 !p-5 !border-white/5 hover:!border-yellow-500/20 transition-all">
+                  <div className="flex items-start gap-2 w-full bg-slate-950/50 p-3 rounded-lg">
+                    <MapPin size={14} className="text-yellow-500 shrink-0 mt-0.5" />
+                    <p className="text-[11px] font-black italic tracking-tight break-words leading-relaxed w-full">
+                      {item.office_address}
+                    </p>
+                  </div>
+                  <div className="w-full pl-1 mt-1">
+                    <p className="text-xs font-black italic uppercase truncate text-gray-400" title={item.lawyer_name}>
+                        <span className="text-[9px] opacity-50 mr-1">{isRTL ? 'المحامي:' : 'Lawyer:'}</span> 
+                        {item.lawyer_name}
+                    </p>
+                  </div>
+                </div>
+              )) : (
+                <div className="text-center py-10 opacity-20 bg-slate-950/30 rounded-[2rem] border border-white/5">
+                  <MapPin size={32} className="mx-auto mb-3" />
+                  <p className="text-[10px] font-black uppercase italic tracking-widest">{isRTL ? 'لا يوجد مكاتب' : 'No Offices'}</p>
+                </div>
+              )}
+            </div>
+          </div>
+
         </div>
 
         {/* Profile Summary Footer */}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Briefcase, Calendar, ShieldCheck, Star, Settings, FileText, MessageSquare, Clock } from 'lucide-react';
+import { Briefcase, Calendar, ShieldCheck, Star, Settings, FileText, MessageSquare, Clock, MapPin } from 'lucide-react'; // 👈 استدعاء MapPin
 import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../context/useLanguage';
 import { Link, useNavigate } from 'react-router-dom';
@@ -66,13 +66,18 @@ const LawyerProfileDashboardPage = () => {
               <h1 className="text-4xl font-black italic uppercase tracking-tighter mb-2">
                 {profile?.name || 'محامي'}
               </h1>
-              <div className="flex flex-wrap justify-center md:justify-start gap-6 text-sm font-bold opacity-70">
+              <div className="flex flex-wrap justify-center md:justify-start gap-4 md:gap-6 text-sm font-bold opacity-70 mt-3">
                 <span className="flex items-center gap-2"><Briefcase size={16} className="text-yellow-500" /> {profile?.specialization || 'قانون عام'}</span>
-                <span className="flex items-center gap-2"><Calendar size={16} className="text-yellow-500" /> خبرة {profile?.years_experience || '0'} سنة</span>
-                <span className="flex items-center gap-2"><Star size={16} fill="currentColor" className="text-yellow-500" /> {profile?.rating_avg || '5.0'}</span>
+                <span className="flex items-center gap-2"><Calendar size={16} className="text-yellow-500" /> {isRTL ? 'خبرة' : 'Experience'} {profile?.years_experience || '0'} {isRTL ? 'سنة' : 'Years'}</span>
+                <span className="flex items-center gap-2"><Star size={16} fill="currentColor" className="text-yellow-500" /> {profile?.rating_avg || '0.00'}</span>
+                {/* 🚀✅ تم إضافة عنوان المكتب هنا */}
+                <span className="flex items-center gap-2 w-full md:w-auto mt-2 md:mt-0">
+                  <MapPin size={16} className="text-yellow-500 shrink-0" /> 
+                  <span className="truncate max-w-[250px]" title={profile?.office_address}>{profile?.office_address || (isRTL ? 'لم يتم تحديد عنوان المكتب' : 'Office address not specified')}</span>
+                </span>
               </div>
             </div>
-            <Link to="/lawyer/profile/edit" className="px-8 py-4 bg-yellow-500 text-black font-black rounded-2xl shadow-xl active:scale-95 transition-all">
+            <Link to="/lawyer/profile/edit" className="px-8 py-4 bg-yellow-500 text-black font-black rounded-2xl shadow-xl active:scale-95 transition-all text-center">
               {isRTL ? 'تعديل البيانات' : 'Edit Profile'}
             </Link>
           </div>
@@ -101,7 +106,7 @@ const LawyerProfileDashboardPage = () => {
             </div>
           </div>
 
-          {/* كرت المواعيد - الترتيب الجديد */}
+          {/* كرت المواعيد */}
           <div className={`p-6 rounded-3xl border ${isDark ? 'bg-slate-900/50 border-slate-800' : 'bg-white border-gray-100'}`}>
             <h3 className="font-black text-lg mb-6 flex items-center gap-2">
               <Clock className="text-yellow-500" /> {isRTL ? 'المواعيد' : 'Schedule'}
@@ -115,18 +120,13 @@ const LawyerProfileDashboardPage = () => {
                     {new Date(app.appointment_date).toLocaleDateString(isRTL ? 'ar-EG' : 'en-US', { day: '2-digit', month: 'short' })}
                   </div>
 
-                  {/* تفاصيل الميعاد بتنسيق رأسي منظم */}
+                  {/* تفاصيل الميعاد */}
                   <div className="flex-1 overflow-hidden">
-                    {/* 1. الوقت */}
                     <p className="text-xs font-bold">{new Date(app.appointment_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-                    
-                    {/* 2. اسم العميل */}
                     <p className="text-[11px] font-black mt-1 truncate" dir="auto">
                        <span className="text-gray-400 font-medium">{isRTL ? 'العميل: ' : 'Client: '}</span>
                        <span className="text-yellow-500">{app.partner_name || (isRTL ? 'غير محدد' : 'Unknown')}</span>
                     </p>
-
-                    {/* 3. اسم القضية (في سطر جديد تحت العميل) */}
                     <p className="text-[10px] text-gray-300 truncate mt-0.5" dir="auto">
                        {app.case_title ? (
                          <>
@@ -137,8 +137,6 @@ const LawyerProfileDashboardPage = () => {
                          <span className="italic text-gray-500">{isRTL ? 'استشارة عامة' : 'General Consultation'}</span>
                        )}
                     </p>
-                    
-                    {/* 4. الحالة (في سطر أخير تحت القضية) */}
                     <p className="text-[9px] opacity-60 mt-1">
                       {isRTL ? 'الحالة: ' : 'Status: '}
                       <span className={app.status === 'Rescheduled' ? 'text-orange-400 font-bold' : 'italic'}>{app.status}</span>

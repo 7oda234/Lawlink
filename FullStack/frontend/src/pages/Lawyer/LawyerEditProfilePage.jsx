@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '../../context/useLanguage';
 import { useTheme } from '../../context/ThemeContext';
-import { User, Save, Camera, Lock, Phone, Star, Mail, Hash, Briefcase, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { User, Save, Camera, Lock, Phone, Star, Mail, Hash, Briefcase, AlertCircle, CheckCircle2, MapPin } from 'lucide-react'; // 👈 استدعاء MapPin
 import axios from 'axios';
 
 const LawyerEditProfilePage = () => {
@@ -23,6 +23,7 @@ const LawyerEditProfilePage = () => {
     years_experience: 0,
     specializations: '', 
     image_url: '',
+    office_address: '', // 🚀✅ تم إضافة حقل عنوان المكتب
   });
 
   useEffect(() => {
@@ -42,6 +43,7 @@ const LawyerEditProfilePage = () => {
             years_experience: data.years_experience || 0,
             specializations: data.specialization || '', 
             image_url: data.image_url || '',
+            office_address: data.office_address || '', // 🚀✅ استرجاع عنوان المكتب من الداتابيز
           });
         }
       } catch (err) {
@@ -135,7 +137,7 @@ const LawyerEditProfilePage = () => {
                     src={formData.image_url} 
                     alt="Profile" 
                     className="w-full h-full object-cover" 
-                    onError={(e) => { e.target.src = 'https://cdn-icons-png.flaticon.com/512/149/149071.png'; }} // ✅ حماية الصورة
+                    onError={(e) => { e.target.src = 'https://cdn-icons-png.flaticon.com/512/149/149071.png'; }} 
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-slate-500">
@@ -194,9 +196,15 @@ const LawyerEditProfilePage = () => {
               <label className="text-xs font-black text-slate-500 uppercase flex items-center gap-2"><Briefcase size={14}/> {isRTL ? 'سنوات الخبرة' : 'Experience Years'}</label>
               <input type="number" name="years_experience" value={formData.years_experience} onChange={handleChange} className={inputClass} />
             </div>
+            {/* 🚀✅ حقل التخصصات */}
             <div className="space-y-2 text-right md:col-span-2">
               <label className="text-xs font-black text-slate-500 uppercase flex items-center gap-2"><Star size={14}/> {isRTL ? 'التخصصات (افصل بينها بـ و أو فاصلة)' : 'Specialties (separate with and or comma)'}</label>
               <input name="specializations" value={formData.specializations} onChange={handleChange} placeholder="جنائي، مدني، تجاري" className={inputClass} />
+            </div>
+            {/* 🚀✅ حقل عنوان المكتب الجديد (واخد العرض كامل عشان العنوان ممكن يكون طويل) */}
+            <div className="space-y-2 text-right md:col-span-2">
+              <label className="text-xs font-black text-slate-500 uppercase flex items-center gap-2"><MapPin size={14}/> {isRTL ? 'عنوان المكتب' : 'Office Address'}</label>
+              <input name="office_address" value={formData.office_address} onChange={handleChange} placeholder={isRTL ? 'مثال: القاهرة، مدينة نصر، شارع مكرم عبيد...' : 'e.g. Cairo, Nasr City...'} className={inputClass} />
             </div>
           </div>
         </section>

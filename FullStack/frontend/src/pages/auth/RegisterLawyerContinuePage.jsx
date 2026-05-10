@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/auth/AuthBase.css";
-import { FaPhone, FaIdCard, FaBriefcase, FaCalendar, FaVenusMars, FaStar, FaArrowLeft, FaImage } from 'react-icons/fa';
+import { FaPhone, FaIdCard, FaBriefcase, FaCalendar, FaVenusMars, FaStar, FaArrowLeft, FaImage, FaMapMarkerAlt } from 'react-icons/fa'; // 👈 تم إضافة أيقونة الموقع
 import { useAuth } from '../../context/useAuth';
 import AuthShell from '../../components/AuthShell';
 import logo from '../../Assets/logo/logo canvas.png';
@@ -16,7 +16,8 @@ const RegisterLawyerContinuePage = () => {
     licenseNumber: '', 
     specialization: '',
     yearsExperience: '',
-    image: '' 
+    image: '',
+    officeAddress: '' // 🚀✅ تم إضافة حقل عنوان المكتب في الـ State
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -57,7 +58,6 @@ const RegisterLawyerContinuePage = () => {
     const baseData = JSON.parse(sessionStorage.getItem('reg_base'));
 
     try {
-      // 💡 الحل هنا: إرسال البيانات بالصيغتين لإرضاء الـ Validation والـ Database معاً
       const payload = {
         name: baseData.fullName,
         email: baseData.email,
@@ -68,16 +68,15 @@ const RegisterLawyerContinuePage = () => {
         gender: formData.gender,
         Date_of_Birth: formData.dateOfBirth,
         
-        // 1. صيغة الـ Validation (عشان الكنترولر ما يرجعش إيرور)
         licenseNumber: formData.licenseNumber,
         specialization: formData.specialization,
         
-        // 2. صيغة الـ Service والداتابيز (عشان التسجيل يتم صح)
         license_number: formData.licenseNumber,
         specializations: [formData.specialization],
         
         years_experience: parseInt(formData.yearsExperience) || 0,
-        image_url: formData.image || null 
+        image_url: formData.image || null,
+        office_address: formData.officeAddress // 🚀✅ إرسال عنوان المكتب للـ Backend
       };
 
       const result = await register(payload);
@@ -86,7 +85,6 @@ const RegisterLawyerContinuePage = () => {
         sessionStorage.removeItem('reg_base');
         navigate('/login');
       } else {
-        // عرض الخطأ الفعلي القادم من السيرفر إن وُجد
         setErrors({ general: `⚖️ خطأ: ${result.error || "هذا البريد الإلكتروني مسجل بالفعل. يرجى تسجيل الدخول."}` });
       }
       
@@ -169,19 +167,29 @@ const RegisterLawyerContinuePage = () => {
               )}
 
               {step === 4 && (
-                <div className="form-row animate-fadeIn">
-                  <div className="form-group">
-                    <label>رقم رخصة المزاولة (الكارنيه)</label>
-                    <div className="input-container">
-                      <FaIdCard className="input-icon" />
-                      <input type="text" name="licenseNumber" className="law-input" placeholder="أدخل رقم الكارنيه" value={formData.licenseNumber} onChange={handleChange} required />
+                <div className="animate-fadeIn">
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>رقم رخصة المزاولة (الكارنيه)</label>
+                      <div className="input-container">
+                        <FaIdCard className="input-icon" />
+                        <input type="text" name="licenseNumber" className="law-input" placeholder="أدخل رقم الكارنيه" value={formData.licenseNumber} onChange={handleChange} required />
+                      </div>
+                    </div>
+                    <div className="form-group">
+                      <label>سنوات الخبرة</label>
+                      <div className="input-container">
+                        <FaStar className="input-icon" />
+                        <input type="number" name="yearsExperience" className="law-input" placeholder="مثال: 5" min="0" max="60" value={formData.yearsExperience} onChange={handleChange} required />
+                      </div>
                     </div>
                   </div>
-                  <div className="form-group">
-                    <label>سنوات الخبرة</label>
+                  {/* 🚀✅ إضافة حقل عنوان المكتب في سطر منفصل ليعطي مساحة للكتابة */}
+                  <div className="form-group mt-4">
+                    <label>عنوان المكتب</label>
                     <div className="input-container">
-                      <FaStar className="input-icon" />
-                      <input type="number" name="yearsExperience" className="law-input" placeholder="مثال: 5" min="0" max="60" value={formData.yearsExperience} onChange={handleChange} required />
+                      <FaMapMarkerAlt className="input-icon" />
+                      <input type="text" name="officeAddress" className="law-input" placeholder="مثال: القاهرة، مدينة نصر، شارع مكرم عبيد" value={formData.officeAddress} onChange={handleChange} required />
                     </div>
                   </div>
                 </div>

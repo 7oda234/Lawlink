@@ -4,13 +4,15 @@ import axios from 'axios';
 import { 
   Briefcase, Calendar, MessageSquare, DollarSign, Users, 
   Clock, TrendingUp, FileText, Bell, CheckCircle, 
-  Plus, ChevronRight, Star, Gavel, Sparkles
+  Plus, ChevronRight, Star, Gavel, Sparkles,
+  ShieldCheck, Zap, CircleDollarSign, 
+  MapPin
 } from 'lucide-react';
 import { useLanguage } from '../../context/useLanguage';
 import { useTheme } from '../../context/ThemeContext';
 
 const LawyerDashboardPage = () => {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage(); 
   const { mode } = useTheme(); 
   const navigate = useNavigate();
   const isRTL = language === 'ar' || language === 'eg';
@@ -22,7 +24,7 @@ const LawyerDashboardPage = () => {
   const [loading, setLoading] = useState(true);
 
   const userId = localStorage.getItem('userId');
-  const BASE_URL = "http://localhost:5000"; // تعريف الـ URL الأساسي
+  const BASE_URL = "http://localhost:5000"; 
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -56,26 +58,19 @@ const LawyerDashboardPage = () => {
     fetchDashboardData();
   }, [userId, navigate]);
 
-  /**
-   * 🛠️ الدالة الذكية لمعالجة الصور (الحل النهائي لمنع Error 431)
-   * بتتعرف على الـ Base64 وبتعرضه فوراً بدون إرهاق السيرفر
-   */
   const formatImg = (path) => {
     if (!path || path === "null" || path === "undefined") {
       return 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
     }
 
-    // 1. لو الصورة Base64 (زي حالة يوسف علي)
     if (path.startsWith('data:image')) {
       return path;
     }
 
-    // 2. لو الصورة رابط خارجي
     if (path.startsWith('http')) {
       return path;
     }
 
-    // 3. لو الصورة مسار ملف على السيرفر
     let cleanPath = path.replace(/^\/+/, '');
     if (cleanPath.startsWith('uploads/')) {
       return `${BASE_URL}/${cleanPath}`;
@@ -96,62 +91,68 @@ const LawyerDashboardPage = () => {
     <div className={`min-h-screen p-4 md:p-8 pt-24 ${isDark ? 'bg-[#0a0c10] text-white' : 'bg-slate-50 text-slate-900'}`} dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-7xl mx-auto space-y-10">
         
-        {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* 🚀✅ Stats: 3 كروت في الصف مع مسافات مريحة وإظهار العنوان بالكامل */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {[
-            { label: 'ACTIVE CASES', value: cases.length, icon: Briefcase, color: 'text-blue-500' },
-            { label: 'APPOINTMENTS', value: appointments.length, icon: Calendar, color: 'text-emerald-500' },
-            { label: 'RATING', value: profile?.rating_avg || '0.00', icon: Star, color: 'text-yellow-500' },
-            { label: 'EXP.', value: profile?.years_experience || '12', icon: TrendingUp, color: 'text-purple-500' }
+            { label: isRTL ? 'القضايا' : 'ACTIVE CASES', value: cases.length, icon: Briefcase, color: 'text-blue-500' },
+            { label: isRTL ? 'المواعيد' : 'APPOINTMENTS', value: appointments.length, icon: Calendar, color: 'text-emerald-500' },
+            { label: isRTL ? 'التقييم' : 'RATING', value: profile?.rating_avg || '0.00', icon: Star, color: 'text-yellow-500' },
+            { label: isRTL ? 'الخبرة' : 'EXP.', value: profile?.years_experience || '0', icon: TrendingUp, color: 'text-purple-500' },
+            { label: isRTL ? 'المكتب' : 'OFFICE', value: profile?.office_address || (isRTL ? 'غير محدد' : 'N/A'), icon: MapPin, color: 'text-rose-500' }
           ].map((stat, i) => (
-            <div key={i} className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/5 shadow-sm">
+            <div key={i} className="p-8 rounded-[2rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/5 shadow-sm flex flex-col justify-center min-h-[140px]">
               <div className="flex items-center justify-between mb-4">
-                <stat.icon size={24} className={stat.color} />
-                <div className="w-8 h-1 bg-slate-100 dark:bg-white/5 rounded-full"></div>
+                <stat.icon size={28} className={stat.color} />
+                <div className="w-10 h-1 bg-slate-100 dark:bg-white/5 rounded-full"></div>
               </div>
-              <p className="text-2xl font-black italic">{stat.value}</p>
-              <p className="text-[10px] font-bold opacity-40 uppercase tracking-widest mt-1">{stat.label}</p>
+              <p className="text-xl sm:text-2xl font-black italic break-words leading-snug">{stat.value}</p>
+              <p className="text-[10px] font-bold opacity-40 uppercase tracking-widest mt-2">{stat.label}</p>
             </div>
           ))}
         </div>
 
-        {/* Quick Access - تم تعديل الـ Grid ليستوعب 6 عناصر بشكل متناسق */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-          <Link to="/lawyer/cases" className="group p-6 bg-yellow-500 rounded-[2rem] transition-all hover:scale-[1.03] shadow-xl shadow-yellow-500/10">
-            <Briefcase size={28} className="text-black mb-4" />
-            <h3 className="text-black font-black italic text-base uppercase leading-tight">{isRTL ? 'القضايا' : 'My Cases'}</h3>
-            <p className="text-black/50 text-[9px] font-bold uppercase mt-1">{isRTL ? 'إدارة الملفات' : 'Folder Manager'}</p>
+        {/* Quick Access */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 xl:gap-8">
+          <Link to="/lawyer/cases" className="group p-8 bg-yellow-500 rounded-[2rem] transition-all hover:scale-[1.03] shadow-xl shadow-yellow-500/10 flex flex-col justify-center min-h-[160px]">
+            <Briefcase size={32} className="text-black mb-4 group-hover:scale-110 transition-transform" />
+            <h3 className="text-black font-black italic text-lg uppercase leading-tight">{isRTL ? 'القضايا' : 'My Cases'}</h3>
+            <p className="text-black/50 text-[10px] font-bold uppercase mt-1">{isRTL ? 'إدارة الملفات' : 'Folder Manager'}</p>
           </Link>
 
-          {/* ✅ زرار الـ Offers اللي كان ناقص */}
-          <Link to="/lawyer/offers" className="group p-6 bg-slate-900 border border-white/5 rounded-[2rem] transition-all hover:scale-[1.03] hover:border-orange-500/50 shadow-xl shadow-orange-500/5 flex flex-col justify-center">
-              <DollarSign size={28} className="text-orange-500 mb-3 group-hover:scale-110 transition-transform" />
-              <h3 className="text-white font-black italic text-base uppercase leading-tight tracking-wide">{isRTL ? 'عروض الأسعار' : 'My Offers'}</h3>
-              <p className="text-slate-400 text-[9px] font-bold uppercase tracking-widest mt-1">{isRTL ? 'إدارة الطلبات' : 'Manage Requests'}</p>
+          <Link to="/lawyer/offers" className="group p-8 bg-slate-900 border border-white/5 rounded-[2rem] transition-all hover:scale-[1.03] hover:border-orange-500/50 shadow-xl shadow-orange-500/5 flex flex-col justify-center min-h-[160px]">
+              <DollarSign size={32} className="text-orange-500 mb-4 group-hover:scale-110 transition-transform" />
+              <h3 className="text-white font-black italic text-lg uppercase leading-tight tracking-wide">{isRTL ? 'عروض الأسعار' : 'My Offers'}</h3>
+              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">{isRTL ? 'إدارة الطلبات' : 'Manage Requests'}</p>
           </Link>
 
-          <Link to="/lawyer/messages" className="group p-6 bg-slate-900 border border-white/5 rounded-[2rem] transition-all hover:scale-[1.03] hover:border-emerald-500/50">
-            <MessageSquare size={28} className="text-emerald-500 mb-4" />
-            <h3 className="text-white font-black italic text-base uppercase leading-tight">{isRTL ? 'المراسلات' : 'Client Chat'}</h3>
-            <p className="text-white/30 text-[9px] font-bold uppercase mt-1">{isRTL ? 'رد مباشر' : 'Live response'}</p>
+          <Link to="/lawyer/messages" className="group p-8 bg-slate-900 border border-white/5 rounded-[2rem] transition-all hover:scale-[1.03] hover:border-emerald-500/50 flex flex-col justify-center min-h-[160px]">
+            <MessageSquare size={32} className="text-emerald-500 mb-4 group-hover:scale-110 transition-transform" />
+            <h3 className="text-white font-black italic text-lg uppercase leading-tight">{isRTL ? 'المراسلات' : 'Client Chat'}</h3>
+            <p className="text-white/30 text-[10px] font-bold uppercase mt-1">{isRTL ? 'رد مباشر' : 'Live response'}</p>
           </Link>
 
-          <Link to="/lawyer/appointments" className="group p-6 bg-slate-900 border border-white/5 rounded-[2rem] transition-all hover:scale-[1.03] hover:border-blue-500/50 shadow-xl shadow-blue-500/5 flex flex-col justify-center">
-              <Calendar size={28} className="text-blue-500 mb-3 group-hover:rotate-12 transition-transform" />
-              <h3 className="text-white font-black italic text-base uppercase leading-tight tracking-wide">{isRTL ? 'تحديد موعد' : 'Book'}</h3>
-              <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest mt-1">{isRTL ? 'تحكم بالمواعيد' : 'SCHEDULE CONTROL'}</p>
+          <Link to="/lawyer/appointments" className="group p-8 bg-slate-900 border border-white/5 rounded-[2rem] transition-all hover:scale-[1.03] hover:border-blue-500/50 shadow-xl shadow-blue-500/5 flex flex-col justify-center min-h-[160px]">
+              <Calendar size={32} className="text-blue-500 mb-4 group-hover:rotate-12 transition-transform" />
+              <h3 className="text-white font-black italic text-lg uppercase leading-tight tracking-wide">{isRTL ? 'تحديد موعد' : 'Book'}</h3>
+              <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">{isRTL ? 'تحكم بالمواعيد' : 'SCHEDULE CONTROL'}</p>
           </Link>
 
-          <Link to="/lawyer/calendar" className="group p-6 bg-slate-900 border border-white/5 rounded-[2rem] transition-all hover:scale-[1.03] hover:border-purple-500/50">
-            <Clock size={28} className="text-purple-500 mb-4" />
-            <h3 className="text-white font-black italic text-base uppercase leading-tight">{isRTL ? 'الجدول' : 'Agenda'}</h3>
-            <p className="text-white/30 text-[9px] font-bold uppercase mt-1">{isRTL ? 'متابعة الوقت' : 'Time Tracking'}</p>
+          <Link to="/lawyer/calendar" className="group p-8 bg-slate-900 border border-white/5 rounded-[2rem] transition-all hover:scale-[1.03] hover:border-purple-500/50 flex flex-col justify-center min-h-[160px]">
+            <Clock size={32} className="text-purple-500 mb-4 group-hover:-rotate-12 transition-transform" />
+            <h3 className="text-white font-black italic text-lg uppercase leading-tight">{isRTL ? 'الجدول' : 'Agenda'}</h3>
+            <p className="text-white/30 text-[10px] font-bold uppercase mt-1">{isRTL ? 'متابعة الوقت' : 'Time Tracking'}</p>
           </Link>
 
-          <Link to="/ai-tools" className="group p-6 bg-indigo-600 rounded-[2rem] transition-all hover:scale-[1.03] shadow-xl shadow-indigo-600/20">
-            <Sparkles size={28} className="text-white mb-4 animate-pulse" />
-            <h3 className="text-white font-black italic text-base uppercase leading-tight">{isRTL ? 'الذكاء الاصطناعي' : 'AI Tools'}</h3>
-            <p className="text-white/50 text-[9px] font-bold uppercase mt-1">{isRTL ? 'تحليل ذكي' : 'Smart Draft'}</p>
+          <Link to="/lawyer/court-sessions" className="group p-8 bg-slate-900 border border-white/5 rounded-[2rem] transition-all hover:scale-[1.03] hover:border-cyan-500/50 shadow-xl shadow-cyan-500/5 flex flex-col justify-center min-h-[160px]">
+              <Gavel size={32} className="text-cyan-500 mb-4 group-hover:-rotate-12 transition-transform" />
+              <h3 className="text-white font-black italic text-lg uppercase leading-tight tracking-wide">{isRTL ? 'الجلسات' : 'Court'}</h3>
+              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">{isRTL ? 'إدارة الأحكام' : 'Verdicts & Dates'}</p>
+          </Link>
+
+          <Link to="/ai-tools" className="group p-8 bg-indigo-600 rounded-[2rem] transition-all hover:scale-[1.03] shadow-xl shadow-indigo-600/20 flex flex-col justify-center min-h-[160px]">
+            <Sparkles size={32} className="text-white mb-4 animate-pulse" />
+            <h3 className="text-white font-black italic text-lg uppercase leading-tight">{isRTL ? 'الذكاء' : 'AI Tools'}</h3>
+            <p className="text-white/50 text-[10px] font-bold uppercase mt-1">{isRTL ? 'تحليل ذكي' : 'Smart Draft'}</p>
           </Link>
         </div>
 
@@ -168,7 +169,6 @@ const LawyerDashboardPage = () => {
                 <div key={app.appointment_id} className="p-6 rounded-[2rem] bg-white/5 border border-white/5 hover:border-yellow-500/20 transition-all">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      {/* عرض الصورة باستخدام الدالة الذكية */}
                       <div className="w-12 h-12 rounded-2xl bg-slate-950 overflow-hidden border border-white/5 shadow-inner">
                         <img 
                           src={formatImg(app.partner_image)} 
@@ -203,7 +203,6 @@ const LawyerDashboardPage = () => {
               {cases.slice(0, 4).map((msg) => (
                 <div key={msg.case_id} className="flex items-center justify-between p-5 rounded-[2rem] bg-white/5 hover:bg-white/[0.08] transition-all group">
                   <div className="flex items-center gap-4">
-                    {/* عرض صورة العميل باستخدام الدالة الذكية */}
                     <div className="w-14 h-14 rounded-full bg-emerald-500/10 overflow-hidden flex items-center justify-center border border-white/5 shadow-inner">
                         <img 
                           src={formatImg(msg.client_image)} 
@@ -229,6 +228,46 @@ const LawyerDashboardPage = () => {
           </div>
 
         </div>
+
+        {/* القطعة الجديدة (Why Choose Us) */}
+        <section className="pt-10">
+          <h2 className={`text-4xl font-black mb-12 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+            {t ? t('page.home.whyTitle') : (isRTL ? 'لماذا تختارنا؟' : 'Why Choose Us?')}
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Card 1 */}
+            <div className={`p-8 rounded-3xl border ${isDark ? 'bg-slate-900 border-white/5' : 'bg-white border-gray-100 shadow-xl'}`}>
+              <ShieldCheck className="text-yellow-500 mb-6" size={40} />
+              <h3 className="text-2xl font-bold mb-4">
+                {t ? t('page.home.benefitVerified') : (isRTL ? 'محامون معتمدون' : 'Verified Lawyers')}
+              </h3>
+              <p className="opacity-60">
+                {t ? t('page.home.benefitVerifiedCopy') : (isRTL ? 'جميع المحامين يخضعون لعملية تحقق صارمة.' : 'All our lawyers undergo a strict verification process.')}
+              </p>
+            </div>
+            {/* Card 2 */}
+            <div className={`p-8 rounded-3xl border ${isDark ? 'bg-slate-900 border-white/5' : 'bg-white border-gray-100 shadow-xl'}`}>
+              <Zap className="text-yellow-500 mb-6" size={40} />
+              <h3 className="text-2xl font-bold mb-4">
+                {t ? t('page.home.benefitEasy') : (isRTL ? 'سهولة الاستخدام' : 'Easy to Use')}
+              </h3>
+              <p className="opacity-60">
+                {t ? t('page.home.benefitEasyCopy') : (isRTL ? 'احجز استشاراتك وأدر قضاياك بسلاسة.' : 'Book consultations and manage cases seamlessly.')}
+              </p>
+            </div>
+            {/* Card 3 */}
+            <div className={`p-8 rounded-3xl border ${isDark ? 'bg-slate-900 border-white/5' : 'bg-white border-gray-100 shadow-xl'}`}>
+              <CircleDollarSign className="text-yellow-500 mb-6" size={40} />
+              <h3 className="text-2xl font-bold mb-4">
+                {t ? t('page.home.benefitPricing') : (isRTL ? 'أسعار شفافة' : 'Transparent Pricing')}
+              </h3>
+              <p className="opacity-60">
+                {t ? t('page.home.benefitPricingCopy') : (isRTL ? 'اعرف التكاليف مسبقاً بدون أي رسوم خفية.' : 'Know the costs upfront with no hidden fees.')}
+              </p>
+            </div>
+          </div>
+        </section>
+
       </div>
     </div>
   );
