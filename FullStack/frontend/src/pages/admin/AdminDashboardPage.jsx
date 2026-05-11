@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import AdminLayout from '../../components/AdminLayout';
 import { useLanguage } from '../../context/LanguageContextObject';
+import dataService from '../../services/DataService';
 import { 
   Users, Scale, Clock, Wallet, AlertTriangle, 
   MessageSquare, FileText 
@@ -23,13 +23,12 @@ const AdminDashboardPage = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const response = await axios.get('/api/admin/full-dashboard');
-        // تأكد من أن البيانات المستلمة تطابق الهيكل المتوقع من SQL[cite: 11]
+        const response = await dataService.admin.getFullDashboard();
         setData(response.data);
-        setLoading(false);
       } catch (err) {
-        console.error("Dashboard Error:", err);
+        console.error('Dashboard Error:', err);
         setError(t('common.error_loading'));
+      } finally {
         setLoading(false);
       }
     };

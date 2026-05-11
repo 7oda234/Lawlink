@@ -17,9 +17,19 @@ const runQuery = (sql, params = []) =>
 export const getLawyerSpecializationsService = async () => {
     try {
         const rows = await runQuery(`SELECT DISTINCT spec_name FROM lawyer_specializations`);
-        return rows.map(row => row.spec_name); 
+        return rows.map(row => row.spec_name);
     } catch (error) {
         throw new Error("خطأ في جلب التخصصات: " + error.message);
+    }
+};
+
+// ✅ رفع صورة البروفايل
+export const updateProfilePictureService = async (userId, imageUrl) => {
+    try {
+        await runQuery(`UPDATE users SET image_url = ? WHERE user_id = ?`, [imageUrl, userId]);
+        return true;
+    } catch (error) {
+        throw new Error("خطأ في تحديث صورة البروفايل: " + error.message);
     }
 };
 

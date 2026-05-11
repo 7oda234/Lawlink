@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { CreditCard, Lock, CheckCircle, ShieldCheck } from 'lucide-react';
+
+import DataService from '../../services/DataService';
 
 const ClientPaymentPage = () => {
   const navigate = useNavigate();
@@ -18,8 +19,8 @@ const ClientPaymentPage = () => {
   useEffect(() => {
     const fetchPendingPayment = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/cases`);
-        const allCases = res.data.cases || [];
+        const res = await DataService.cases.getAll();
+        const allCases = res.data?.cases || res.data?.data?.cases || res.data?.cases || [];
         const caseToPay = allCases.find(c => c.status === 'Awaiting_Payment');
         setPendingCase(caseToPay);
       } catch (err) {
@@ -91,7 +92,7 @@ const ClientPaymentPage = () => {
         clientId: userId,
         caseId: pendingCase.case_id
       };
-      const response = await axios.post('http://localhost:5000/api/payments/visa-checkout', paymentPayload);
+        const response = await DataService.finance.payVisaCheckout(paymentPayload);
       if (response.data.ok) {
         alert('تم الدفع بنجاح! 🎉 القضية الآن Ongoing وسمعت في محفظة المحامي.');
         navigate('/client/dashboard');

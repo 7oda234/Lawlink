@@ -53,6 +53,8 @@ const ClientMessagesPage = React.lazy(() => import('./pages/client/ClientMessage
 const ClientAppointmentsPage = React.lazy(() => import('./pages/client/ClientAppointmentsPage'));
 const ClientNotificationsPage = React.lazy(() => import('./pages/client/ClientNotificationsPage'));
 const ClientPaymentPage = React.lazy(() => import('./pages/client/ClientPaymentPage'));
+const ClientPaymentsPage = React.lazy(() => import('./pages/client/ClientPaymentsPage'));
+const ClientInvoicePage = React.lazy(() => import('./pages/client/ClientInvoicePage'));
 const NewCaseIntake = React.lazy(() => import('./pages/client/NewCaseIntake'));
 const ClientWalletPage = React.lazy(() => import('./pages/client/ClientWalletPage'));
 // 🌟 إضافة جديدة للسيناريو: صفحة البحث عن محامي متخصص لإرسال العروض
@@ -177,7 +179,9 @@ const routeConfig = [
   { path: '/client/messages', Component: ClientMessagesPage },
   { path: '/client/appointments', Component: ClientAppointmentsPage },
   { path: '/client/notifications', Component: ClientNotificationsPage },
-  { path: '/client/payments', Component: ClientPaymentPage }, // 🌟 سيناريو 6 و 9
+  { path: '/client/payments/new', Component: ClientPaymentPage }, // دفع/تأكيد
+  { path: '/client/payments', Component: ClientPaymentsPage }, // سجل المدفوعات
+  { path: '/client/payments/:paymentId/invoice', Component: ClientInvoicePage },
   { path: '/client/cases/intake', Component: NewCaseIntake },
   { path: '/client/wallet', Component: ClientWalletPage },
   { path: '/client/find-specialist', Component: ClientFindLawyer }, // 🌟 سيناريو 2

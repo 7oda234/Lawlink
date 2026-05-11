@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
 import { 
   Users, Search, Mail, Phone, CreditCard, 
   Edit3, Loader2, AlertCircle 
@@ -7,6 +6,7 @@ import {
 import { Link } from 'react-router-dom';
 import AdminLayout from '../../components/AdminLayout';
 import { useLanguage } from '../../context/LanguageContextObject';
+import dataService from '../../services/DataService';
 
 const AdminManageClientsPage = () => {
   const { t } = useLanguage();
@@ -20,7 +20,7 @@ const AdminManageClientsPage = () => {
     setLoading(true);
     try {
       // استعلام يجلب بيانات المستخدمين الذين يحملون دور 'Client' مع بيانات جدول client
-      const response = await axios.get('/api/admin/clients'); 
+      const response = await dataService.admin.getClients(); 
       const data = Array.isArray(response.data) ? response.data : [];
       setClients(data);
     } catch  {

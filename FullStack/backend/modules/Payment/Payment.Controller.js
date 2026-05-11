@@ -39,10 +39,32 @@ export const getInvoice = async (req, res) => {
   try {
     const { paymentId } = req.params;
     const invoiceData = await paymentsService.getInvoiceDetails(paymentId);
-    if (!invoiceData) return res.status(404).json({ ok: false, message: "الفاتورة غير موجودة" });
-    res.status(200).json({ ok: true, data: invoiceData });
-  } catch (err) { res.status(500).json({ ok: false, message: err.message }); }
+    if (!invoiceData)
+      return res.status(404).json({ ok: false, message: "Invoice not found" });
+
+    // Backend returns JSON invoice details (not PDF binary).
+    // Frontend will download these details as a JSON file.
+    return res.status(200).json({ ok: true, data: invoiceData });
+  } catch (err) {
+    return res.status(500).json({ ok: false, message: err.message });
+  }
 };
 
-export const handleWalletWithdrawal = async (req, res) => { /* كود السحب */ };
-export const getWalletInfo = async (req, res) => { /* كود الرصيد */ };
+export const getPaymentHistory = async (req, res) => {
+  try {
+    const { userId } = req.query;
+    if (!userId) return res.status(400).json({ ok: false, message: "userId required" });
+
+    const payments = await paymentsService.getPaymentHistory(userId);
+    return res.status(200).json({ ok: true, payments });
+  } catch (err) {
+    return res.status(500).json({ ok: false, message: err.message });
+  }
+};
+
+export const handleWalletWithdrawal = async (req, res) => {
+  res.status(501).json({ ok: false, message: "Not implemented" });
+};
+export const getWalletInfo = async (req, res) => {
+  res.status(501).json({ ok: false, message: "Not implemented" });
+};

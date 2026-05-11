@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
 import { 
   History, Search, ShieldAlert, Clock, User, 
   Terminal, Filter, RefreshCw, AlertCircle, Loader2 
 } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import { useLanguage } from '../../context/LanguageContextObject';
+import dataService from '../../services/DataService';
 
 const AdminSystemLogsPage = () => {
   const { t } = useLanguage();
@@ -18,12 +18,11 @@ const AdminSystemLogsPage = () => {
   const fetchLogs = useCallback(async () => {
     setLoading(true);
     try {
-      // استعلام يجلب بيانات السجلات مع ربط اسم المستخدم القائم بالفعل
-      const response = await axios.get('/api/admin/system-logs');
+      const response = await dataService.admin.getSystemLogs();
       const data = Array.isArray(response.data) ? response.data : [];
       setLogs(data);
     } catch (err) {
-      console.error("Error fetching logs:", err);
+      console.error('Error fetching logs:', err);
       setLogs([]);
     } finally {
       setLoading(false);
@@ -36,8 +35,9 @@ const AdminSystemLogsPage = () => {
 
   // تصفية السجلات بناءً على نوع العملية أو اسم المستخدم
   const filteredLogs = logs.filter(log => {
-    const matchesSearch = log.action_details?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          log.user_name?.toLowerCase().includes(searchTerm.toLowerCase());
+    const logText = (log.action_details || log.action || '').toLowerCase();
+    const matchesSearch = logText.includes(searchTerm.toLowerCase()) || 
+                          (log.user_name || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = typeFilter === 'All' || log.action_type === typeFilter;
     return matchesSearch && matchesType;
   });
@@ -112,7 +112,7 @@ const AdminSystemLogsPage = () => {
                   </span>
                   
                   <span className="md:col-span-6 text-gray-300">
-                    {log.action_details}
+                    {log.action || log.action_details}
                   </span>
                   
                   <span className="md:col-span-1 text-right text-gray-600 group-hover:text-accent transition-colors">

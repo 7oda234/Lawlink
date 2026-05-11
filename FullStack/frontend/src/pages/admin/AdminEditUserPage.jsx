@@ -16,6 +16,7 @@ const AdminEditUserPage = () => {
   const [searchEmail, setSearchEmail] = useState('');
   const [isEditing, setIsConfirmEditing] = useState(false);
   const [status, setStatus] = useState({ type: '', message: '' });
+  // eslint-disable-next-line no-unused-vars
   const [loading, setLoading] = useState(false);
   
   // بيانات النموذج تطابق أعمدة SQL

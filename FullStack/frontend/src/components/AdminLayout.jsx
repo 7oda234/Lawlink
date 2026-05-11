@@ -1,34 +1,25 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, Users, ShieldCheck, 
   BarChart3, FileCode, MessageSquare, Cpu,
-  LogOut, Banknote, Search, Bell, ChevronRight, ChevronLeft
+  LogOut, Banknote
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContextObject';
-import dataService from '../services/DataService'; // للربط بالباك إند[cite: 3]
 
 const AdminLayout = ({ children, title, description }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { t, language } = useLanguage();
-  const [searchQuery, setSearchQuery] = useState('');
   const isRTL = language === 'ar' || language === 'eg';
 
   const isActive = (path) => location.pathname === path;
 
-  // دالة البحث من الهيدر[cite: 3]
-  const handleGlobalSearch = async (e) => {
-    setSearchQuery(e.target.value);
-    if (e.target.value.length > 3) {
-      try {
-        const res = await dataService.reports.adminGetFinancialLogs(); // مثال للربط[cite: 3]
-        console.log("نتائج البحث:", res.data);
-      } catch (err) {
-        console.error("خطأ في البحث:", err);
-      }
-    }
-  };
+  // دالة البحث من الهيدر[cite: 3] - REMOVED
+  // const handleGlobalSearch = (e) => {
+  //   setSearchQuery(e.target.value);
+  //   // Global search will be extended with a backend endpoint when available.
+  // };
 
   return (
     <div className={`min-h-screen flex bg-[#0F111A] text-gray-100 font-sans`} dir={isRTL ? 'rtl' : 'ltr'}>
@@ -132,8 +123,8 @@ const AdminLayout = ({ children, title, description }) => {
              </div>
           </div>
 
-          {/* شريط البحث المركزي[cite: 2] */}
-          <div className="relative w-96 hidden lg:block">
+          {/* شريط البحث المركزي[cite: 2] - REMOVED */}
+          {/* <div className="relative w-96 hidden lg:block">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600" size={16} />
             <input 
               type="text" 
@@ -142,13 +133,14 @@ const AdminLayout = ({ children, title, description }) => {
               onChange={handleGlobalSearch}
               className="w-full bg-white/5 border border-white/10 rounded-full py-2 pl-12 pr-4 text-sm focus:outline-none focus:border-yellow-500/50 transition-all"
             />
-          </div>
+          </div> */}
 
           <div className="flex items-center gap-6">
-            <button className="relative p-2 text-gray-400 hover:text-white bg-white/5 rounded-full border border-white/5">
+            {/* Notification icon removed */}
+            {/* <button className="relative p-2 text-gray-400 hover:text-white bg-white/5 rounded-full border border-white/5">
               <Bell size={20} />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-[#0F111A]"></span>
-            </button>
+            </button> */}
             
             {/* صورة الأدمن[cite: 4] */}
             <div className="flex items-center gap-3 pl-6 border-l border-white/10">

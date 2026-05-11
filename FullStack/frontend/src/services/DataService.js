@@ -50,10 +50,14 @@ export const dataService = {
   users: {
     getAll: () => api.get('/users'),
     getById: (id) => api.get(`/users/${id}`),
+    getByEmail: (email) => api.get(`/users/edit-details`, { params: { email } }),
     update: (id, userData) => api.put(`/users/${id}`, userData),
     delete: (id) => api.delete(`/users/${id}`),
     getLawyers: () => api.get('/users/lawyers'),
     getClients: () => api.get('/users/clients'),
+    uploadProfilePicture: (id, formData) => api.post(`/users/upload-profile-picture/${id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }),
   },
 
   // ⚖️ Case Management APIs[cite: 3]
@@ -79,22 +83,28 @@ export const dataService = {
   finance: {
     getWalletBalance: () => api.get('/wallet/balance'),
     addFunds: (amount) => api.post('/wallet/topup', { amount }),
-    getPaymentHistory: () => api.get('/payments/history'),
+    getPaymentHistory: () => api.get('/payments/history', { params: { userId: localStorage.getItem('userId') } }),
     getLawyerEarnings: () => api.get('/payments/lawyer-stats'),
     getInstallmentsByCase: (caseId) => api.get(`/installments/case/${caseId}`),
     payInstallment: (id) => api.post(`/installments/${id}/pay`),
     
     downloadInvoice: async (paymentId) => {
-      const response = await api.get(`/invoice/generate/${paymentId}`, {
-        responseType: 'blob',
+      // Backend returns JSON invoice details (not PDF binary).
+      const response = await api.get(`/payments/invoice/${paymentId}`);
+      const invoice = response.data?.data ?? response.data;
+
+      const blob = new Blob([JSON.stringify(invoice, null, 2)], {
+        type: 'application/json',
       });
-      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `Invoice_${paymentId}.pdf`);
+      link.setAttribute('download', `Invoice_${paymentId}.json`);
       document.body.appendChild(link);
       link.click();
       link.remove();
+      window.URL.revokeObjectURL(url);
+      return response;
     }
   },
 
@@ -108,8 +118,25 @@ export const dataService = {
   },
 
   admin: {
-    getAIUsageLogs: () => api.get('/admin/ai-usage'),
+    getFullDashboard: () => api.get('/admin/full-dashboard'),
+    getUsers: () => api.get('/admin/users'),
+    getLawyers: () => api.get('/admin/lawyers'),
+    getPendingLawyers: () => api.get('/admin/lawyers/pending'),
+    approveLawyer: (userId, approved) => api.post('/admin/lawyers/approve', { userId, approved }),
+    verifyLawyer: (userId, verified) => api.patch(`/admin/lawyers/${userId}/verify`, { verified }),
+    getClients: () => api.get('/admin/clients'),
+    getCases: () => api.get('/admin/cases'),
+    getCaseMonitoring: () => api.get('/admin/cases-monitoring'),
+    getReportsAnalytics: () => api.get('/admin/reports-analytics'),
     getSystemLogs: () => api.get('/admin/system-logs'),
+    getAIUsageLogs: () => api.get('/admin/ai-usage'),
+    getFinancialLogs: () => api.get('/admin/financial-logs'),
+  },
+
+  notifications: {
+    getByUserId: (userId, params = {}) => api.get(`/notifications/${userId}`, { params }),
+    markAllRead: (userId) => api.put(`/notifications/mark-all-read/${userId}`),
+    deleteNotification: (notificationId) => api.delete(`/notifications/${notificationId}`),
   },
 
   // 🤖 AI Tools APIs

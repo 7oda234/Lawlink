@@ -1,6 +1,7 @@
 import express from 'express';
 import * as userController from './user.controller.js';
 import { validateRegister } from '../../middleware/Uservalidation.js';
+import { uploadSingle, handleUploadError } from '../../middleware/upload.js';
 
 const router = express.Router();
 
@@ -37,5 +38,8 @@ router.put('/:id', userController.updateUser);
 
 // 7. حذف مستخدم
 router.delete('/:id', userController.deleteUser);
+
+// 8. رفع صورة البروفايل
+router.post('/upload-profile-picture/:id', uploadSingle('profilePicture'), handleUploadError, userController.uploadProfilePicture);
 
 export default router;

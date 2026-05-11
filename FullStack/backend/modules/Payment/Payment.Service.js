@@ -34,11 +34,28 @@ export const activateCase = async (caseId) => {
 };
 
 export const createInvoice = async (paymentId) => {
-  return { ok: true, invoiceNumber: `INV-${Date.now()}`, paymentId };
+  // Minimal invoice integration: generate invoice number + store it in payment row.
+  // If invoice table exists later, we can extend.
+  const invoiceNumber = `INV-${Date.now()}`;
+
+  const sql = `UPDATE payment SET invoice_number = ? WHERE payment_id = ?`;
+  try {
+    await runQuery(sql, [invoiceNumber, paymentId]);
+  } catch (e) {
+    // If payment table has no invoice_number column, ignore and just return
+  }
+
+  return { ok: true, invoiceNumber, paymentId };
 };
 
 export const getInvoiceDetails = async (paymentId) => {
   const sql = `SELECT * FROM payment WHERE payment_id = ?`;
   const res = await runQuery(sql, [paymentId]);
   return res.length > 0 ? res[0] : null;
+};
+
+export const getPaymentHistory = async (clientId) => {
+  const sql = `SELECT * FROM payment WHERE client_id = ? ORDER BY created_at DESC`;
+  const res = await runQuery(sql, [clientId]);
+  return res;
 };

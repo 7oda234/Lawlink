@@ -89,3 +89,25 @@ export const getLawyers = async (req, res) => {
         res.status(500).json({ success: false, message: error.message }); 
     }
 };
+
+// رفع صورة البروفايل
+export const uploadProfilePicture = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: 'لم يتم رفع أي ملف' });
+        }
+
+        const userId = req.params.id;
+        const imageUrl = `/uploads/${req.file.filename}`;
+
+        await userService.updateProfilePictureService(userId, imageUrl);
+
+        res.status(200).json({ 
+            success: true, 
+            message: 'تم رفع الصورة بنجاح',
+            imageUrl 
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};

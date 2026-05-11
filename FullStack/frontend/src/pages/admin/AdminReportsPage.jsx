@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import dataService from '../../services/DataService';
 import { 
   BarChart3, PieChart, TrendingUp, Download, 
   Calendar, FileText, Wallet, Scale, Loader2, AlertCircle 
@@ -22,9 +22,7 @@ const AdminReportsPage = () => {
   const fetchReports = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await axios.get('/api/admin/reports-analytics');
-      
-      // التحقق من صحة البيانات القادمة ودمجها مع القيم الافتراضية
+      const response = await dataService.admin.getReportsAnalytics();
       if (response.data) {
         setReportsData(prev => ({
           ...prev,
@@ -33,7 +31,7 @@ const AdminReportsPage = () => {
         }));
       }
     } catch (err) {
-      console.error("Error fetching reports:", err);
+      console.error('Error fetching reports:', err);
     } finally {
       setLoading(false);
     }

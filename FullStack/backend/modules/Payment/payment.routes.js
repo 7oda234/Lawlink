@@ -7,4 +7,5 @@ router.get("/wallet/:userId", paymentsController.getWalletInfo);
 router.post("/withdraw", paymentsController.handleWalletWithdrawal);
 router.get("/invoice/:paymentId", paymentsController.getInvoice);
 
+
 export default router;

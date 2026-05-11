@@ -1,19 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Bell, CheckCircle2, Clock, Trash2, Sparkles, Inbox, Send, ShieldCheck } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import { useLanguage } from '../../context/LanguageContextObject';
+import { useAuth } from '../../context/useAuth';
+import dataService from '../../services/DataService';
 
 const AdminNotificationsPage = () => {
   const { language, t } = useLanguage();
+  const { authUser } = useAuth();
   const isRTL = language === 'ar' || language === 'eg';
 
   const [activeFilter, setActiveFilter] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
-  const [notifications, setNotifications] = useState([
-    { id: 1, title: 'Case #1025 updated', details: 'أجرى النظام تحديثاً على حالة القضية رقم 1025.', timestamp: '2026-04-14 10:00', status: 'Unread', category: 'Case', icon: 'status' },
-    { id: 2, title: 'New hearing tomorrow', details: 'تم جدولة جلسة جديدة لقضية العميل غداً.', timestamp: '2026-04-13 15:30', status: 'Read', category: 'Appointment', icon: 'appointment' },
-    { id: 3, title: 'System audit completed', details: 'الكشف الأمني اكتمل والبنية التحتية مستقرة.', timestamp: '2026-04-12 09:20', status: 'Unread', category: 'Security', icon: 'audit' }
-  ]);
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      if (!authUser?.user_id) return;
+      setLoading(true);
+      try {
+        const response = await dataService.notifications.getByUserId(authUser.user_id, { limit: 50 });
+        setNotifications(response || []);
+      } catch (err) {
+        console.error('Failed to load notifications:', err);
+        setError('فشل تحميل الإشعارات. حاول مرة أخرى لاحقاً.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNotifications();
+  }, [authUser]);
 
   const filteredNotifications = notifications.filter((item) => {
     const searchMatch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) || item.details.toLowerCase().includes(searchTerm.toLowerCase());
@@ -21,12 +40,23 @@ const AdminNotificationsPage = () => {
     return searchMatch && filterMatch;
   });
 
-  const markAllRead = () => {
-    setNotifications((prev) => prev.map((item) => ({ ...item, status: 'Read' })));
+  const markAllRead = async () => {
+    if (!authUser?.user_id) return;
+    try {
+      await dataService.notifications.markAllRead(authUser.user_id);
+      setNotifications((prev) => prev.map((item) => ({ ...item, status: 'Read' })));
+    } catch (err) {
+      console.error('Failed to mark all notifications as read:', err);
+    }
   };
 
-  const deleteNotification = (id) => {
-    setNotifications((prev) => prev.filter((item) => item.id !== id));
+  const deleteNotification = async (id) => {
+    try {
+      await dataService.notifications.deleteNotification(id);
+      setNotifications((prev) => prev.filter((item) => item.id !== id));
+    } catch (err) {
+      console.error('Failed to delete notification:', err);
+    }
   };
 
   const summary = {
@@ -114,10 +144,20 @@ const AdminNotificationsPage = () => {
               <CheckCircle2 size={18} /> Mark all read
             </button>
           </div>
+
+          {error && (
+            <div className="mt-6 rounded-3xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
+              {error}
+            </div>
+          )}
         </section>
 
         <section className="space-y-4">
-          {filteredNotifications.length === 0 ? (
+          {loading ? (
+            <div className="rounded-3xl border border-white/10 bg-[#10131D]/80 p-10 text-center text-gray-400">
+              Loading notifications...
+            </div>
+          ) : filteredNotifications.length === 0 ? (
             <div className="rounded-3xl border border-white/10 bg-[#10131D]/80 p-10 text-center text-gray-400">
               لا توجد تنبيهات تطابق الفلتر الحالي.
             </div>
