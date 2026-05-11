@@ -6,8 +6,10 @@ const router = express.Router();
 // Get all installments for a given case
 router.get("/case/:caseId", installmentController.getInstallmentsByCase);
 
+// 🔴 الراوت الجديد لإنشاء خطة تقسيط
+router.post("/case/:caseId/create-plan", installmentController.generateInstallments);
+
 // Pay an installment by installment id
 router.post("/:id/pay", installmentController.payInstallment);
 
 export default router;
-

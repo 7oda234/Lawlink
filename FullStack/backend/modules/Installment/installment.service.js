@@ -8,16 +8,6 @@ const runQuery = (sql, params = []) =>
     });
   });
 
-// NOTE:
-// Since DB schema details are not present in this repo, we implement against the most likely columns.
-// Required columns we assume exist:
-// - installments: installment_id, case_id, amount, amount_paid, status, due_date, created_at
-// - installment_payments: id, installment_id, payment_id, amount, created_at
-// - payment: payment_id, status, currency, amount, client_id, case_id, created_at
-// - wallet: user_id (unique), balance, currency
-//
-// If your table/column names differ, adjust the SQL accordingly.
-
 export const getInstallmentsByCaseId = async (caseId) => {
   const sql = `SELECT * FROM installments WHERE case_id = ? ORDER BY created_at ASC`;
   const res = await runQuery(sql, [caseId]);
@@ -30,12 +20,11 @@ export const getLawyerIdByCase = async (caseId) => {
   return res.length ? res[0].lawyer_id : null;
 };
 
-export const payInstallmentById = async ({ installmentId, payerClientId }) => {
+export const payInstallmentById = async ({ installmentId, payerClientId, paymentStatus }) => {
   const connection = await db.promise().getConnection();
   try {
     await connection.beginTransaction();
 
-    // Load installment (and case/client linkage)
     const installmentSql = `
       SELECT i.*, c.client_id
       FROM installments i
@@ -61,20 +50,22 @@ export const payInstallmentById = async ({ installmentId, payerClientId }) => {
       return { ok: true, installmentId, amountPaid: 0, status: "Paid" };
     }
 
-    // Create a payment record for the installment payment
+    const insertStatus = paymentStatus || "Installment";
     const paymentInsertSql = `
       INSERT INTO payment (status, currency, amount, client_id, case_id)
       VALUES (?, 'EGP', ?, ?, ?)
     `;
-    const paymentStatus = "Installment";
-    const [paymentResult] = await connection.query(paymentInsertSql, [paymentStatus, remaining, clientId, inst.case_id]);
+    const [paymentResult] = await connection.query(paymentInsertSql, [insertStatus, remaining, clientId, inst.case_id]);
     const paymentId = paymentResult.insertId;
 
-    // Update wallet balance for lawyer
-    const lawyerId = await (async () => {
-      const [r] = await connection.query(`SELECT lawyer_id FROM cases WHERE case_id = ?`, [inst.case_id]);
-      return r.length ? r[0].lawyer_id : null;
-    })();
+    const invoiceNumber = `INV-${Date.now()}`;
+    await connection.query(
+      `INSERT INTO invoices (invoice_number, issue_date, payment_id) VALUES (?, CURDATE(), ?)`,
+      [invoiceNumber, paymentId]
+    );
+
+    const [lawyerRows] = await connection.query(`SELECT lawyer_id FROM cases WHERE case_id = ?`, [inst.case_id]);
+    const lawyerId = lawyerRows.length ? lawyerRows[0].lawyer_id : null;
 
     if (lawyerId) {
       await connection.query(
@@ -87,7 +78,6 @@ export const payInstallmentById = async ({ installmentId, payerClientId }) => {
       );
     }
 
-    // Update installment paid amount + status
     const newAmountPaid = Number(inst.amount_paid ?? 0) + remaining;
     const newStatus = newAmountPaid >= Number(inst.amount) ? "Paid" : "Partial";
 
@@ -96,44 +86,14 @@ export const payInstallmentById = async ({ installmentId, payerClientId }) => {
       [newAmountPaid, newStatus, installmentId]
     );
 
-    // Invoice integration:
-    // If you have an invoices table, update it here.
-    // We implement a soft approach: if invoices table exists, update totals by summing payments.
-    // Otherwise, nothing breaks.
-    try {
-      await connection.query(
-        `
-        UPDATE invoices i
-        SET 
-          paid_amount = (
-            SELECT COALESCE(SUM(p.amount),0)
-            FROM payment p
-            WHERE p.case_id = i.case_id
-          ),
-          status = CASE
-            WHEN (
-              SELECT COALESCE(SUM(p.amount),0)
-              FROM payment p
-              WHERE p.case_id = i.case_id
-            ) >= i.total_amount THEN 'Paid'
-            ELSE 'Partial'
-          END
-        WHERE i.case_id = ?
-      `,
-        [inst.case_id]
-      );
-    } catch (_) {
-      // ignore if invoices table/columns differ
-    }
-
-    // Update case status to Ongoing (or whatever you use)
     await connection.query(`UPDATE cases SET status='Ongoing' WHERE case_id = ?`, [inst.case_id]);
 
     await connection.commit();
     return {
       ok: true,
       installmentId,
-      paymentId,
+      paymentId, 
+      invoiceNumber,
       amountPaid: remaining,
       status: newStatus,
       caseId: inst.case_id,
@@ -146,3 +106,28 @@ export const payInstallmentById = async ({ installmentId, payerClientId }) => {
   }
 };
 
+export const createInstallmentPlan = async (caseId, totalAmount, months) => {
+  const connection = await db.promise().getConnection();
+  try {
+    await connection.beginTransaction();
+    const amountPerMonth = totalAmount / months;
+    const queries = [];
+
+    for (let i = 0; i < months; i++) {
+      const dueDate = new Date();
+      dueDate.setMonth(dueDate.getMonth() + i);
+
+      const sql = `INSERT INTO installments (case_id, amount, amount_paid, status, due_date) VALUES (?, ?, 0, 'Pending', ?)`;
+      queries.push(connection.query(sql, [caseId, amountPerMonth, dueDate]));
+    }
+
+    await Promise.all(queries);
+    await connection.commit();
+    return { ok: true, message: "تم إنشاء خطة الأقساط بنجاح" };
+  } catch (err) {
+    await connection.rollback();
+    throw err;
+  } finally {
+    connection.release();
+  }
+};

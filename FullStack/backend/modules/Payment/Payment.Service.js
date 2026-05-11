@@ -14,7 +14,7 @@ export const getLawyerIdByCase = async (caseId) => {
   return res.length > 0 ? res[0].lawyer_id : null;
 };
 
-export const createPaymentEntry = async (amount, clientId, caseId, status = 'Partial') => {
+export const createPaymentEntry = async (amount, clientId, caseId, status = 'Full') => {
   const sql = `INSERT INTO payment (status, currency, amount, client_id, case_id) VALUES (?, 'EGP', ?, ?, ?)`;
   const res = await runQuery(sql, [status, amount, clientId, caseId]);
   return res.insertId; 
@@ -33,23 +33,28 @@ export const activateCase = async (caseId) => {
   return await runQuery(sql, [caseId]);
 };
 
+// 🔴 تم التعديل: إنشاء الفاتورة في جدول الفواتير المستقل
 export const createInvoice = async (paymentId) => {
-  // Minimal invoice integration: generate invoice number + store it in payment row.
-  // If invoice table exists later, we can extend.
   const invoiceNumber = `INV-${Date.now()}`;
-
-  const sql = `UPDATE payment SET invoice_number = ? WHERE payment_id = ?`;
+  
+  const sql = `INSERT INTO invoices (invoice_number, issue_date, payment_id) VALUES (?, CURDATE(), ?)`;
   try {
     await runQuery(sql, [invoiceNumber, paymentId]);
   } catch (e) {
-    // If payment table has no invoice_number column, ignore and just return
+    console.error("Error creating invoice: ", e);
   }
 
   return { ok: true, invoiceNumber, paymentId };
 };
 
+// 🔴 تم التعديل: ربط جدول الدفع بجدول الفواتير عشان نرجع الداتا كاملة للفرونت إند
 export const getInvoiceDetails = async (paymentId) => {
-  const sql = `SELECT * FROM payment WHERE payment_id = ?`;
+  const sql = `
+    SELECT p.*, i.invoice_number, i.issue_date 
+    FROM payment p
+    LEFT JOIN invoices i ON p.payment_id = i.payment_id
+    WHERE p.payment_id = ?
+  `;
   const res = await runQuery(sql, [paymentId]);
   return res.length > 0 ? res[0] : null;
 };

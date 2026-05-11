@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Briefcase, CheckCircle, XCircle, User, FileText, 
   MessageSquare, Clock, Download, ChevronDown, AlertCircle,
-  CalendarDays, Scale 
+  CalendarDays, Scale, CreditCard 
 } from 'lucide-react';
 
 const ClientCaseDetailsPage = () => {
@@ -21,9 +21,6 @@ const ClientCaseDetailsPage = () => {
 
   const BASE_URL = "http://localhost:5000";
 
-  /**
-   * 🛠️ الدالة الذكية لمعالجة الصور
-   */
   const formatImg = (path) => {
     if (!path || path === "null" || path === "undefined") {
       return 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
@@ -47,23 +44,19 @@ const ClientCaseDetailsPage = () => {
       }
 
       try {
-        // ✅ إضافة timestamp لمنع المتصفح من حفظ الداتا القديمة (Cache Busting)
         const timestamp = new Date().getTime();
         
-        // 1. جلب بيانات القضية
         const res = await axios.get(`${BASE_URL}/api/cases?t=${timestamp}`);
         const allCases = res.data.cases || [];
         const found = allCases.find(c => c.case_id.toString() === cleanId);
         if (found) setCaseData(found);
 
-        // 2. جلب الملفات
         const docsRes = await axios.get(`${BASE_URL}/api/documents/case/${cleanId}?t=${timestamp}`).catch(() => null);
         if (docsRes && docsRes.data) {
           const fetchedDocs = docsRes.data.data || docsRes.data.documents || docsRes.data;
           if (Array.isArray(fetchedDocs)) setDocuments(fetchedDocs);
         }
 
-        // 3. جلب الجلسات لمعرفة موعد الجلسة القادمة
         const sessionsRes = await axios.get(`${BASE_URL}/api/court-sessions/case/${cleanId}?t=${timestamp}`).catch(() => null);
         if (sessionsRes && sessionsRes.data) {
           const fetchedSessions = sessionsRes.data.data || sessionsRes.data.sessions || sessionsRes.data;
@@ -73,7 +66,6 @@ const ClientCaseDetailsPage = () => {
           }
         }
 
-        // 4. جلب قرار المحكمة
         const decisionRes = await axios.get(`${BASE_URL}/api/court-sessions/decision/${cleanId}?t=${timestamp}`).catch(() => null);
         if (decisionRes && decisionRes.data && decisionRes.data.data) {
           setCaseDecision(decisionRes.data.data.session_decision);
@@ -88,10 +80,7 @@ const ClientCaseDetailsPage = () => {
       }
     };
 
-    // جلب البيانات أول مرة
     fetchCaseDetails();
-
-    // ✅ تفعيل التحديث التلقائي (Polling) كل 3 ثواني
     const interval = setInterval(fetchCaseDetails, 3000);
     return () => clearInterval(interval);
   }, [routeId]);
@@ -106,7 +95,7 @@ const ClientCaseDetailsPage = () => {
       
       if (response === 'accept') {
         alert("تم قبول العرض بنجاح! جاري التحويل للدفع.. 💳");
-        navigate('/client/payments');
+        navigate(`/client/payments/new?caseId=${cleanId}`);
       } else {
         alert("تم رفض العرض 🔄");
         navigate('/client/dashboard');
@@ -122,7 +111,6 @@ const ClientCaseDetailsPage = () => {
     return date.toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
   };
 
-  // 👈 التعديل هنا: تنسيق التاريخ للجلسات مع إضافة الوقت (الساعة والدقيقة)
   const formatSessionDate = (dateString) => {
     if (!dateString) return 'لم يتم التحديد';
     const date = new Date(dateString);
@@ -193,7 +181,6 @@ const ClientCaseDetailsPage = () => {
           {caseData.description || "لا يوجد وصف متوفر."}
         </div>
 
-        {/* 1) حالة "الانتظار" */}
         {isPending && (
           <div className="p-10 text-center bg-slate-950/50 rounded-[2rem] border border-white/5 opacity-80 mt-12 shadow-inner">
             <Clock size={48} className="mx-auto mb-4 text-yellow-500 opacity-50 animate-pulse" />
@@ -204,7 +191,6 @@ const ClientCaseDetailsPage = () => {
           </div>
         )}
 
-        {/* 2) حالة "موافقة العميل" */}
         {isAwaitingClient && (
           <div className="bg-yellow-500/5 border border-yellow-500/30 p-8 rounded-[2.5rem] relative mt-12 animate-in fade-in zoom-in duration-500 shadow-xl">
             <div className="absolute -top-4 right-10 bg-yellow-500 text-black text-[10px] font-black px-4 py-1.5 rounded-full uppercase italic shadow-lg animate-bounce">
@@ -260,13 +246,12 @@ const ClientCaseDetailsPage = () => {
           </div>
         )}
 
-        {/* 3) حالة "انتظار الدفع" */}
         {isAwaitingPayment && (
           <div className="p-10 text-center bg-yellow-500/10 rounded-[2rem] border border-yellow-500/30 mt-12 shadow-xl animate-in fade-in">
             <h3 className="text-2xl font-black italic text-yellow-500 mb-4">في انتظار الدفع 💳</h3>
             <p className="text-sm font-bold opacity-80 mb-6 text-yellow-100">لقد وافقت على عرض المحامي، يرجى سداد الدفعة المقدمة لبدء العمل في القضية.</p>
             <button 
-              onClick={() => navigate('/client/payments')} 
+              onClick={() => navigate(`/client/payments/new?caseId=${caseData.case_id}`)} 
               className="bg-yellow-500 text-black font-black py-4 px-10 rounded-xl italic uppercase hover:scale-105 transition-all shadow-lg shadow-yellow-500/20"
             >
               الذهاب لصفحة الدفع الآن
@@ -274,18 +259,16 @@ const ClientCaseDetailsPage = () => {
           </div>
         )}
 
-        {/* 4) حالة "قيد التنفيذ" أو "مغلقة" */}
         {(isOngoing || isClosed) && (
           <div className="mt-12 space-y-8 animate-in slide-in-from-bottom-5 duration-700">
              
-             {/* هيدر معلومات المحامي وحالة التنفيذ */}
              <div className={`${isClosed ? 'bg-red-500/10 border-red-500/20' : 'bg-green-500/10 border-green-500/20'} border p-8 rounded-[2.5rem] flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xl`}>
                 <div>
                   <h3 className={`text-2xl font-black italic mb-2 ${isClosed ? 'text-red-500' : 'text-green-500'}`}>
-                    {isClosed ? 'تم إغلاق القضية' : 'القضية قيد التنفيذ'}
+                    {isClosed ? 'تم إغلاق القضية' : 'القضية قيد التنفيذ (Ongoing)'}
                   </h3>
                   <p className={`text-xs font-bold opacity-80 ${isClosed ? 'text-red-100' : 'text-green-100'}`}>
-                    {isClosed ? 'تم إصدار الحكم النهائي وإغلاق ملف القضية في الأرشيف.' : 'تم دفع المقدم، والمحامي يعمل على ملفك الآن.'}
+                    {isClosed ? 'تم إصدار الحكم النهائي وإغلاق ملف القضية في الأرشيف.' : 'المحامي يعمل على ملفك الآن (القضية قيد التنفيذ سواء تم الدفع كلياً أو جزئياً).'}
                   </p>
                 </div>
 
@@ -307,10 +290,8 @@ const ClientCaseDetailsPage = () => {
                 </div>
              </div>
 
-             {/* الكروت موزعة على شبكة 3 أعمدة */}
              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 
-                {/* كارت 1: المستندات */}
                 <button 
                   onClick={() => setShowDocs(!showDocs)}
                   className="bg-slate-900 p-8 rounded-3xl border border-white/5 flex flex-col items-center justify-center text-center hover:bg-slate-800 hover:border-yellow-500/50 transition-all group shadow-lg min-h-[140px]"
@@ -322,7 +303,6 @@ const ClientCaseDetailsPage = () => {
                    </p>
                 </button>
                 
-                {/* كارت 2: المحادثات */}
                 <div 
                   onClick={() => navigate('/client/messages')}
                   className="bg-slate-900 p-8 rounded-3xl border border-white/5 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-800 hover:border-emerald-500/50 transition-all shadow-lg group min-h-[140px]"
@@ -332,7 +312,6 @@ const ClientCaseDetailsPage = () => {
                    <p className="font-bold italic mt-2 text-emerald-500 uppercase text-sm">تواصل الآن</p>
                 </div>
 
-                {/* كارت 3: مواعيد الجلسات */}
                 <div className="bg-slate-900 p-8 rounded-3xl border border-white/5 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-800 hover:border-cyan-500/50 transition-all shadow-lg group min-h-[140px]">
                    <CalendarDays className="text-cyan-500 mb-3 group-hover:scale-110 transition-transform" size={32} />
                    <span className="text-xs font-black uppercase opacity-40 tracking-widest">مواعيد الجلسات</span>
@@ -341,7 +320,6 @@ const ClientCaseDetailsPage = () => {
                    </p>
                 </div>
 
-                {/* كارت 4: الحكم وقرار المحكمة */}
                 <div className="bg-slate-900 p-8 rounded-3xl border border-white/5 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-800 hover:border-red-500/50 transition-all shadow-lg group min-h-[140px]">
                    <Scale className="text-red-500 mb-3 group-hover:scale-110 transition-transform" size={32} />
                    <span className="text-xs font-black uppercase opacity-40 tracking-widest">حكم المحكمة</span>
@@ -350,15 +328,24 @@ const ClientCaseDetailsPage = () => {
                    </p>
                 </div>
 
-                {/* كارت 5: آخر تحديث */}
                 <div className="bg-slate-900 p-8 rounded-3xl border border-white/5 flex flex-col items-center justify-center text-center shadow-lg min-h-[140px]">
                    <Clock className="text-blue-500 mb-3" size={32} />
                    <span className="text-xs font-black uppercase opacity-40 tracking-widest">آخر تحديث</span>
                    <p className="font-bold italic mt-2 text-sm text-blue-400" dir="ltr">{formatDate(caseData.updated_at || caseData.created_at)}</p>
                 </div>
+
+                {!isClosed && (
+                  <div 
+                    onClick={() => navigate(`/client/payments/new?caseId=${caseData.case_id}`)}
+                    className="bg-slate-900 p-8 rounded-3xl border border-white/5 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-800 hover:border-yellow-500/50 transition-all shadow-lg group min-h-[140px]"
+                  >
+                     <CreditCard className="text-yellow-500 mb-3 group-hover:scale-110 transition-transform" size={32} />
+                     <span className="text-xs font-black uppercase opacity-40 tracking-widest">المدفوعات</span>
+                     <p className="font-bold italic mt-2 text-yellow-500 uppercase text-sm">إدارة الأقساط المتبقية</p>
+                  </div>
+                )}
              </div>
 
-             {/* نافذة عرض المستندات */}
              {showDocs && (
                 <div className="bg-slate-950 p-6 rounded-3xl border border-white/10 animate-in fade-in slide-in-from-top-4 shadow-2xl mt-4">
                   <h4 className="font-black italic mb-4 text-yellow-500 border-b border-white/10 pb-4 flex items-center gap-2 text-lg">
@@ -394,7 +381,6 @@ const ClientCaseDetailsPage = () => {
           </div>
         )}
 
-        {/* Fallback */}
         {!isPending && !isAwaitingClient && !isAwaitingPayment && !isOngoing && !isClosed && (
           <div className="p-10 text-center bg-slate-950/50 rounded-[2rem] border border-red-500/30 mt-12 shadow-inner">
             <AlertCircle size={48} className="mx-auto mb-4 text-red-500 opacity-50" />

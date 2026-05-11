@@ -1,4 +1,4 @@
-// Full DataService for LawLink API calls[cite: 3]
+// Full DataService for LawLink API calls
 import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
@@ -10,7 +10,7 @@ const api = axios.create({
   },
 });
 
-// 🛡️ Request Interceptor: Attach JWT Token[cite: 3]
+// 🛡️ Request Interceptor: Attach JWT Token
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -19,7 +19,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// 🛡️ Response Interceptor: Global Error Handling[cite: 3]
+// 🛡️ Response Interceptor: Global Error Handling
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -33,7 +33,7 @@ api.interceptors.response.use(
 );
 
 export const dataService = {
-  // 🔐 Authentication APIs[cite: 3]
+  // 🔐 Authentication APIs
   auth: {
     login: (credentials) => api.post('/auth/login', credentials),
     register: (userData) => api.post('/auth/register', userData),
@@ -46,7 +46,7 @@ export const dataService = {
     changePassword: (passwords) => api.post('/auth/change-password', passwords),
   },
 
-  // 👥 User Management APIs[cite: 3]
+  // 👥 User Management APIs
   users: {
     getAll: () => api.get('/users'),
     getById: (id) => api.get(`/users/${id}`),
@@ -60,7 +60,7 @@ export const dataService = {
     }),
   },
 
-  // ⚖️ Case Management APIs[cite: 3]
+  // ⚖️ Case Management APIs
   cases: {
     getAll: () => api.get('/cases'),
     getById: (id) => api.get(`/cases/${id}`),
@@ -72,24 +72,29 @@ export const dataService = {
     addDocument: (id, documentData) => api.post(`/cases/${id}/documents`, documentData),
   },
 
-  // � Document Upload APIs
+  // 📄 Document Upload APIs
   documents: {
     upload: (formData) => api.post('/documents', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     }),
   },
 
-  // �💰 Financial APIs (Wallet, Payments, Installments)[cite: 3]
+  // 💰 Financial APIs (Wallet, Payments, Installments)
   finance: {
     getWalletBalance: () => api.get('/wallet/balance'),
     addFunds: (amount) => api.post('/wallet/topup', { amount }),
     getPaymentHistory: () => api.get('/payments/history', { params: { userId: localStorage.getItem('userId') } }),
     getLawyerEarnings: () => api.get('/payments/lawyer-stats'),
-    getInstallmentsByCase: (caseId) => api.get(`/installments/case/${caseId}`),
-    payInstallment: (id) => api.post(`/installments/${id}/pay`),
     
+    // مسارات الأقساط والدفع
+    getInstallmentsByCase: (caseId) => api.get(`/installments/case/${caseId}`),
+    createInstallmentPlan: (caseId, payload) => api.post(`/installments/case/${caseId}/create-plan`, payload),
+    payInstallment: (id, payload) => api.post(`/installments/${id}/pay`, payload),
+    payVisaCheckout: (payload) => api.post('/payments/visa-checkout', payload), // لدفع الكاش والمقدم
+    
+    // 🔴 تم تصحيح المسار هنا بإضافة حرف s ليطابق الباك إند
+    getInvoiceDetails: (paymentId) => api.get(`/payments/invoice/${paymentId}`), 
     downloadInvoice: async (paymentId) => {
-      // Backend returns JSON invoice details (not PDF binary).
       const response = await api.get(`/payments/invoice/${paymentId}`);
       const invoice = response.data?.data ?? response.data;
 
@@ -108,13 +113,13 @@ export const dataService = {
     }
   },
 
-  // 📊 Reports and Analytics APIs[cite: 3]
+  // 📊 Reports and Analytics APIs
   reports: {
     getSystemReports: () => api.get('/reports/system'),
     getUserReports: () => api.get('/reports/users'),
     getCaseReports: () => api.get('/reports/cases'),
     exportReports: (type) => api.get(`/reports/export/${type}`, { responseType: 'blob' }),
-    adminGetFinancialLogs: () => api.get('/admin/financial-logs'), // مهم للأدمن[cite: 3]
+    adminGetFinancialLogs: () => api.get('/admin/financial-logs'), 
   },
 
   admin: {
@@ -150,7 +155,7 @@ export const dataService = {
     chat: (messagePayload) => api.post('/v1/ai-tools/chat', messagePayload),
   },
 
-  // 📁 File Upload APIs[cite: 3]
+  // 📁 File Upload APIs
   files: {
     upload: (file, type = 'document') => {
       const formData = new FormData();

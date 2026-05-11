@@ -13,6 +13,10 @@ import documentsRouter from "../modules/Document_folder/document_folder.routes.j
 // 💳 موديول المدفوعات 
 import paymentRouter from "../modules/Payment/payment.routes.js"; 
 
+// 📊 موديول الأقساط (الإضافة الجديدة هنا) 👇
+// ⚠️ ملحوظة: تأكد إن المسار ده متطابق مع مكان فولدر الأقساط عندك، لو حاطه جوه فولدر Payment غير المسار لـ "../modules/Payment/installment.routes.js"
+import installmentRouter from "../modules/Installment/installment.routes.js"; 
+
 // 📅 موديول المواعيد 
 import appointmentRouter from "../modules/Appointment/appointment.routes.js"; 
 
@@ -52,6 +56,9 @@ export const setupAppRoutes = (app) => {
 
     // 💳 موديول المدفوعات
     app.use("/api/payments", paymentRouter);
+
+    // 📊 موديول الأقساط (تم تسجيل المسار هنا بنجاح) 👇
+    app.use("/api/installments", installmentRouter);
 
     // 📅 موديول المواعيد 
     app.use("/api/appointments", appointmentRouter);

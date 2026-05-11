@@ -1,5 +1,5 @@
 import * as paymentsService from "./payment.service.js";
-//import * as notificationService from "../Notification/notification.service.js"; // 👈 استيراد الإشعارات
+//import * as notificationService from "../Notification/notification.service.js"; // 👈 استيراد الإشعارات لو محتاجها مستقبلاً
 
 export const handleVisaPayment = async (req, res) => {
   try {
@@ -8,22 +8,19 @@ export const handleVisaPayment = async (req, res) => {
     // 1. جلب ID المحامي
     const lawyerId = await paymentsService.getLawyerIdByCase(caseId);
     
-    // 2. تسجيل العملية في جدول payment
-    const paymentId = await paymentsService.createPaymentEntry(initialPaidAmount, clientId, caseId);
+    // 2. تسجيل العملية في جدول payment (كدفعة كاملة)
+    const paymentId = await paymentsService.createPaymentEntry(initialPaidAmount, clientId, caseId, 'Full');
     
     // 3. إضافة رصيد لمحفظة المحامي
-    await paymentsService.addMoneyToWallet(lawyerId, initialPaidAmount);
+    if (lawyerId) {
+      await paymentsService.addMoneyToWallet(lawyerId, initialPaidAmount);
+    }
     
     // 4. تغيير حالة القضية لـ Ongoing
     await paymentsService.activateCase(caseId);
 
-    // 5. إصدار الفاتورة تلقائياً
+    // 5. إصدار الفاتورة تلقائياً للدفع الكامل
     const invoice = await paymentsService.createInvoice(paymentId);
-
-    // // 🔔 إشعار للمحامي بوصول الفلوس وبدء القضية
-    // if (lawyerId) {
-    //   await notificationService.createNotification(lawyerId, `تم إضافة ${initialPaidAmount} جنيه إلى محفظتك. القضية الآن قيد العمل 🚀`);
-    // }
 
     res.status(200).json({
       ok: true,
@@ -42,8 +39,6 @@ export const getInvoice = async (req, res) => {
     if (!invoiceData)
       return res.status(404).json({ ok: false, message: "Invoice not found" });
 
-    // Backend returns JSON invoice details (not PDF binary).
-    // Frontend will download these details as a JSON file.
     return res.status(200).json({ ok: true, data: invoiceData });
   } catch (err) {
     return res.status(500).json({ ok: false, message: err.message });
@@ -65,6 +60,7 @@ export const getPaymentHistory = async (req, res) => {
 export const handleWalletWithdrawal = async (req, res) => {
   res.status(501).json({ ok: false, message: "Not implemented" });
 };
+
 export const getWalletInfo = async (req, res) => {
   res.status(501).json({ ok: false, message: "Not implemented" });
 };

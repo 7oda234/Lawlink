@@ -13,12 +13,12 @@ export const getInstallmentsByCase = async (req, res) => {
 export const payInstallment = async (req, res) => {
   try {
     const { id } = req.params;
-    // Some clients may provide clientId; otherwise we fetch via cases join in service.
-    const { clientId } = req.body;
+    const { clientId, status } = req.body;
 
     const result = await installmentService.payInstallmentById({
       installmentId: id,
       payerClientId: clientId,
+      paymentStatus: status
     });
 
     res.status(200).json(result);
@@ -27,3 +27,13 @@ export const payInstallment = async (req, res) => {
   }
 };
 
+export const generateInstallments = async (req, res) => {
+  try {
+    const { caseId } = req.params;
+    const { totalAmount, months } = req.body;
+    const result = await installmentService.createInstallmentPlan(caseId, totalAmount, months);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+};
