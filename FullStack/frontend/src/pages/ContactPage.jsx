@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/useLanguage';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from '../context/ThemeContextHook';
+
 
 const ContactPage = () => {
   const { t, language } = useLanguage();

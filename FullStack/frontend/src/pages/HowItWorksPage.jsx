@@ -1,7 +1,8 @@
 import React, { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { LanguageContext } from '../context/LanguageContextObject';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from '../context/ThemeContextHook';
+
 
 const HowItWorksPage = () => {
   const { language } = useContext(LanguageContext);

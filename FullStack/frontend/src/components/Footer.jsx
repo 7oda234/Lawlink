@@ -2,7 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Facebook, Linkedin } from 'lucide-react';
 import { useLanguage } from '../context/useLanguage';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from '../context/ThemeContextHook';
+
 import logoImage from '../Assets/logo/logo lawlink.png';
 
 const Footer = () => {

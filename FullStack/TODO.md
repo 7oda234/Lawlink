@@ -1,19 +1,14 @@
-# TODO
+# BlackboxAI TODO
 
-## Payment / Installments / Invoices Integration
+## Admin pages data failures
+- [x] Fix Installment API URL prefix mismatch between frontend and backend
+  - [x] Update `frontend/src/services/DataService.js` installment endpoints to use `/api/installments/...` (or the correct backend mount)
 
-- [x] Create TODO tracker file (initial setup)
-- [ ] Create missing backend Installment module files (controller/service/routes) and implement endpoints:
-  - [ ] `GET /api/installments/case/:caseId`
-  - [ ] `POST /api/installments/:id/pay`
-- [ ] Create missing backend Invoice module files (controller/service/routes) or integrate invoice download in Payment module.
-- [ ] Extend backend Payment module to add endpoints expected by frontend:
-  - [ ] `GET /api/payments/history`
-  - [ ] `GET /api/payments/invoice/:paymentId` return real PDF/binary or adjust frontend contract
-- [ ] Fix frontend DataService finance endpoints contract:
-  - [ ] `downloadInvoice` must use `responseType: 'arraybuffer'` if backend returns PDF binary
-- [ ] Wire installment/invoice routes in `backend/controllers/app.controller.js` (mount `/api/installments` and `/api/invoices` if used)
-- [ ] Ensure invoice status is updated after payments/installments.
-- [ ] Basic manual test steps after implementation.
+- [x] Verify and fix admin API prefix mismatch (`/admin/...` vs `/api/admin/...`) across `DataService.js`
 
+- [ ] Re-test Admin Dashboard: `/admin/full-dashboard`
+- [ ] Re-test Admin Invoices: `/admin/financial-logs`
+- [ ] Re-test Installments: list / create plan / pay installment
+- [ ] Fix any remaining payload-shape mismatches causing “no data” in admin pages
+- [ ] Run frontend lint/build and quick backend route smoke test (if needed)
 

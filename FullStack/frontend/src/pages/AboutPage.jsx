@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../hooks/useTranslation';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from '../context/ThemeContextHook';
+
 import styles from '../styles/AboutUS.module.css';
 
 const AboutPage = () => {

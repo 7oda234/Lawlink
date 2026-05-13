@@ -7,12 +7,10 @@
 
 import React from 'react';
 import { X, Check, ExternalLink } from 'lucide-react';
-import { useNotifications } from '../context/NotificationContext';
-import { useLanguage } from '../context/useLanguage';
-
+import { useNotifications } from '../context/NotificationContextObject';
 const NotificationItem = ({ notification, onClick }) => {
   const { markAsRead, deleteNotification } = useNotifications();
-  const { t } = useLanguage();
+
 
   const handleMarkRead = async (e) => {
     e.stopPropagation();

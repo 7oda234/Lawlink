@@ -33,12 +33,23 @@ export const approveLawyer = async (req, res) => {
     if (!userId) {
       return res.status(400).json({ success: false, message: 'Missing lawyer userId.' });
     }
+
     const result = await adminService.approveLawyer(userId, approved);
+
+    // Audit log (best-effort)
+    try {
+      const actingUserId = req.user?.userId || req.user?.id || null;
+      const sql = `INSERT INTO activity_log (user_id, action, created_at) VALUES (?, ?, NOW())`;
+      const action = `APPROVE_LAWYER target_user_id=${userId} approved=${approved} acting_user_id=${actingUserId}`;
+      await req.app.locals.db.query(sql, [actingUserId, action]);
+    } catch {}
+
     res.status(200).json({ success: true, ...result });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 export const verifyLawyer = async (req, res) => {
   try {
@@ -47,12 +58,23 @@ export const verifyLawyer = async (req, res) => {
     if (!userId) {
       return res.status(400).json({ success: false, message: 'Missing lawyer userId.' });
     }
-    const result = await adminService.approveLawyer(userId, verified === 1 || verified === true || verified === '1');
+
+    const normalized = verified === 1 || verified === true || verified === '1';
+    const result = await adminService.approveLawyer(userId, normalized);
+
+    try {
+      const actingUserId = req.user?.userId || req.user?.id || null;
+      const sql = `INSERT INTO activity_log (user_id, action, created_at) VALUES (?, ?, NOW())`;
+      const action = `VERIFY_LAWYER target_user_id=${userId} verified=${normalized} acting_user_id=${actingUserId}`;
+      await req.app.locals.db.query(sql, [actingUserId, action]);
+    } catch {}
+
     res.status(200).json({ success: true, ...result });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 export const getClients = async (req, res) => {
   try {

@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import LawyerCard from '../../components/LawyerCard';
 import { Search, Filter, Briefcase, CheckCircle, RotateCcw } from 'lucide-react';
 import { useLanguage } from '../../context/useLanguage';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../../context/ThemeContextHook';
+
 import axios from 'axios';
 
 const FindLawyerPage = () => {

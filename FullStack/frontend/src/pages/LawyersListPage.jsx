@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/useLanguage';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from '../context/ThemeContextHook';
+
 import { Search, Filter, Star, Briefcase, MapPin } from 'lucide-react';
 
 const lawyers = [

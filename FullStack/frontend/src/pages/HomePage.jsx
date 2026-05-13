@@ -7,7 +7,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/useLanguage';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from '../context/ThemeContextHook';
+
 import { ShieldCheck, Zap, CircleDollarSign } from 'lucide-react';
 
 const HomePage = () => {

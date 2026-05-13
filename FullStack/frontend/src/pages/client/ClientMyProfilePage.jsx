@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { User, Mail, Phone, Banknote, ShieldCheck, Edit3 } from 'lucide-react';
 import { useLanguage } from '../../context/useLanguage';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../../context/ThemeContextHook';
+
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import "../../styles/client/ClientBase.css"; 

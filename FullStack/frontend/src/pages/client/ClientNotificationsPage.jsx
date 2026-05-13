@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Bell, CheckCircle2, Clock, AlertCircle, Trash2, MailOpen, Gavel } from 'lucide-react';
 import { useLanguage } from '../../context/useLanguage';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../../context/ThemeContextHook';
+
 import "../../styles/client/ClientBase.css"; 
 
 const ClientNotificationsPage = () => {

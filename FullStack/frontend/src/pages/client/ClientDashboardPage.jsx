@@ -15,7 +15,8 @@ import {
   MapPin
 } from 'lucide-react';
 import { useLanguage } from '../../context/useLanguage';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../../context/ThemeContextHook';
+
 import "../../styles/client/ClientBase.css"; 
 
 const ClientDashboardPage = () => {

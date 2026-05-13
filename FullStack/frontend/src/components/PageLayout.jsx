@@ -10,7 +10,8 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useTheme } from '../context/ThemeContext'; // المظهر والألوان - theme colors and mode
+import { useTheme } from '../context/ThemeContextHook'; // المظهر والألوان - theme colors and mode
+
 import { useLanguage } from '../context/useLanguage';
 import dataService from '../services/DataService'; // service لإدارة الAPI
 

@@ -3,7 +3,8 @@ import axios from 'axios'; // 👈 استيراد axios عشان نكلم الب
 import { Briefcase, Clock, CheckCircle2, AlertCircle, Search, Filter, ArrowRight, Gavel } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/useLanguage';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../../context/ThemeContextHook';
+
 import "../../styles/client/ClientBase.css"; 
 
 const ClientCasesPage = () => {

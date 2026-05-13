@@ -3,7 +3,10 @@
 import { AuthProvider } from './context/AuthContext'; 
 import React from 'react';
 import { Component } from 'lucide-react';
-import { ThemeProvider, useTheme } from './context/ThemeContext';
+import { ThemeProvider } from './context/ThemeContextProvider.jsx';
+import { useTheme } from './context/ThemeContextHook.js';
+
+
 import { LanguageProvider } from './context/LanguageContext';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -97,6 +100,8 @@ const AdminSystemLogsPage = React.lazy(() => import('./pages/admin/AdminSystemLo
 const AdminNotificationsPage = React.lazy(() => import('./pages/admin/AdminNotificationsPage'));
 const AdminAiUsagePage = React.lazy(() => import('./pages/admin/AdminAiUsagePage'));
 const AdminFinancialOverview = React.lazy(() => import('./pages/admin/AdminFinancialOverviewPage'));
+const AdminInvoicesPage = React.lazy(() => import('./pages/admin/AdminInvoicesPage'));
+const AdminInstallmentsPage = React.lazy(() => import('./pages/admin/AdminInstallmentsPage'));
 
 // استيراد صفحات القضايا - Importing case pages
 const CaseAllPage = React.lazy(() => import('./pages/case/CaseAllPage'));
@@ -221,6 +226,8 @@ const routeConfig = [
   { path: '/admin/ai-usage', Component: AdminAiUsagePage },
   { path: '/admin/ai-tools', Component: AIToolsPage },
   { path: '/admin/financial-overview', Component: AdminFinancialOverview },
+  { path: '/admin/invoices', Component: AdminInvoicesPage },
+  { path: '/admin/installments', Component: AdminInstallmentsPage },
 
   // case routes
   { path: '/cases', Component: CaseAllPage },

@@ -23,37 +23,55 @@ const normalizeEmail = (email) => String(email || "").trim().toLowerCase();
 // ---------------------------------------------------------
 // 🔐 1. دالة تسجيل الدخول - LOGIN
 // ---------------------------------------------------------
-export const login = async (email, password) => {
+const logAuthActivity = async (userId, action, ipAddress = null) => {
   try {
-    const cleanEmail = normalizeEmail(email); // بننظف الإيميل الأول
+    const sql = `INSERT INTO activity_log (user_id, action, ip_address, created_at) VALUES (?, ?, ?, NOW())`;
+    await db.query(sql, [userId, action, ipAddress]);
+  } catch {
+    // Never break auth flow if audit logging fails.
+  }
+};
 
-    // بنروح ندور في جدول users على حد عنده الإيميل ده
+export const login = async (email, password) => {
+  const cleanEmail = normalizeEmail(email);
+
+  try {
     const users = await runQuery(
-      "SELECT * FROM users WHERE email = ? LIMIT 1", 
+      "SELECT user_id, name, role, email, password FROM users WHERE email = ? LIMIT 1",
       [cleanEmail]
     );
-    
+
     if (!users.length) {
-      return { ok: false, message: "عفواً، هذا البريد الإلكتروني غير مسجل لدينا." }; // لو ملقيناش حد
+      await logAuthActivity(null, `LOGIN_FAIL email=${cleanEmail}`);
+      return { ok: false, message: "عفواً، هذا البريد الإلكتروني غير مسجل لدينا." };
     }
 
     const userRow = users[0];
-    const isMatch = await bcrypt.compare(String(password), userRow.password); // بنفك شفرة الباسورد ونشوفه صح ولا لاء
-    if (!isMatch) return { ok: false, message: "كلمة المرور غير صحيحة." };
+    const isMatch = await bcrypt.compare(String(password), userRow.password);
 
-    // بنعمل "أمارة" (Token) للمستخدم عشان يفضل فاتح حسابه 7 أيام
+    if (!isMatch) {
+      await logAuthActivity(userRow.user_id, `LOGIN_FAIL user_id=${userRow.user_id} user_name=${userRow.name}`);
+      return { ok: false, message: "كلمة المرور غير صحيحة." };
+    }
+
     const token = jwt.sign({ id: userRow.user_id, role: userRow.role }, JWT_SECRET, { expiresIn: "7d" });
-    
-    return { 
-      ok: true, 
-      token, 
-      user: { id: userRow.user_id, name: userRow.name, role: userRow.role } 
+
+    await logAuthActivity(
+      userRow.user_id,
+      `LOGIN_SUCCESS user_id=${userRow.user_id} user_name=${userRow.name}`
+    );
+
+    return {
+      ok: true,
+      token,
+      user: { id: userRow.user_id, name: userRow.name, role: userRow.role },
     };
   } catch (err) {
     console.error("❌ Login Service Error:", err);
     throw err;
   }
 };
+
 
 // ---------------------------------------------------------
 // 📝 2. دالة تسجيل مستخدم جديد - REGISTER

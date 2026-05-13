@@ -26,8 +26,12 @@ const AdminDashboardPage = () => {
         const response = await dataService.admin.getFullDashboard();
         setData(response.data);
       } catch (err) {
+        // بنطّلع سبب الفشل الحقيقي في الكونصول عشان نعرف هل المشكلة Auth ولا SQL ولا Routing
         console.error('Dashboard Error:', err);
-        setError(t('common.error_loading'));
+
+        // بنعرض رسالة الباك (لو موجودة) بدل رسالة عامة عشان يظهر السبب في الواجهة
+        const backendMessage = err?.response?.data?.message;
+        setError(backendMessage || err?.message || t('common.error_loading'));
       } finally {
         setLoading(false);
       }

@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Star, ChevronRight, UserX, Briefcase, RefreshCcw } from 'lucide-react';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../../context/ThemeContextHook';
+
 
 const ClientFindLawyer = () => {
   const [lawyers, setLawyers] = useState([]);
