@@ -1,41 +1,59 @@
 import dotenv from 'dotenv';
 dotenv.config(); 
 
+import http from 'http'; 
 import { bootstrap } from './App.js'; 
 import pool from './db/Connection.js'; 
+import connectMongoDB from './db/Mongo.js'; 
+import { initializeChatSocket } from './Sockets/chat Socket.js'; 
 
 const PORT = process.env.PORT || 5000;
 
+/**
+ * دالة تشغيل السيرفر الأساسية
+ * تقوم بالتأكد من اتصال قواعد البيانات قبل بدء استقبال الطلبات
+ */
 const startServer = async () => {
     try {
-        console.log('⏳ جاري فحص الاتصال بالبيانات...');
+        console.log('⏳ جاري تشغيل سيرفر LawLink وفحص الاتصالات...');
 
-        // تعديل بسيط لضمان الحصول على الاتصال بشكل صحيح
+        // 1. فحص اتصال MariaDB (البيانات الأساسية)
+        // نستخدم promise() لضمان انتظار الاتصال قبل المتابعة
         const promisePool = pool.promise(); 
         const connection = await promisePool.getConnection();
-        
-        console.log('✅ MariaDB (LawLink) Connected Successfully on Port 3307!');
-        
-        // التأكد من وجود الاتصال قبل عمل release
+        console.log('✅ MariaDB (Relational DB) Connected Successfully!');
         if (connection) connection.release(); 
 
+        // 2. تشغيل اتصال MongoDB (نظام المحادثات)
+        await connectMongoDB();
+
+        // 3. تحضير تطبيق Express الأساسي
         const app = bootstrap(); 
         
-        // 🔔 الإشعارات معمول لها Comment زي ما طلبت
-        // const server = http.createServer(app);
-        // const io = initializeNotificationSocket(server, { ... });
-        // global.io = io;
+        // 4. إنشاء خادم HTTP
+        // ضروري جداً استخدام http.createServer لدمج Express مع Socket.io في نفس البورت
+        const server = http.createServer(app);
 
-        // 🚀✅ ده الجزء اللي كان معموله كومنت بالغلط! رجعناه عشان السيرفر يشتغل
-        app.listen(PORT, () => {
+        // 5. تشغيل نظام المحادثات اللحظية (WebSockets)
+        const io = initializeChatSocket(server);
+        
+        // جعل الـ io متاحاً بشكل عالمي في المشروع إذا احتجت لإرسال إشعارات من الـ Controllers
+        global.io = io; 
+
+        // 6. بدء الاستماع للطلبات على البورت المحدد
+        server.listen(PORT, () => {
             console.log(`🚀 LawLink Server is running on: http://localhost:${PORT}`);
-            console.log(`📝 Environment loaded: (${Object.keys(process.env).length}) variables detected.`);
+            console.log(`💬 Real-time Chat Service is active and ready.`);
+            console.log(`📝 Environment variables loaded successfully.`);
         });
 
     } catch (err) {
-        console.error('❌ فشل في تشغيل السيرفر:', err.message);
+        console.error('❌ خطأ فادح: فشل في تشغيل السيرفر أو الاتصال بقواعد البيانات:');
+        console.error(err.message);
+        // إنهاء العملية في حالة فشل الاتصال بقواعد البيانات لضمان سلامة النظام
         process.exit(1);
     }
 };
 
+// تشغيل السيرفر
 startServer();

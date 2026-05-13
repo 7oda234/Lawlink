@@ -26,6 +26,9 @@ import courtSessionsRouter from "../modules/Court_Session/Court.route.js";
 // 🔔 موديول الإشعارات (الجديد)
 //import notificationRouter from "../modules/Notification/notification.routes.js"; // 👈 استيراد مسار الإشعارات
 
+// 💬 موديول المحادثات الجديد (MongoDB) 👈 (الإضافة الجديدة)
+import chatRouter from '../modules/Message/message.routes.js'; 
+
 // ❌ (تم إيقافه - كود قديم) 
 // import OpenAI from "openai";
 
@@ -71,6 +74,9 @@ export const setupAppRoutes = (app) => {
 
     // 🤖 الكود الجديد: موديول الذكاء الاصطناعي (المربوط مع React وسيرفر البايثون)
     app.use('/api/v1/ai-tools', aiRouter);
+
+    // 💬 مسار الشات الجديد الخاص بـ MongoDB 👈 (الإضافة الجديدة)
+    app.use("/api/chat", chatRouter);
 
     // ⚠️ معالج المسارات غير الموجودة (404 Error Handler)
     app.use((req, res) => {

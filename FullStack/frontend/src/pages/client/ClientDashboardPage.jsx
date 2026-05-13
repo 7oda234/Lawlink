@@ -184,7 +184,8 @@ const ClientDashboardPage = () => {
                     <ChevronRight size={20} className="text-slate-600 group-hover:text-yellow-500 group-hover:translate-x-1 transition-all" />
                 </Link>
 
-                <Link to="/client/messages" className="group relative flex items-center justify-between p-6 bg-emerald-600 rounded-3xl transition-all hover:scale-[1.02] hover:shadow-2xl shadow-emerald-600/30">
+                {/* 💬 تم تعديل الرابط هنا ليوجه إلى /chat المباشر */}
+                <Link to="/chat" className="group relative flex items-center justify-between p-6 bg-emerald-600 rounded-3xl transition-all hover:scale-[1.02] hover:shadow-2xl shadow-emerald-600/30">
                     <div className="flex items-center gap-4">
                         <div className="p-3 bg-white/10 rounded-2xl group-hover:bg-white/20 transition-colors">
                             <MessageSquare size={24} className="text-white" />
@@ -291,7 +292,6 @@ const ClientDashboardPage = () => {
             <div className="space-y-4 max-h-[400px] overflow-y-auto no-scrollbar">
               {appointments.length > 0 ? appointments.map((app) => (
                 <div key={app.appointment_id} className="client-banner flex-col items-start !gap-3 !p-5 !border-white/5 hover:!border-yellow-500/20 transition-all">
-                  {/* 🚀✅ التعديل هنا: items-start وشيلنا truncate عشان التاريخ ميتضربش بنقط */}
                   <div className="flex items-start gap-2 w-full bg-slate-950/50 p-3 rounded-lg">
                     <Clock size={14} className="text-yellow-500 shrink-0 mt-0.5" />
                     <p className="text-[10.5px] xl:text-[11px] font-black italic tracking-tight break-words leading-relaxed w-full">

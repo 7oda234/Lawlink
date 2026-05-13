@@ -125,7 +125,8 @@ const LawyerDashboardPage = () => {
               <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">{isRTL ? 'إدارة الطلبات' : 'Manage Requests'}</p>
           </Link>
 
-          <Link to="/lawyer/messages" className="group p-8 bg-slate-900 border border-white/5 rounded-[2rem] transition-all hover:scale-[1.03] hover:border-emerald-500/50 flex flex-col justify-center min-h-[160px]">
+          {/* 💬 تم تعديل الرابط هنا ليوجه إلى /chat المباشر */}
+          <Link to="/chat" className="group p-8 bg-slate-900 border border-white/5 rounded-[2rem] transition-all hover:scale-[1.03] hover:border-emerald-500/50 flex flex-col justify-center min-h-[160px]">
             <MessageSquare size={32} className="text-emerald-500 mb-4 group-hover:scale-110 transition-transform" />
             <h3 className="text-white font-black italic text-lg uppercase leading-tight">{isRTL ? 'المراسلات' : 'Client Chat'}</h3>
             <p className="text-white/30 text-[10px] font-bold uppercase mt-1">{isRTL ? 'رد مباشر' : 'Live response'}</p>
@@ -216,8 +217,9 @@ const LawyerDashboardPage = () => {
                       <p className="text-[10px] font-bold text-emerald-500/60 uppercase mt-0.5">ID: #{msg.case_id}</p>
                     </div>
                   </div>
+                  {/* 💬 تم تعديل الرابط هنا ليوجه إلى /chat المباشر */}
                   <Link 
-                    to={`/lawyer/messages?chatWith=${msg.client_id}`} 
+                    to="/chat" 
                     className="w-12 h-12 rounded-2xl bg-emerald-500 text-slate-950 flex items-center justify-center hover:scale-110 transition-transform shadow-lg shadow-emerald-500/20"
                   >
                     <MessageSquare size={20} fill="currentColor" />

@@ -117,12 +117,6 @@ const ChatPage = React.lazy(() => import('./pages/communication/ChatPage'));
 const SendMessagePage = React.lazy(() => import('./pages/communication/SendMessagePage'));
 const NotificationsCenterPage = React.lazy(() => import('./pages/communication/NotificationsCenterPage'));
 
-// استيراد صفحات الأدوات - Importing utility pages
-const SettingsPage = React.lazy(() => import('./pages/utility/SettingsPage'));
-const HelpCenterPage = React.lazy(() => import('./pages/utility/HelpCenterPage'));
-const TermsPrivacyPage = React.lazy(() => import('./pages/utility/TermsPrivacyPage'));
-const NotFoundPage = React.lazy(() => import('./pages/utility/NotFoundPage'));
-
 // AI Tools
 const AIToolsPage = React.lazy(() => import('./pages/AiTools/AIToolsPage'));
 const ResearchTool = React.lazy(() => import('./pages/AiTools/ResearchTool'));
@@ -130,6 +124,15 @@ const DocumentDraftingTool = React.lazy(() => import('./pages/AiTools/DocumentDr
 const ContractReviewTool = React.lazy(() => import('./pages/AiTools/ContractReviewTool'));
 const CaseOutcomePredictor = React.lazy(() => import('./pages/AiTools/CaseOutcomePredictor'));
 const LegalChatbot = React.lazy(() => import('./pages/AiTools/LegalChatbot'));
+
+// 💬 استيراد صفحة الشات اللحظي الجديدة (المربوطة بـ Socket.io و MongoDB)
+const LiveChatPage = React.lazy(() => import('./pages/auth/ChatPage.jsx'));
+
+// استيراد صفحات الأدوات - Importing utility pages
+const SettingsPage = React.lazy(() => import('./pages/utility/SettingsPage'));
+const HelpCenterPage = React.lazy(() => import('./pages/utility/HelpCenterPage'));
+const TermsPrivacyPage = React.lazy(() => import('./pages/utility/TermsPrivacyPage'));
+const NotFoundPage = React.lazy(() => import('./pages/utility/NotFoundPage'));
 
 // تعريف المتغيرات للانيميشن - Defining animation variants
 const pageVariants = {
@@ -256,7 +259,10 @@ const routeConfig = [
   { path: '/ai-tools/document-drafting', Component: DocumentDraftingTool },
   { path: '/ai-tools/contract-review', Component: ContractReviewTool },
   { path: '/ai-tools/case-outcome-predictor', Component: CaseOutcomePredictor },
-  { path: '/ai-tools/legal-chatbot', Component: LegalChatbot }
+  { path: '/ai-tools/legal-chatbot', Component: LegalChatbot },
+
+  // 💬 مسار الشات اللحظي الجديد (Socket.io + MongoDB)
+  { path: '/chat', Component: LiveChatPage }
 ];
 
 // مكون الروتات - Routes component
