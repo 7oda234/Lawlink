@@ -32,7 +32,10 @@ export const conductResearch = async (req, res) => {
 export const contractReview = async (req, res) => {
     const filePath = req.file?.path; // بنجيب مسار الملف اللي الـ Middleware رفعه
     try {
-        if (!req.file) return res.status(400).json({ success: false, message: 'فين الملف يا ريس؟ ارفع ملف PDF.' });
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: 'فين الملف يا ريس؟ ارفع ملف PDF.' });
+        }
+
         
         // بنقرأ الملف من الهارد عشان نبعته للبايثون
         const fileBuffer = await fsPromises.readFile(filePath);

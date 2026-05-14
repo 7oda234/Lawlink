@@ -85,6 +85,22 @@ const dataService = {
   cases: {
     getAll: () => http.get('/cases').then(unwrap),
   },
+
+  aiTools: {
+    // Document drafting
+    draft: (payload) => http.post('/api/ai/draft', payload || {}).then(unwrap),
+
+    // Contract review (expects FormData under key "contract")
+    contractReview: (formData) => http.post('/api/ai/contract-review', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }).then(unwrap),
+
+    // Case outcome prediction
+    predict: (payload) => http.post('/api/ai/predict', payload || {}).then(unwrap),
+
+    // Legal chatbot
+    chat: (payload) => http.post('/api/ai/chat', payload || {}).then(unwrap),
+  },
 };
 
 export default dataService;
