@@ -1,0 +1,60 @@
+[{
+  "_id": {
+    "$oid": "6a071a5e97dae290cd73049f"
+  },
+  "recipientId": 14,
+  "message": "لديك رسالة جديدة 💬: Hi",
+  "isRead": false,
+  "createdAt": {
+    "$date": "2026-05-15T13:06:38.771Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a071a6897dae290cd7304a1"
+  },
+  "recipientId": 11,
+  "message": "لديك رسالة جديدة 💬: Hi",
+  "isRead": false,
+  "createdAt": {
+    "$date": "2026-05-15T13:06:48.403Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a071a7797dae290cd7304a3"
+  },
+  "recipientId": 14,
+  "message": "لديك رسالة جديدة 💬: aa",
+  "isRead": false,
+  "createdAt": {
+    "$date": "2026-05-15T13:07:03.837Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a071aa397dae290cd7304a4"
+  },
+  "recipientId": 11,
+  "message": "تم حجز موعد جديد يوم 2026-05-15 18:07:00 📅",
+  "isRead": false,
+  "createdAt": {
+    "$date": "2026-05-15T13:07:47.939Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a071aa397dae290cd7304a5"
+  },
+  "recipientId": 14,
+  "message": "تم حجز موعد جديد يوم 2026-05-15 18:07:00 📅",
+  "isRead": false,
+  "createdAt": {
+    "$date": "2026-05-15T13:07:47.943Z"
+  },
+  "__v": 0
+}]

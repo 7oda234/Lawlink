@@ -1,0 +1,112 @@
+[{
+  "_id": {
+    "$oid": "6a045b0fe2b99ed7647f69d7"
+  },
+  "room_id": "room_11_15",
+  "participants": [
+    15
+  ],
+  "createdAt": {
+    "$date": "2026-05-13T11:05:51.625Z"
+  },
+  "updatedAt": {
+    "$date": "2026-05-13T11:05:51.625Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a045c28e2b99ed7647f69db"
+  },
+  "room_id": "room_11_13",
+  "participants": [
+    11
+  ],
+  "createdAt": {
+    "$date": "2026-05-13T11:10:32.240Z"
+  },
+  "updatedAt": {
+    "$date": "2026-05-13T11:10:32.240Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a046363e2b99ed7647f69dd"
+  },
+  "room_id": "room_2_15",
+  "participants": [
+    15
+  ],
+  "createdAt": {
+    "$date": "2026-05-13T11:41:23.175Z"
+  },
+  "updatedAt": {
+    "$date": "2026-05-13T11:41:23.175Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a05b903312a8ad92cfa9a8a"
+  },
+  "room_id": "room_8_15",
+  "participants": [
+    15
+  ],
+  "createdAt": {
+    "$date": "2026-05-14T11:58:59.261Z"
+  },
+  "updatedAt": {
+    "$date": "2026-05-14T11:58:59.261Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a071a4497dae290cd73049d"
+  },
+  "room_id": "room_11_14",
+  "participants": [
+    11
+  ],
+  "createdAt": {
+    "$date": "2026-05-15T13:06:12.142Z"
+  },
+  "updatedAt": {
+    "$date": "2026-05-15T13:06:12.142Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a071b4a97dae290cd7304a6"
+  },
+  "room_id": "room_2_14",
+  "participants": [
+    14
+  ],
+  "createdAt": {
+    "$date": "2026-05-15T13:10:34.549Z"
+  },
+  "updatedAt": {
+    "$date": "2026-05-15T13:10:34.549Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a074b2a97dae290cd7304a7"
+  },
+  "room_id": "room_8_14",
+  "participants": [
+    14
+  ],
+  "createdAt": {
+    "$date": "2026-05-15T16:34:50.715Z"
+  },
+  "updatedAt": {
+    "$date": "2026-05-15T16:34:50.715Z"
+  },
+  "__v": 0
+}]

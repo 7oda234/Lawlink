@@ -1,0 +1,160 @@
+[{
+  "_id": {
+    "$oid": "6a045b18e2b99ed7647f69d8"
+  },
+  "roomId": "room_11_15",
+  "senderId": 15,
+  "text": "مرحبا بك ",
+  "isRead": false,
+  "createdAt": {
+    "$date": "2026-05-13T11:06:00.056Z"
+  },
+  "updatedAt": {
+    "$date": "2026-05-13T11:06:00.056Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a045bbee2b99ed7647f69d9"
+  },
+  "roomId": "room_11_15",
+  "senderId": 11,
+  "text": "hi",
+  "isRead": false,
+  "createdAt": {
+    "$date": "2026-05-13T11:08:46.852Z"
+  },
+  "updatedAt": {
+    "$date": "2026-05-13T11:08:46.852Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a045c10e2b99ed7647f69da"
+  },
+  "roomId": "room_11_15",
+  "senderId": 15,
+  "text": "المعاد امتي",
+  "isRead": false,
+  "createdAt": {
+    "$date": "2026-05-13T11:10:08.703Z"
+  },
+  "updatedAt": {
+    "$date": "2026-05-13T11:10:08.703Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a045c3ae2b99ed7647f69dc"
+  },
+  "roomId": "room_11_15",
+  "senderId": 11,
+  "text": "9:00 صباحا",
+  "isRead": false,
+  "createdAt": {
+    "$date": "2026-05-13T11:10:50.608Z"
+  },
+  "updatedAt": {
+    "$date": "2026-05-13T11:10:50.608Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a046383e2b99ed7647f69de"
+  },
+  "roomId": "room_11_15",
+  "senderId": 15,
+  "text": "حضرتك عندك معاد فاضي لتحديد مقابلة",
+  "isRead": false,
+  "createdAt": {
+    "$date": "2026-05-13T11:41:55.499Z"
+  },
+  "updatedAt": {
+    "$date": "2026-05-13T11:41:55.499Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a0463f6e2b99ed7647f69df"
+  },
+  "roomId": "room_11_15",
+  "senderId": 11,
+  "text": "هشوف",
+  "isRead": false,
+  "createdAt": {
+    "$date": "2026-05-13T11:43:50.529Z"
+  },
+  "updatedAt": {
+    "$date": "2026-05-13T11:43:50.529Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a05b784312a8ad92cfa9a89"
+  },
+  "roomId": "room_11_15",
+  "senderId": 15,
+  "text": "....",
+  "isRead": false,
+  "createdAt": {
+    "$date": "2026-05-14T11:52:36.854Z"
+  },
+  "updatedAt": {
+    "$date": "2026-05-14T11:52:36.854Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a071a5e97dae290cd73049e"
+  },
+  "roomId": "room_11_14",
+  "senderId": 11,
+  "text": "Hi",
+  "isRead": false,
+  "createdAt": {
+    "$date": "2026-05-15T13:06:38.764Z"
+  },
+  "updatedAt": {
+    "$date": "2026-05-15T13:06:38.764Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a071a6897dae290cd7304a0"
+  },
+  "roomId": "room_11_14",
+  "senderId": 14,
+  "text": "Hi",
+  "isRead": false,
+  "createdAt": {
+    "$date": "2026-05-15T13:06:48.399Z"
+  },
+  "updatedAt": {
+    "$date": "2026-05-15T13:06:48.399Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a071a7797dae290cd7304a2"
+  },
+  "roomId": "room_11_14",
+  "senderId": 11,
+  "text": "aa",
+  "isRead": false,
+  "createdAt": {
+    "$date": "2026-05-15T13:07:03.834Z"
+  },
+  "updatedAt": {
+    "$date": "2026-05-15T13:07:03.834Z"
+  },
+  "__v": 0
+}]
