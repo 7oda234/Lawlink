@@ -1,7 +1,6 @@
 /**
  * NotificationDropdown.jsx
- * 
- * Displays recent notifications in a dropdown menu
+ * * Displays recent notifications in a dropdown menu
  * Shows unread count badge and provides quick access to notification page
  * Placed in navbar for easy access
  */
@@ -13,7 +12,9 @@ import { useNotifications } from '../context/NotificationContext';
 import NotificationItem from './NotificationItem';
 
 const NotificationDropdown = () => {
-  const { notifications, unreadCount, markAllAsRead } = useNotifications();
+  // ✅ تمت إضافة الحماية || {} عشان لو الـ Context مرجعش بيانات التطبيق ميوقعش
+  const { notifications = [], unreadCount = 0, markAllAsRead = async () => {} } = useNotifications() || {};
+  
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const buttonRef = useRef(null);
@@ -35,8 +36,8 @@ const NotificationDropdown = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Get recent notifications (last 5)
-  const recentNotifications = notifications.slice(0, 5);
+  // Get recent notifications (last 5) - تم تأمينها لتجنب الأخطاء
+  const recentNotifications = notifications ? notifications.slice(0, 5) : [];
   const hasUnread = unreadCount > 0;
 
   return (
@@ -73,7 +74,7 @@ const NotificationDropdown = () => {
             {hasUnread && (
               <button
                 onClick={async () => {
-                  await markAllAsRead();
+                  if (markAllAsRead) await markAllAsRead();
                 }}
                 className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
               >
@@ -107,7 +108,7 @@ const NotificationDropdown = () => {
           </div>
 
           {/* Footer */}
-          {notifications.length > 0 && (
+          {notifications && notifications.length > 0 && (
             <Link
               to="/notifications"
               onClick={() => setIsOpen(false)}

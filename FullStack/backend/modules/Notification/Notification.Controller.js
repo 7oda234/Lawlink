@@ -1,96 +1,45 @@
-// import * as notificationService from "./Notification.Service.js";
+import Notification from '../../models/Notification.js'; 
 
-// // عرض كل الإشعارات الخاصة بمستخدم معين
-// export const handleGetNotifications = async (req, res) => {
-//   try {
-//     const { userId } = req.params;
-//     const { limit = 20, offset = 0, type } = req.query;
+export const getUserNotifications = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const notifications = await Notification.find({ recipientId: userId })
+                                              .sort({ createdAt: -1 })
+                                              .limit(50);
+        res.status(200).json({ success: true, data: notifications });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
 
-//     if (!userId) {
-//       return res.status(400).json({ ok: false, message: "User ID is required" });
-//     }
+export const markAsRead = async (req, res) => {
+    try {
+        const { id } = req.params;
+        await Notification.findByIdAndUpdate(id, { isRead: true });
+        res.status(200).json({ success: true, message: "تم قراءة الإشعار" });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
 
-//     let notifications;
-//     if (type) {
-//       notifications = await notificationService.getNotificationsByType(
-//         userId,
-//         type,
-//         parseInt(limit),
-//         parseInt(offset)
-//       );
-//     } else {
-//       notifications = await notificationService.getNotificationsByReceiver(
-//         userId,
-//         parseInt(limit),
-//         parseInt(offset)
-//       );
-//     }
+// ✅ تم التحديث ليدعم (الاسم، الأيقونة، والرابط)
+export const createNotification = async (recipientId, data) => {
+    try {
+        let notifData = { recipientId };
+        
+        // لو بعتنا نص عادي (للتوافق مع الكود القديم)
+        if (typeof data === 'string') {
+            notifData.message = data;
+        } else {
+            // لو بعتنا أوبجكت فيه كل التفاصيل الجديدة
+            notifData.message = data.message;
+            notifData.senderName = data.senderName || 'نظام LawLink';
+            notifData.type = data.type || 'INFO';
+            notifData.actionUrl = data.actionUrl || '#';
+        }
 
-//     // معالجة البيانات بشكل آمن
-//     const parsedNotifications = notifications.map((notif) => {
-//       let safeMetadata = null;
-//       if (notif.metadata) {
-//         try {
-//           safeMetadata = typeof notif.metadata === 'string' ? JSON.parse(notif.metadata) : notif.metadata;
-//         } catch (e) {
-//           console.error(`⚠️ خطأ في قراءة بيانات الإشعار رقم: ${notif.notification_id}`);
-//         }
-//       }
-//       return { ...notif, metadata: safeMetadata };
-//     });
-
-//     res.status(200).json({ ok: true, data: parsedNotifications });
-//   } catch (err) {
-//     console.error("❌ Error fetching notifications:", err);
-//     res.status(500).json({ ok: false, message: "حدث خطأ داخلي في الخادم أثناء جلب الإشعارات" });
-//   }
-// };
-
-// // جلب عدد الإشعارات غير المقروءة
-// export const handleGetUnreadCount = async (req, res) => {
-//   try {
-//     const { userId } = req.params;
-    
-//     if (!userId) {
-//         return res.status(400).json({ ok: false, message: "User ID is required" });
-//     }
-
-//     const count = await notificationService.getUnreadCount(userId);
-//     res.status(200).json({ ok: true, data: { unreadCount: count } });
-//   } catch (err) {
-//     res.status(500).json({ ok: false, message: err.message });
-//   }
-// };
-
-// // تحديد إشعار معين كمقروء
-// export const handleMarkAsRead = async (req, res) => {
-//   try {
-//     const { notificationId } = req.params;
-//     await notificationService.markAsRead(notificationId);
-//     res.status(200).json({ ok: true, message: "تم التحديد كمقروء بنجاح" });
-//   } catch (err) {
-//     res.status(500).json({ ok: false, message: err.message });
-//   }
-// };
-
-// // تحديد كل الإشعارات كمقروءة لمستخدم معين
-// export const handleMarkAllAsRead = async (req, res) => {
-//   try {
-//     const { userId } = req.params;
-//     await notificationService.markAllAsRead(userId);
-//     res.status(200).json({ ok: true, message: "تم تحديد كل الإشعارات كمقروءة بنجاح" });
-//   } catch (err) {
-//     res.status(500).json({ ok: false, message: err.message });
-//   }
-// };
-
-// // حذف إشعار معين
-// export const handleDeleteNotification = async (req, res) => {
-//     try {
-//       const { notificationId } = req.params;
-//       await notificationService.deleteNotification(notificationId);
-//       res.status(200).json({ ok: true, message: "تم حذف الإشعار بنجاح" });
-//     } catch (err) {
-//       res.status(500).json({ ok: false, message: err.message });
-//     }
-// };
+        const newNotification = await Notification.create(notifData);
+    } catch (error) {
+        console.error("❌ خطأ في إنشاء الإشعار في MongoDB:", error);
+    }
+};

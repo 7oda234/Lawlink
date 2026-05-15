@@ -1,5 +1,8 @@
 import * as documentsService from "./document_folder.service.js";
 import fs from "fs";
+// ✅ استيراد دوال الإشعارات والقضايا
+import { createNotification } from "../Notification/notification.controller.js";
+import * as casesService from "../Cases/cases.service.js";
 
 export const handleUploadDocument = async (req, res) => {
   try {
@@ -25,6 +28,21 @@ export const handleUploadDocument = async (req, res) => {
     );
     
     const results = await Promise.all(uploadPromises);
+
+    // 🔔 إرسال إشعار للطرف الآخر (المحامي أو العميل) برفع مستند جديد
+    try {
+      const caseData = await casesService.getCaseById(caseId);
+      if (caseData) {
+        // نحدد الطرف التاني اللي هيتبعتله الإشعار بناءً على مين اللي رفع الملف
+        const targetUserId = parseInt(userId) === caseData.client_id ? caseData.lawyer_id : caseData.client_id;
+        if (targetUserId) {
+          await createNotification(targetUserId, `تم رفع مستندات جديدة في قضية رقم #${caseId} 📁`);
+        }
+      }
+    } catch (notifErr) {
+      console.error("⚠️ Notification Error:", notifErr.message);
+    }
+
     res.status(201).json({ ok: true, message: "تم رفع المستندات بنجاح 📁", results });
   } catch (err) {
     if (req.files) req.files.forEach(file => fs.unlinkSync(file.path));

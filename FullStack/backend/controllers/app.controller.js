@@ -23,8 +23,8 @@ import appointmentRouter from "../modules/Appointment/appointment.routes.js";
 // ⚖️ موديول جلسات المحكمة (الإضافة الجديدة)
 import courtSessionsRouter from "../modules/Court_Session/Court.route.js";
 
-// 🔔 موديول الإشعارات (الجديد)
-//import notificationRouter from "../modules/Notification/notification.routes.js"; // 👈 استيراد مسار الإشعارات
+// 🔔 موديول الإشعارات (الجديد) - تم تفعيله ✅
+import notificationRouter from "../modules/Notification/notification.routes.js"; 
 
 // 💬 موديول المحادثات الجديد (MongoDB) 👈 (الإضافة الجديدة)
 import chatRouter from '../modules/Message/message.routes.js'; 
@@ -69,8 +69,8 @@ export const setupAppRoutes = (app) => {
     // ⚖️ موديول جلسات المحكمة (الجديد)
     app.use("/api/court-sessions", courtSessionsRouter);
     
-    // 🔔 موديول الإشعارات 
-   // app.use("/api/notification", notificationRouter); // 👈 ربط الـ API بتاع الإشعارات بالسيستم
+    // 🔔 موديول الإشعارات - تم تفعيله ✅
+    app.use("/api/notifications", notificationRouter); 
 
     // 🤖 الكود الجديد: موديول الذكاء الاصطناعي (المربوط مع React وسيرفر البايثون)
     app.use('/api/v1/ai-tools', aiRouter);

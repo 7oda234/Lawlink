@@ -7,6 +7,9 @@ import { useTheme } from '../context/ThemeContextHook';
 import axios from 'axios'; // ✅ تم استيراد axios
 import logoImage from '../Assets/logo/logo lawlink half.png'; 
 
+// ✅ الإضافة الجديدة: استدعاء مكون قائمة الإشعارات المنسدلة
+import NotificationDropdown from './NotificationDropdown';
+
 const Navbar = () => {
   const { language, setLanguage, t } = useLanguage(); 
   const { mode, toggleMode } = useTheme(); 
@@ -108,15 +111,9 @@ const Navbar = () => {
 
         <div className="flex items-center gap-2 md:gap-4">
           
+          {/* ✅ تم استبدال الجرس القديم بمكون الإشعارات مع تمرير المسار */}
           {isLoggedIn && (
-            <Link to={notificationPath} className="relative p-2 hover:bg-gray-500/10 rounded-full transition-colors group">
-              <Bell size={22} className="group-hover:text-yellow-500 transition-colors" />
-              {userData.unreadNotifications > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-red-600 text-white text-[10px] font-black flex items-center justify-center rounded-full border-2 border-slate-950">
-                  {userData.unreadNotifications}
-                </span>
-              )}
-            </Link>
+            <NotificationDropdown notificationPath={notificationPath} />
           )}
 
           <button onClick={toggleMode} className="p-2 hover:bg-gray-500/10 rounded-full transition-colors">

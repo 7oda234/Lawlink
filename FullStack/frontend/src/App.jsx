@@ -1,11 +1,13 @@
 // ده المكون الرئيسي للتطبيق - This is the main component of the app
 // الحل الجذري للمشكلة: الاستيراد من ملف AuthContext.jsx وليس Object
 import { AuthProvider } from './context/AuthContext'; 
+// ✅ الإضافة هنا: استيراد مزود الإشعارات
+import { NotificationProvider } from './context/NotificationContext'; 
+
 import React from 'react';
 import { Component } from 'lucide-react';
 import { ThemeProvider } from './context/ThemeContextProvider.jsx';
 import { useTheme } from './context/ThemeContextHook.js';
-
 
 import { LanguageProvider } from './context/LanguageContext';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
@@ -324,11 +326,14 @@ function App() {
       <ThemeProvider>
         <LanguageProvider>
           <AuthProvider> 
-            <Router>
-              <PageLayoutProvider>
-                <AppContent />
-              </PageLayoutProvider>
-            </Router>
+            {/* ✅ تم تغليف التطبيق بمزود الإشعارات هنا عشان يشتغل صح */}
+            <NotificationProvider>
+              <Router>
+                <PageLayoutProvider>
+                  <AppContent />
+                </PageLayoutProvider>
+              </Router>
+            </NotificationProvider>
           </AuthProvider>
         </LanguageProvider>
       </ThemeProvider>

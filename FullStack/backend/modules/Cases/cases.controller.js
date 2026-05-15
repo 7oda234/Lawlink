@@ -1,6 +1,7 @@
 import * as casesService from "./cases.service.js";
-import * as documentService from "../Document_folder/document_folder.service.js"; // 👈 استيراد ملف المستندات
-//import * as notificationService from "../Notification/notification.service.js"; // 👈 استيراد الإشعارات
+import * as documentService from "../Document_folder/document_folder.service.js"; 
+// ✅ استيراد دالة إنشاء الإشعار من موديول الإشعارات
+import { createNotification } from "../Notification/notification.controller.js"; 
 
 // ➕ إنشاء قضية مع حفظ الملفات المرفوعة
 export const handleCreateCase = async (req, res) => {
@@ -20,9 +21,9 @@ export const handleCreateCase = async (req, res) => {
     }
 
     // 🔔 إشعار للعميل بإنشاء القضية
-    // if (req.body.client_id) {
-    //     await notificationService.createNotification(req.body.client_id, "تم إنشاء قضيتك ورفع الملفات بنجاح 📁");
-    // }
+    if (req.body.client_id) {
+        await createNotification(req.body.client_id, "تم إنشاء قضيتك ورفع الملفات بنجاح 📁");
+    }
 
     res.status(201).json({ 
         ok: true, 
@@ -52,7 +53,9 @@ export const handleSendOffer = async (req, res) => {
     const result = await casesService.sendOffer(caseId, lawyerId);
     
     // 🔔 إشعار للمحامي بوجود قضية جديدة معروضة عليه
-    //await notificationService.createNotification(lawyerId, "لديك طلب قضية جديد في انتظار المراجعة 📩");
+    if (lawyerId) {
+        await createNotification(lawyerId, "لديك طلب قضية جديد في انتظار المراجعة 📩");
+    }
     
     res.status(200).json(result);
   } catch (err) {
@@ -67,14 +70,16 @@ export const handleLawyerResponse = async (req, res) => {
     const result = await casesService.lawyerRespondToOffer(caseId, lawyerId, response, upfrontFee, successPercentage);
     
     // 🔔 إشعار للعميل إن المحامي رد على القضية
-    // const clientId = await notificationService.getClientIdByCase(caseId);
-    // if (clientId) {
-    //     if (response.toLowerCase() === 'accept') {
-    //         await notificationService.createNotification(clientId, "المحامي وافق على قضيتك وأرسل لك عرض الأتعاب ⚖️");
-    //     } else {
-    //         await notificationService.createNotification(clientId, "نعتذر، المحامي رفض استلام القضية في الوقت الحالي ❌");
-    //     }
-    // }
+    try {
+        const caseDetails = await casesService.getCaseById(caseId);
+        if (caseDetails && caseDetails.client_id) {
+            if (response.toLowerCase() === 'accept') {
+                await createNotification(caseDetails.client_id, "وافق المحامي على قضيتك وأرسل لك عرض الأتعاب لمراجعته ⚖️");
+            } else {
+                await createNotification(caseDetails.client_id, "نعتذر، المحامي رفض استلام القضية في الوقت الحالي ❌");
+            }
+        }
+    } catch (notifErr) { console.error("Notification Error:", notifErr); }
 
     res.status(200).json(result);
   } catch (err) {
@@ -89,14 +94,16 @@ export const handleClientResponse = async (req, res) => {
     const result = await casesService.clientRespondToFees(caseId, response);
     
     // 🔔 إشعار للمحامي برد العميل على العرض
-    // const lawyerId = await notificationService.getLawyerIdByCase(caseId);
-    // if (lawyerId) {
-    //     if (response.toLowerCase() === 'accept') {
-    //         await notificationService.createNotification(lawyerId, "العميل وافق على عرض الأتعاب الخاص بك، في انتظار الدفع 💳");
-    //     } else {
-    //         await notificationService.createNotification(lawyerId, "العميل رفض عرض الأتعاب الخاص بك 🔄");
-    //     }
-    // }
+    try {
+        const caseDetails = await casesService.getCaseById(caseId);
+        if (caseDetails && caseDetails.lawyer_id) {
+            if (response.toLowerCase() === 'accept') {
+                await createNotification(caseDetails.lawyer_id, "وافق العميل على عرض الأتعاب الخاص بك، القضية في انتظار إتمام الدفع ⏳");
+            } else {
+                await createNotification(caseDetails.lawyer_id, "رفض العميل عرض الأتعاب الخاص بك وتمت إعادة القضية للبحث 🔄");
+            }
+        }
+    } catch (notifErr) { console.error("Notification Error:", notifErr); }
 
     res.status(200).json(result);
   } catch (err) {
@@ -140,11 +147,20 @@ export const handleUpdateCase = async (req, res) => {
   }
 };
 
-// �💳 4. تأكيد الدفع
+// 💳 4. تأكيد الدفع
 export const handlePaymentConfirmation = async (req, res) => {
   try {
     const { caseId } = req.body;
     const result = await casesService.confirmPayment(caseId);
+    
+    // 🔔 إشعار للمحامي بأن العميل أتم الدفع
+    try {
+        const caseDetails = await casesService.getCaseById(caseId);
+        if (caseDetails && caseDetails.lawyer_id) {
+            await createNotification(caseDetails.lawyer_id, `تم تأكيد الدفع من قبل العميل لقضية رقم #${caseId}. يمكنك البدء في العمل الآن 💳`);
+        }
+    } catch (notifErr) { console.error("Notification Error:", notifErr); }
+
     res.status(200).json(result);
   } catch (err) {
     res.status(500).json({ ok: false, message: err.message });
