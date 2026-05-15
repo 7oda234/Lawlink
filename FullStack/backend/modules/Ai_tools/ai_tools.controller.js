@@ -32,24 +32,29 @@ export const conductResearch = async (req, res) => {
 export const contractReview = async (req, res) => {
     const filePath = req.file?.path; // بنجيب مسار الملف اللي الـ Middleware رفعه
     try {
-        if (!req.file) return res.status(400).json({ success: false, message: 'فين الملف يا ريس؟ ارفع ملف PDF.' });
-        
+        if (!req.file || !filePath) {
+            return res.status(400).json({ success: false, message: 'file is required for contract review.' });
+        }
+
         // بنقرأ الملف من الهارد عشان نبعته للبايثون
         const fileBuffer = await fsPromises.readFile(filePath);
-        
+
         // بنجهز الـ FormData كأننا بنرفع ملف من Browser
         const formData = new FormData();
         formData.append('file', fileBuffer, req.file.originalname);
-        
-        const response = await axios.post(`${PYTHON_AI_SERVICE_URL}/api/ai/contract-review`, formData, {
-            headers: formData.getHeaders(), // لازم نبعت الـ Headers الصح عشان بايثون يفهم الـ Multi-part
-            timeout: 60000, // بنديله دقيقة كاملة عشان لو الملف كبير والذكاء الاصطناعي خد وقت
-        });
-        
-        // بعد ما خلصنا، بنمسح الملف المؤقت عشان مياخدش مساحة على السيرفر
-        if (filePath) await fsPromises.unlink(filePath);
-        
+
+        // مهم: بعض بايثون/fastapi endpoints بتبقى حساسة لمسار الراوت + المفتاح (file)
+        const response = await axios.post(
+            `${PYTHON_AI_SERVICE_URL}/api/ai/contract-review`,
+            formData,
+            {
+                headers: formData.getHeaders(),
+                timeout: 60000,
+            }
+        );
+
         return res.status(200).json({ success: true, data: response.data });
+
     } catch (error) {
         console.error('Contract Review Error:', error.message);
         // حتى لو حصل غلط، بنحاول نمسح الملف عشان النظافة
@@ -59,6 +64,7 @@ export const contractReview = async (req, res) => {
         res.status(500).json({ success: false, error: buildErrorPayload(error) });
     }
 };
+
 
 /** * 3. الشات القانوني السريع
  * استفسارات عامة في القانون المصري
