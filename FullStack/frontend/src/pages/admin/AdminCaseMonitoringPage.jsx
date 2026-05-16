@@ -6,6 +6,8 @@ import {
 } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import { useLanguage } from '../../context/LanguageContextObject';
+// استيراد الـ dataService المركزي لحل مشكلة توجيه البورت 5173 إلى 5000 تلقائياً واختفاء الـ 500
+import dataService from '../../services/DataService';
 
 const AdminCaseMonitoringPage = () => {
   const { t } = useLanguage();
@@ -18,13 +20,14 @@ const AdminCaseMonitoringPage = () => {
   const fetchMonitoringData = useCallback(async () => {
     setLoading(true);
     try {
-      // استعلام يجلب القضايا الجارية مع تفاصيل المحامين والمواعيد النهائية
-      const response = await axios.get('/api/admin/cases-monitoring');
+      // التعديل هنا: استبدال axios المباشر بـ dataService المركزي لحل مشاكل الاتصال والأمان
+      const response = await dataService.admin.getCasesMonitoring();
       const data = Array.isArray(response.data) ? response.data : [];
       setMonitoredCases(data);
     } catch (err) {
       console.error("Monitoring Error:", err);
-    } finally {
+    } 
+    finally {
       setLoading(false);
     }
   }, []);

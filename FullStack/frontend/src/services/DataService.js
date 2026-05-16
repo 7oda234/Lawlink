@@ -24,6 +24,7 @@ const http = axios.create({
 const unwrap = (res) => res;
 
 const dataService = {
+  // تجميع وتوحيد كل دوال الـ admin لإنهاء مشاكل الـ TypeError والـ 404
   admin: {
     // Used by AdminHeader global search
     searchGlobal: (query) => http.get('/api/admin/search', { params: { query } }).then(unwrap),
@@ -42,13 +43,22 @@ const dataService = {
 
     // AI usage
     getAIUsageLogs: () => http.get('/api/admin/ai-usage').then(unwrap),
+
+    // 👈 دمج وتكرار الدوال هنا لمنع خطأ: "is not a function" في الصفحات
+    getClients: () => http.get('/api/admin/clients').then(unwrap),
+    getCases: () => http.get('/api/admin/cases').then(unwrap),
+    
+    // 👈 إضافة دالة مراقبة القضايا الناقصة من صفحة AdminCaseMonitoringPage وحل بورت 5173
+    getCasesMonitoring: () => http.get('/api/admin/cases-monitoring').then(unwrap),
   },
 
+  // تم الإبقاء عليها كما هي منعاً لانهيار الصفحات التي تستدعيها بهذا المسمى القديم
   adminClients: {
     // Fetch clients list (Admin -> Clients page)
     getClients: () => http.get('/api/admin/clients').then(unwrap),
   },
 
+  // تم الإبقاء عليها كما هي منعاً لانهيار الصفحات التي تستدعيها بهذا المسمى القديم
   adminCases: {
     // Used by AdminInstallmentsPage.jsx
     getCases: () => http.get('/api/admin/cases').then(unwrap),
@@ -61,10 +71,12 @@ const dataService = {
 
   finance: {
     // Used by AdminInvoicesPage
-    getInvoiceDetails: (paymentId) => http.get(`/finance/invoices/${paymentId}`).then(unwrap),
+    // تعديل المسارات لتتطابق مع هيكلة الباك-إند بإضافة سابقة /api لو كان السيرفر يحتاجها
+    getInvoiceDetails: (paymentId) => http.get(`/api/finance/invoices/${paymentId}`).catch(() => http.get(`/finance/invoices/${paymentId}`)).then(unwrap),
 
     downloadInvoice: (paymentId) => http
-      .get(`/finance/invoices/${paymentId}/download`, { responseType: 'blob' })
+      .get(`/api/finance/invoices/${paymentId}/download`, { responseType: 'blob' })
+      .catch(() => http.get(`/finance/invoices/${paymentId}/download`, { responseType: 'blob' }))
       .then(unwrap),
 
     // Placeholders used by other pages (prevents runtime import crashes)
@@ -76,10 +88,11 @@ const dataService = {
       http.post(`/api/installments/case/${caseId}/create-plan`, payload || {}).then(unwrap),
     payVisaCheckout: (payload) => http.post('/finance/pay/visa', payload || {}).then(unwrap),
 
-    getWalletBalance: () => http.get('/finance/wallet/balance').then(unwrap),
-    getPaymentHistory: () => http.get('/finance/wallet/payments').then(unwrap),
+    // تعديل مسارات المحفظة لحل الـ 404 بالتجربة التناوبية بين الدومين المباشر أو تحت سابقة /api
+    getWalletBalance: () => http.get('/api/finance/wallet/balance').catch(() => http.get('/finance/wallet/balance')).then(unwrap),
+    getPaymentHistory: () => http.get('/api/finance/wallet/payments').catch(() => http.get('/finance/wallet/payments')).then(unwrap),
 
-    getLawyerEarnings: () => http.get('/finance/lawyer/earnings').then(unwrap),
+    getLawyerEarnings: () => http.get('/api/finance/lawyer/earnings').catch(() => http.get('/finance/lawyer/earnings')).then(unwrap),
   },
 
   cases: {
@@ -104,4 +117,3 @@ const dataService = {
 };
 
 export default dataService;
-
