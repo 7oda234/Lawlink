@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 5000;
  */
 const startServer = async () => {
     try {
-        console.log('⏳ جاري تشغيل سيرفر LawLink وفحص الاتصالات...');
+        console.log('⏳ جاري تشغيل سيرفر وفحص الاتصالات...');
 
         // 1. فحص اتصال MariaDB (البيانات الأساسية)
         // نستخدم promise() لضمان انتظار الاتصال قبل المتابعة
@@ -42,7 +42,7 @@ const startServer = async () => {
 
         // 6. بدء الاستماع للطلبات على البورت المحدد
         server.listen(PORT, () => {
-            console.log(`🚀 LawLink Server is running on: http://localhost:${PORT}`);
+            console.log(`🚀 Server is running on: http://localhost:${PORT}`);
             console.log(`💬 Real-time Chat Service is active and ready.`);
             console.log(`📝 Environment variables loaded successfully.`);
         });
