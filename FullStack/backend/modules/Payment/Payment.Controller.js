@@ -57,6 +57,25 @@ export const getPaymentHistory = async (req, res) => {
   }
 };
 
+// Used by AdminInvoicesPage download button
+export const downloadInvoice = async (req, res) => {
+  try {
+    const { paymentId } = req.params;
+    const invoiceData = await paymentsService.getInvoiceDetails(paymentId);
+
+    if (!invoiceData) {
+      return res.status(404).json({ ok: false, message: "Invoice not found" });
+    }
+
+    const filename = `invoice-${paymentId}.json`;
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    return res.status(200).send(JSON.stringify({ ok: true, data: invoiceData }, null, 2));
+  } catch (err) {
+    return res.status(500).json({ ok: false, message: err.message });
+  }
+};
+
 export const handleWalletWithdrawal = async (req, res) => {
   res.status(501).json({ ok: false, message: "Not implemented" });
 };

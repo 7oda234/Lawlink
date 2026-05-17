@@ -291,3 +291,83 @@ export const getFinancialLogs = async () => {
   const [rows] = await pool.promise().query(query);
   return rows;
 };
+
+// ✅ Missing Admin Dashboard endpoints (contract expected by frontend)
+export const getAdminProfile = async (req) => {
+  const actingUserId = req?.user?.userId || req?.user?.id || null;
+
+  if (actingUserId) {
+    const query = `
+      SELECT user_id, name, email, role, image_url, authority_level, created_at
+      FROM users
+      LEFT JOIN admin ON users.user_id = admin.user_id
+      WHERE users.user_id = ? AND users.deleted_at IS NULL
+      LIMIT 1
+    `;
+    const [rows] = await pool.promise().query(query, [actingUserId]);
+    if (rows?.length) return rows[0];
+  }
+
+  const query = `
+    SELECT user_id, name, email, role, image_url, authority_level, created_at
+    FROM users
+    LEFT JOIN admin ON users.user_id = admin.user_id
+    WHERE users.deleted_at IS NULL
+    ORDER BY users.created_at DESC
+    LIMIT 1
+  `;
+  const [rows] = await pool.promise().query(query);
+  return rows?.[0] || null;
+};
+
+export const getAdminLogs = async () => {
+  const query = `
+    SELECT al.log_id, al.user_id, al.action, al.created_at, u.name AS user_name
+    FROM activity_log al
+    LEFT JOIN users u ON al.user_id = u.user_id
+    ORDER BY al.created_at DESC
+    LIMIT 200
+  `;
+  const [rows] = await pool.promise().query(query);
+  return rows.map((row) => ({
+    ...row,
+    action_type: buildActionType(row.action),
+  }));
+};
+
+export const getAdminDocuments = async () => {
+  const query = `
+    SELECT document_id, case_id, title, uploaded_at, file_url, uploader_id
+    FROM documents
+    WHERE deleted_at IS NULL
+    ORDER BY uploaded_at DESC
+    LIMIT 200
+  `;
+  const [rows] = await pool.promise().query(query);
+  return rows || [];
+};
+
+export const getAdminHearings = async () => {
+  const query = `
+    SELECT hearing_id, case_id, hearing_type, due_date, created_at, status
+    FROM hearings
+    WHERE deleted_at IS NULL
+    ORDER BY due_date ASC
+    LIMIT 200
+  `;
+  const [rows] = await pool.promise().query(query);
+  return rows || [];
+};
+
+export const getAdminMessages = async () => {
+  const query = `
+    SELECT message_id, case_id, sender_id, message_text, created_at
+    FROM case_messages
+    WHERE deleted_at IS NULL
+    ORDER BY created_at DESC
+    LIMIT 200
+  `;
+  const [rows] = await pool.promise().query(query);
+  return rows || [];
+};
+

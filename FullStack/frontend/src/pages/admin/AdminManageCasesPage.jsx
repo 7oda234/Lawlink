@@ -40,7 +40,7 @@ const AdminManageCasesPage = () => {
     fetchCases();
   }, [fetchCases]);
 
-  // منطق التصفية الآمن الذي يعالج خطأ image_bedbc9.png[cite: 15]
+  // منطق التصفية الآمن الذي يعالج خطأ image_bedbc9.png
   const filteredCases = Array.isArray(cases) 
     ? cases.filter(c => {
         const matchesSearch = c.title?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -123,7 +123,7 @@ const AdminManageCasesPage = () => {
                     item.status === 'Ongoing' ? 'bg-blue-100 text-blue-700' : 
                     item.status === 'Closed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
                   }`}>
-                    {item.status}[cite: 11]
+                    {item.status}
                   </span>
                 </div>
 
@@ -133,7 +133,7 @@ const AdminManageCasesPage = () => {
                 <div className="pt-4 border-t border-dashed space-y-2 text-xs">
                   <div className="flex justify-between">
                     <span className="text-muted">التصنيف:</span>
-                    <span className="font-bold">{item.category}</span>[cite: 11]
+                    <span className="font-bold">{item.category}</span>
                   </div>
                   <div className="flex justify-between text-muted text-[10px]">
                     <span>تاريخ الرفع:</span>

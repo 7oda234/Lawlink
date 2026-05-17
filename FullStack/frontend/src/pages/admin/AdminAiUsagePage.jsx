@@ -16,7 +16,15 @@ const AdminAiUsagePage = () => {
     const fetchLogs = async () => {
       try {
         const response = await dataService.admin.getAIUsageLogs();
-        setLogs(response.data || []);
+        // backend contract: { success: true, data: [] }
+        const envelope = response?.data;
+        const list = Array.isArray(envelope?.data)
+          ? envelope.data
+          : Array.isArray(envelope)
+            ? envelope
+            : [];
+        setLogs(list);
+
       } catch (err) {
         console.error('Failed to load AI usage logs:', err);
         setError('تعذّر جلب سجلات استخدام الذكاء الاصطناعي.');

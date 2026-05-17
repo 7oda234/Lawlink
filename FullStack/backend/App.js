@@ -27,13 +27,27 @@ export const bootstrap = () => {
         crossOriginResourcePolicy: false,
     }));
     
-    // التعديل هنا: تم تحديد الـ Origin وتفعيل الـ Credentials لحل مشكلة الـ CORS في الـ Dashboard
+    // CORS (Critical - unblock Admin Dashboard requests)
+    const frontendOrigins = [
+        'http://localhost:3000',
+        'http://localhost:5173',
+        process.env.FRONTEND_URL,
+    ].filter(Boolean);
+
     app.use(cors({
-        origin: 'http://localhost:5173', 
-        credentials: true,               
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization']
+        origin: (origin, callback) => {
+            // allow non-browser requests (no origin)
+            if (!origin) return callback(null, true);
+            if (frontendOrigins.includes(origin)) return callback(null, true);
+            // allow exact FRONTEND_URL match if configured
+            if (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL) return callback(null, true);
+            return callback(null, false);
+        },
+        credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
     }));
+
 
     // السماح بالملفات الكبيرة
     app.use(express.json({ limit: '50mb' }));

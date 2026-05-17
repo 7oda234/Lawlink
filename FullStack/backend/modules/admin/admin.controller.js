@@ -124,20 +124,22 @@ export const getReportsAnalytics = async (req, res) => {
 export const getSystemLogs = async (req, res) => {
   try {
     const logs = await adminService.getSystemLogs();
-    res.status(200).json(logs);
+    res.status(200).json({ success: true, data: Array.isArray(logs) ? logs : [] });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
+
 export const getAIUsageLogs = async (req, res) => {
   try {
     const logs = await adminService.getAIUsageLogs();
-    res.status(200).json(logs);
+    res.status(200).json({ success: true, data: Array.isArray(logs) ? logs : [] });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 export const getFinancialLogs = async (req, res) => {
   try {
@@ -147,3 +149,50 @@ export const getFinancialLogs = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// ✅ Missing Admin Dashboard endpoints (contract expected by frontend)
+export const getAdminProfile = async (req, res) => {
+  try {
+    const profile = await adminService.getAdminProfile(req);
+    res.status(200).json({ success: true, data: profile || {} });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getAdminLogs = async (req, res) => {
+  try {
+    const logs = await adminService.getAdminLogs();
+    res.status(200).json({ success: true, data: Array.isArray(logs) ? logs : [] });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getAdminDocuments = async (req, res) => {
+  try {
+    const documents = await adminService.getAdminDocuments();
+    res.status(200).json({ success: true, data: Array.isArray(documents) ? documents : [] });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getAdminHearings = async (req, res) => {
+  try {
+    const hearings = await adminService.getAdminHearings();
+    res.status(200).json({ success: true, data: Array.isArray(hearings) ? hearings : [] });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getAdminMessages = async (req, res) => {
+  try {
+    const messages = await adminService.getAdminMessages();
+    res.status(200).json({ success: true, data: Array.isArray(messages) ? messages : [] });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+

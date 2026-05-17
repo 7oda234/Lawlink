@@ -5,9 +5,13 @@ import http from 'http';
 import { bootstrap } from './App.js'; 
 import pool from './db/Connection.js'; 
 import connectMongoDB from './db/Mongo.js'; 
-import { initializeChatSocket } from './Sockets/chat Socket.js'; 
+import { initializeChatSocket } from './Sockets/chat Socket.js';
+import { registerAdminMonitoringSocketHandlers } from './Sockets/adminMonitoring Socket.js';
+import { startMonitoringEngine } from './modules/admin_case_monitoring/monitoring.engine.js';
+
 
 const PORT = process.env.PORT || 5000;
+
 
 /**
  * دالة تشغيل السيرفر الأساسية
@@ -36,9 +40,22 @@ const startServer = async () => {
 
         // 5. تشغيل نظام المحادثات اللحظية (WebSockets)
         const io = initializeChatSocket(server);
-        
+
+        // Attach admin monitoring room handlers to the same Socket.IO instance
+        registerAdminMonitoringSocketHandlers();
+
         // جعل الـ io متاحاً بشكل عالمي في المشروع إذا احتجت لإرسال إشعارات من الـ Controllers
-        global.io = io; 
+        global.io = io;
+
+        // Start monitoring engine (Phase 5)
+        startMonitoringEngine();
+
+        if (!global.io) {
+            throw new Error('Socket.IO instance not found: expected global.io to be initialized.');
+        }
+
+
+
 
         // 6. بدء الاستماع للطلبات على البورت المحدد
         server.listen(PORT, () => {

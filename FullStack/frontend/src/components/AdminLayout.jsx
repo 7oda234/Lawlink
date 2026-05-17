@@ -20,7 +20,7 @@ const AdminLayout = ({ children, title, description }) => {
       <main className="flex-1 overflow-y-auto h-screen bg-[#0F111A] relative">
         
         {/* Header Component */}
-        <AdminHeader title={title} />
+        <AdminHeader title={title} description={description} />
 
         {/* Page Content */}
         <div className="p-10 max-w-7xl mx-auto">

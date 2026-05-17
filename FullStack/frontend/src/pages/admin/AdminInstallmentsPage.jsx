@@ -51,8 +51,10 @@ const AdminInstallmentsPage = () => {
     const q = query.trim().toLowerCase();
     if (!q) return installments;
     return installments.filter((x) => {
+      // Use installment_id to match the database column
+      const recordId = x.installment_id || x.id || '';
       return (
-        String(x.id).toLowerCase().includes(q) ||
+        String(recordId).toLowerCase().includes(q) ||
         String(x.amount).toLowerCase().includes(q) ||
         String(x.status).toLowerCase().includes(q) ||
         String(x.due_date || x.dueDate || x.date).toLowerCase().includes(q)
@@ -63,7 +65,6 @@ const AdminInstallmentsPage = () => {
   const fetchCases = async () => {
     const res = await dataService.admin.getCases();
     const rows = res?.data || res || [];
-    // backend returns list of cases with case_id etc
     setCases(Array.isArray(rows) ? rows : rows?.cases || []);
   };
 
@@ -133,9 +134,8 @@ const AdminInstallmentsPage = () => {
     setError('');
 
     try {
-      // backend requires: { clientId, status }
-      // Installment row should contain client_id or payer id; if not, we fallback to case client_id from selected case
-      const inst = installments.find((x) => x.id === id);
+      // Find the installment using installment_id
+      const inst = installments.find((x) => (x.installment_id || x.id) === id);
       const clientId = inst?.client_id || inst?.clientId || inst?.payer_client_id;
       const payload = {
         clientId,
@@ -146,7 +146,8 @@ const AdminInstallmentsPage = () => {
 
       setInstallments((current) =>
         current.map((item) =>
-          item.id === id
+          // Check against installment_id
+          (item.installment_id || item.id) === id
             ? { ...item, paid: true, paid_at: new Date().toISOString(), status: 'Paid' }
             : item
         )
@@ -250,8 +251,12 @@ const AdminInstallmentsPage = () => {
                   {filtered.map((it) => {
                     const due = it.due_date || it.dueDate || it.date;
                     const isPaid = Boolean(it.paid) || String(it.status || '').toLowerCase() === 'paid';
+                    
+                    // Identify the correct ID for the record
+                    const recordId = it.installment_id || it.id;
+
                     return (
-                      <tr key={it.id} className="hover:bg-white/[0.03] transition-colors">
+                      <tr key={recordId} className="hover:bg-white/[0.03] transition-colors">
                         <td className="px-5 py-4 text-slate-300">{due ? new Date(due).toLocaleDateString() : '-'}</td>
                         <td className="px-5 py-4 font-semibold text-white">{formatMoney(it.amount || it.value || 0, it.currency || 'EGP')}</td>
                         <td className="px-5 py-4"><StatusPill status={it.status || (isPaid ? 'Paid' : 'Pending')} /></td>
@@ -261,11 +266,11 @@ const AdminInstallmentsPage = () => {
                           ) : (
                             <button
                               type="button"
-                              disabled={payingId === it.id}
-                              onClick={() => payInstallment(it.id)}
+                              disabled={payingId === recordId}
+                              onClick={() => payInstallment(recordId)}
                               className="px-4 py-2 rounded-xl bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold transition disabled:opacity-50"
                             >
-                              {payingId === it.id ? 'Processing...' : 'Pay'}
+                              {payingId === recordId ? 'Processing...' : 'Pay'}
                             </button>
                           )}
                         </td>
@@ -290,4 +295,3 @@ const AdminInstallmentsPage = () => {
 };
 
 export default AdminInstallmentsPage;
-

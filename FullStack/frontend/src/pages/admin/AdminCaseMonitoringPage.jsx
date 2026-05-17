@@ -1,47 +1,122 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
-import { 
-  Activity, Search, Eye, Clock, AlertTriangle, 
-  MessageSquare, User, Scale, Loader2, RefreshCw 
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+
+import {
+  Activity,
+  Search,
+  Eye,
+  Clock,
+  AlertTriangle,
+  MessageSquare,
+  User,
+  Scale,
+  RefreshCw,
 } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import { useLanguage } from '../../context/LanguageContextObject';
-// استيراد الـ dataService المركزي لحل مشكلة توجيه البورت 5173 إلى 5000 تلقائياً واختفاء الـ 500
 import dataService from '../../services/DataService';
+import { io } from 'socket.io-client';
+
 
 const AdminCaseMonitoringPage = () => {
   const { t } = useLanguage();
   const [monitoredCases, setMonitoredCases] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  // const [priorityFilter, setPriorityFilter] = useState('All');
 
-  // جلب بيانات المراقبة بربط جداول cases و users و lawyer
-  const fetchMonitoringData = useCallback(async () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All');
+  const [urgencyFilter, setUrgencyFilter] = useState('All');
+  const [categoryFilter, setCategoryFilter] = useState('All');
+  const [sortBy, setSortBy] = useState('created_at_desc');
+
+  const debounceRef = useRef(null);
+  const lastFetchIdRef = useRef(0);
+
+  const buildQueryParams = (termOverride) => {
+    const term = (termOverride ?? searchTerm).trim();
+    return {
+      search: term || undefined,
+      status: statusFilter === 'All' ? undefined : statusFilter,
+      priority: urgencyFilter === 'All' ? undefined : urgencyFilter,
+      category: categoryFilter === 'All' ? undefined : categoryFilter,
+      sort: sortBy || undefined,
+    };
+  };
+
+  const fetchMonitoringData = async (termOverride) => {
+    const fetchId = ++lastFetchIdRef.current;
     setLoading(true);
     try {
-      // التعديل هنا: استبدال axios المباشر بـ dataService المركزي لحل مشاكل الاتصال والأمان
-      const response = await dataService.admin.getCasesMonitoring();
+      const params = buildQueryParams(termOverride);
+      const response = await dataService.admin.getCasesMonitor(params);
+      if (fetchId !== lastFetchIdRef.current) return;
       const data = Array.isArray(response.data) ? response.data : [];
       setMonitoredCases(data);
     } catch (err) {
-      console.error("Monitoring Error:", err);
-    } 
-    finally {
-      setLoading(false);
+      console.error('Monitoring Error:', err);
+      if (fetchId !== lastFetchIdRef.current) return;
+      setMonitoredCases([]);
+    } finally {
+      if (fetchId === lastFetchIdRef.current) setLoading(false);
     }
+  };
+
+  // initial fetch + when non-search filters change
+  useEffect(() => {
+    // Cancel pending debounce when dropdowns change
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    fetchMonitoringData(searchTerm);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [statusFilter, urgencyFilter, categoryFilter, sortBy]);
+
+  // debounced search (300ms)
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      fetchMonitoringData(searchTerm);
+    }, 300);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm]);
+
+  // derived categories from results
+  const uniqueCategories = useMemo(() => {
+    const set = new Set();
+    for (const c of monitoredCases) {
+      if (c.category) set.add(c.category);
+    }
+    return Array.from(set);
+  }, [monitoredCases]);
+
+  const filteredCases = monitoredCases;
+
+
+  // WebSocket live updates (refetch on case changes)
+  useEffect(() => {
+    const socketUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    const socket = io(socketUrl, { reconnection: true, reconnectionDelay: 1000 });
+
+    socket.on('connect', () => {
+      // best-effort: join monitoring room if backend supports it
+      socket.emit('admin:monitor', { section: 'cases' });
+    });
+
+    const refetch = () => fetchMonitoringData(searchTerm);
+    socket.on('caseUpdated', refetch);
+    socket.on('casesUpdated', refetch);
+    socket.on('case:updated', refetch);
+
+    return () => {
+      socket.off('caseUpdated', refetch);
+      socket.off('casesUpdated', refetch);
+      socket.off('case:updated', refetch);
+      socket.disconnect();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    fetchMonitoringData();
-  }, [fetchMonitoringData]);
 
-  // منطق التصفية بناءً على العنوان أو اسم المحامي
-  const filteredCases = monitoredCases.filter(c => {
-    const matchesSearch = c.title?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          c.lawyer_name?.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesSearch;
-  });
 
   return (
     <AdminLayout 
@@ -51,21 +126,76 @@ const AdminCaseMonitoringPage = () => {
       <div className="space-y-6 mt-6">
         
         {/* شريط الأدوات السريع */}
-        <div className="flex flex-col md:flex-row gap-4 bg-white p-4 rounded-xl border border-default shadow-sm items-center">
+        <div className="flex flex-col xl:flex-row gap-4 bg-white p-4 rounded-xl border border-default shadow-sm items-stretch">
           <div className="relative flex-1 w-full">
             <Search className="absolute right-3 top-2.5 text-muted w-5 h-5" />
-            <input 
-              type="text" 
-              placeholder="ابحث برقم القضية، العنوان، أو اسم المحامي..." 
+            <input
+              type="text"
+              placeholder="ابحث برقم القضية، العنوان، اسم المحامي أو العميل..."
               className="w-full pr-10 pl-4 py-2 bg-surface border border-default rounded-lg focus:ring-2 focus:ring-accent"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <button onClick={fetchMonitoringData} className="btn btn-ghost border flex items-center gap-2">
-            <RefreshCw size={18} className={loading ? 'animate-spin' : ''} /> تحديث البيانات
-          </button>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <select
+              className="px-4 py-2 bg-surface border border-default rounded-lg"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="All">جميع الحالات</option>
+              <option value="Pending">Pending</option>
+              <option value="Ongoing">Ongoing</option>
+              <option value="Closed">Closed</option>
+              <option value="Awaiting_Payment">Awaiting_Payment</option>
+              <option value="Awaiting_Client_Approval">Awaiting_Client_Approval</option>
+            </select>
+
+            <select
+              className="px-4 py-2 bg-surface border border-default rounded-lg"
+              value={urgencyFilter}
+              onChange={(e) => setUrgencyFilter(e.target.value)}
+            >
+              <option value="All">كل درجات الأولوية</option>
+              <option value="High">High</option>
+              <option value="Normal">Normal</option>
+            </select>
+
+            <select
+              className="px-4 py-2 bg-surface border border-default rounded-lg"
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+            >
+              <option value="All">كل التصنيفات</option>
+              {uniqueCategories.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
+
+            <select
+              className="px-4 py-2 bg-surface border border-default rounded-lg"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              <option value="created_at_desc">الأحدث أولاً</option>
+              <option value="created_at_asc">الأقدم أولاً</option>
+              <option value="days_active_desc">الأكثر نشاطاً</option>
+              <option value="days_active_asc">الأقل نشاطاً</option>
+              <option value="missed_deadline_desc">الأكثر تجاوزاً</option>
+            </select>
+
+            <button
+              onClick={() => fetchMonitoringData(searchTerm)}
+              className="btn btn-ghost border flex items-center gap-2 whitespace-nowrap"
+            >
+              <RefreshCw size={18} className={loading ? 'animate-spin' : ''} /> تحديث البيانات
+            </button>
+          </div>
         </div>
+
 
         {/* عرض حالة المراقبة */}
         {loading ? (
@@ -77,13 +207,13 @@ const AdminCaseMonitoringPage = () => {
             {filteredCases.map((caseItem) => (
               <div key={caseItem.case_id} className="card bg-white border border-default p-6 rounded-2xl shadow-sm hover:border-accent/50 transition-all">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-                  
                   {/* معلومات القضية الأساسية */}
                   <div className="lg:col-span-4 space-y-2">
                     <div className="flex items-center gap-2">
                       <span className="p-1.5 bg-accent/10 text-accent rounded-lg"><Scale size={18} /></span>
                       <h3 className="font-bold text-secondary truncate">{caseItem.title}</h3>
                     </div>
+
                     <div className="flex items-center gap-4 text-xs text-muted font-bold">
                       <span className="flex items-center gap-1"><Clock size={14} /> منذ {caseItem.days_active} يوم</span>
                       <span className={`px-2 py-0.5 rounded ${caseItem.urgency === 'High' ? 'bg-red-50 text-red-600' : 'bg-page'}`}>
@@ -91,6 +221,7 @@ const AdminCaseMonitoringPage = () => {
                       </span>
                     </div>
                   </div>
+
 
                   {/* الأطراف المشاركة */}
                   <div className="lg:col-span-3 flex items-center gap-6">

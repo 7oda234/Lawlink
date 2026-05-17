@@ -15,19 +15,19 @@ const AboutPage = () => {
     heroTitle: isRTL ? 'حول لاو-لينك' : 'About LawLink',
     heroSub: isRTL 
       ? 'سد الفجوة بين العملاء والمحامين من خلال حلول تقنية مبتكرة.' 
-      : 'Bridging the gap between clients and lawyers through innovative digital solutions. [cite: 17, 43]',
+      : 'Bridging the gap between clients and lawyers through innovative digital solutions.',
     missionTitle: isRTL ? 'رسالتنا' : 'Our Mission',
     missionDesc: isRTL 
       ? 'تسهيل الوصول إلى خدمات قانونية موثوقة وشفافة للجميع.' 
-      : 'To facilitate direct and transparent interaction between clients and lawyers, ensuring trust and convenience. [cite: 17]',
+      : 'To facilitate direct and transparent interaction between clients and lawyers, ensuring trust and convenience. ',
     visionTitle: isRTL ? 'رؤيتنا' : 'Our Vision',
     visionDesc: isRTL 
       ? 'أن نكون المنصة الرقمية الرائدة في التحول الرقمي للمهنة القانونية.' 
-      : 'To promote digitalization in the legal profession to enhance efficiency and global availability. [cite: 31]',
+      : 'To promote digitalization in the legal profession to enhance efficiency and global availability. ',
     valuesTitle: isRTL ? 'قيمنا' : 'Our Values',
     valuesDesc: isRTL 
       ? 'النزاهة، الابتكار، والشفافية في كل استشارة.' 
-      : 'Integrity, innovation, and transparency in every legal connection. [cite: 30, 43]',
+      : 'Integrity, innovation, and transparency in every legal connection. ',
     marketTitle: isRTL ? 'لماذا الآن؟' : 'Why Now?',
     egyptTitle: isRTL ? 'الفرصة الرقمية في مصر' : "Egypt's Digital Opportunity",
     internetStats: isRTL ? '96.3 مليون مستخدم للإنترنت في مصر' : '96.3M Internet users in Egypt (81.9% penetration). ',

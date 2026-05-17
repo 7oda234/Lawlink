@@ -17,4 +17,12 @@ router.get('/system-logs', adminController.getSystemLogs);
 router.get('/ai-usage', adminController.getAIUsageLogs);
 router.get('/financial-logs', adminController.getFinancialLogs);
 
+// ✅ Missing Admin Dashboard endpoints (contract expected by frontend)
+router.get('/profile', adminController.getAdminProfile);
+router.get('/logs', adminController.getAdminLogs);
+router.get('/documents', adminController.getAdminDocuments);
+router.get('/hearings', adminController.getAdminHearings);
+router.get('/messages', adminController.getAdminMessages);
+
 export default router;
+

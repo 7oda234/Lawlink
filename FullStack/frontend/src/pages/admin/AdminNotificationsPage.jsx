@@ -18,14 +18,44 @@ const AdminNotificationsPage = () => {
 
   useEffect(() => {
     const fetchNotifications = async () => {
-      if (!authUser?.user_id) return;
+      // Get the logged-in admin's ID
+      const userId = authUser?.user_id || authUser?.id || authUser?._id;
+      
+      if (!userId) {
+        setLoading(false);
+        return;
+      }
+      
       setLoading(true);
       try {
-        const response = await dataService.notifications.getByUserId(authUser.user_id, { limit: 50 });
-        setNotifications(response || []);
+        const response = await dataService.notifications.getByUserId(userId, { limit: 50 });
+        
+        // Safely extract the data array from the backend response
+        let rawData = [];
+        if (Array.isArray(response)) rawData = response;
+        else if (Array.isArray(response?.data)) rawData = response.data;
+        else if (Array.isArray(response?.data?.data)) rawData = response.data.data;
+
+        // Map the MongoDB data to the format the UI expects
+        const mappedNotifications = rawData.map((item) => {
+          // Robust check for read/unread status
+          const isRead = item.isRead === true || String(item.status).toLowerCase() === 'read';
+          
+          return {
+            id: item._id || item.id,
+            title: item.senderName || item.title || 'تنبيه نظام',
+            details: item.message || item.details || '',
+            status: isRead ? 'Read' : 'Unread',
+            category: item.type || item.category || 'General',
+            icon: String(item.type || '').toLowerCase() || 'default',
+            timestamp: item.createdAt ? new Date(item.createdAt).toLocaleString() : 'الآن'
+          };
+        });
+
+        setNotifications(mappedNotifications);
       } catch (err) {
         console.error('Failed to load notifications:', err);
-        setError('فشل تحميل الإشعارات. حاول مرة أخرى لاحقاً.');
+        setError('فشل تحميل الإشعارات. تأكد من اتصال الخادم.');
       } finally {
         setLoading(false);
       }
@@ -41,12 +71,13 @@ const AdminNotificationsPage = () => {
   });
 
   const markAllRead = async () => {
-    if (!authUser?.user_id) return;
+    const userId = authUser?.user_id || authUser?.id || authUser?._id;
+    if (!userId) return;
     try {
-      await dataService.notifications.markAllRead(authUser.user_id);
+      await dataService.notifications.markAllRead(userId);
       setNotifications((prev) => prev.map((item) => ({ ...item, status: 'Read' })));
     } catch (err) {
-      console.error('Failed to mark all notifications as read:', err);
+      console.error('Failed to mark all as read:', err);
     }
   };
 
@@ -66,12 +97,11 @@ const AdminNotificationsPage = () => {
   };
 
   const cardVariant = (variant) => {
-    switch (variant) {
-      case 'status': return <Bell size={20} className="text-yellow-400" />;
-      case 'appointment': return <Clock size={20} className="text-cyan-400" />;
-      case 'audit': return <ShieldCheck size={20} className="text-fuchsia-400" />;
-      default: return <Inbox size={20} className="text-white" />;
-    }
+    const v = String(variant).toLowerCase();
+    if (v.includes('alert') || v.includes('status')) return <Bell size={20} className="text-yellow-400" />;
+    if (v.includes('appointment') || v.includes('time')) return <Clock size={20} className="text-cyan-400" />;
+    if (v.includes('audit') || v.includes('security')) return <ShieldCheck size={20} className="text-fuchsia-400" />;
+    return <Inbox size={20} className="text-white" />;
   };
 
   return (
@@ -155,7 +185,7 @@ const AdminNotificationsPage = () => {
         <section className="space-y-4">
           {loading ? (
             <div className="rounded-3xl border border-white/10 bg-[#10131D]/80 p-10 text-center text-gray-400">
-              Loading notifications...
+              جاري تحميل الإشعارات...
             </div>
           ) : filteredNotifications.length === 0 ? (
             <div className="rounded-3xl border border-white/10 bg-[#10131D]/80 p-10 text-center text-gray-400">
@@ -165,7 +195,7 @@ const AdminNotificationsPage = () => {
             <article key={item.id} className={`group rounded-3xl border px-6 py-5 transition ${item.status === 'Unread' ? 'border-yellow-400/30 bg-yellow-500/10' : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'}`}>
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex items-start gap-4">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-white/5 text-white shadow-lg shadow-black/20">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-white/5 text-white shadow-lg shadow-black/20 shrink-0">
                     {cardVariant(item.icon)}
                   </div>
                   <div>
@@ -174,7 +204,7 @@ const AdminNotificationsPage = () => {
                   </div>
                 </div>
 
-                <div className="flex flex-col items-start gap-3 sm:items-end">
+                <div className="flex flex-col items-start gap-3 sm:items-end shrink-0">
                   <span className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] ${item.status === 'Unread' ? 'border-yellow-400 text-yellow-300' : 'border-white/10 text-gray-300'}`}>
                   {item.status}
                 </span>
@@ -185,7 +215,7 @@ const AdminNotificationsPage = () => {
               <div className="mt-5 flex flex-wrap gap-3 border-t border-white/10 pt-4 text-sm text-gray-400">
                 <span className="inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-2">{item.category}</span>
                 <button onClick={() => deleteNotification(item.id)} className="ml-auto flex items-center gap-2 rounded-full border border-white/10 px-3 py-2 text-sm text-red-400 transition hover:border-red-300 hover:text-red-200">
-                  <Trash2 size={16} /> Delete
+                  <Trash2 size={16} /> حذف الإشعار
                 </button>
               </div>
             </article>

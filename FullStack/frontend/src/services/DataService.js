@@ -23,6 +23,40 @@ const http = axios.create({
 // Helper for consistent response shapes
 const unwrap = (res) => res;
 
+// Attach JWT to every request (prevents 401->frontend retry loops)
+http.interceptors.request.use(
+  (config) => {
+    // Only attach Authorization header if the token looks valid (avoids 401 loops)
+    const token = localStorage.getItem('token');
+    if (token && typeof token === 'string' && token.trim().length > 10) {
+      config.headers = config.headers || {};
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Centralized error handling (no silent failures)
+http.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const { config } = error || {};
+
+    // retry network errors max 1 time, avoid infinite loops
+    if (config && !config.__lawlinkRetried) {
+      config.__lawlinkRetried = true;
+      const isNetworkError = !error.response;
+      if (isNetworkError) {
+        return http(config);
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+
 const dataService = {
   // تجميع وتوحيد كل دوال الـ admin لإنهاء مشاكل الـ TypeError والـ 404
   admin: {
@@ -32,8 +66,12 @@ const dataService = {
     // Admin dashboard overview
     getFullDashboard: () => http.get('/api/admin/full-dashboard').then(unwrap),
 
-    // Used by AdminInvoicesPage
+    // Used by AdminInvoicesPage / AdminFinancialOverview
     getFinancialLogs: () => http.get('/api/admin/financial-logs').then(unwrap),
+
+    // Used by AdminFinancialOverview (duplicate removed)
+
+
 
     // Reports / analytics
     getReportsAnalytics: () => http.get('/api/admin/reports-analytics').then(unwrap),
@@ -50,7 +88,18 @@ const dataService = {
     
     // 👈 إضافة دالة مراقبة القضايا الناقصة من صفحة AdminCaseMonitoringPage وحل بورت 5173
     getCasesMonitoring: () => http.get('/api/admin/cases-monitoring').then(unwrap),
+
+    // ✅ Admin monitor with server-side filtering
+    // GET /api/cases/monitor?search=&status=&priority=&category=&sort=
+    getCasesMonitor: (params = {}) => http.get('/api/cases/monitor', { params }).then(unwrap),
+
+    // ✅ Auth profile
+    getMe: () => http.get('/api/auth/me').then(unwrap),
+
+    // ✅ Notifications unread badge
+    getUnreadNotificationsCount: () => http.get('/api/notifications/unread').then(unwrap),
   },
+
 
   // تم الإبقاء عليها كما هي منعاً لانهيار الصفحات التي تستدعيها بهذا المسمى القديم
   adminClients: {
@@ -71,12 +120,14 @@ const dataService = {
 
   finance: {
     // Used by AdminInvoicesPage
-    // تعديل المسارات لتتطابق مع هيكلة الباك-إند بإضافة سابقة /api لو كان السيرفر يحتاجها
-    getInvoiceDetails: (paymentId) => http.get(`/api/finance/invoices/${paymentId}`).catch(() => http.get(`/finance/invoices/${paymentId}`)).then(unwrap),
+    // 🔴 FIX APPLIED: Added /payments to match the backend router mount point
+    getInvoiceDetails: (paymentId) => http.get(`/api/payments/finance/invoices/${paymentId}`)
+      .catch(() => http.get(`/payments/finance/invoices/${paymentId}`))
+      .then(unwrap),
 
     downloadInvoice: (paymentId) => http
-      .get(`/api/finance/invoices/${paymentId}/download`, { responseType: 'blob' })
-      .catch(() => http.get(`/finance/invoices/${paymentId}/download`, { responseType: 'blob' }))
+      .get(`/api/payments/finance/invoices/${paymentId}/download`, { responseType: 'blob' })
+      .catch(() => http.get(`/payments/finance/invoices/${paymentId}/download`, { responseType: 'blob' }))
       .then(unwrap),
 
     // Placeholders used by other pages (prevents runtime import crashes)
@@ -86,13 +137,24 @@ const dataService = {
       http.post(`/api/installments/${installmentId}/pay`, payload || {}).then(unwrap),
     createInstallmentPlan: (caseId, payload) =>
       http.post(`/api/installments/case/${caseId}/create-plan`, payload || {}).then(unwrap),
-    payVisaCheckout: (payload) => http.post('/finance/pay/visa', payload || {}).then(unwrap),
+      
+    // 🔴 FIX APPLIED: Updated checkout and wallet routes to hit the payment router correctly
+    payVisaCheckout: (payload) => http.post('/api/payments/visa-checkout', payload || {})
+      .catch(() => http.post('/payments/visa-checkout', payload || {}))
+      .then(unwrap),
 
     // تعديل مسارات المحفظة لحل الـ 404 بالتجربة التناوبية بين الدومين المباشر أو تحت سابقة /api
-    getWalletBalance: () => http.get('/api/finance/wallet/balance').catch(() => http.get('/finance/wallet/balance')).then(unwrap),
-    getPaymentHistory: () => http.get('/api/finance/wallet/payments').catch(() => http.get('/finance/wallet/payments')).then(unwrap),
+    getWalletBalance: () => http.get('/api/payments/wallet/balance')
+      .catch(() => http.get('/payments/wallet/balance'))
+      .then(unwrap),
+      
+    getPaymentHistory: () => http.get('/api/payments/wallet/payments')
+      .catch(() => http.get('/payments/wallet/payments'))
+      .then(unwrap),
 
-    getLawyerEarnings: () => http.get('/api/finance/lawyer/earnings').catch(() => http.get('/finance/lawyer/earnings')).then(unwrap),
+    getLawyerEarnings: () => http.get('/api/payments/lawyer/earnings')
+      .catch(() => http.get('/payments/lawyer/earnings'))
+      .then(unwrap),
   },
 
   cases: {
@@ -113,6 +175,32 @@ const dataService = {
 
     // Legal chatbot
     chat: (payload) => http.post('/api/ai/chat', payload || {}).then(unwrap),
+  },
+
+  notifications: {
+    // Fetch notifications for a specific user
+    getByUserId: (userId, params = {}) => 
+      http.get(`/api/notifications/${userId}`, { params })
+        .catch(() => http.get(`/notifications/${userId}`, { params }))
+        .then(unwrap),
+
+    // Mark a single notification as read
+    markAsRead: (id) => 
+      http.put(`/api/notifications/${id}/read`)
+        .catch(() => http.put(`/notifications/${id}/read`))
+        .then(unwrap),
+
+    // Mark all notifications as read (if your backend supports it, otherwise this needs a loop in the UI)
+    markAllRead: (userId) => 
+      http.put(`/api/notifications/user/${userId}/read-all`)
+        .catch(() => http.put(`/notifications/user/${userId}/read-all`))
+        .then(unwrap),
+
+    // Delete a notification (You need to add this route to notification.routes.js if it doesn't exist!)
+    deleteNotification: (id) => 
+      http.delete(`/api/notifications/${id}`)
+        .catch(() => http.delete(`/notifications/${id}`))
+        .then(unwrap),
   },
 };
 
