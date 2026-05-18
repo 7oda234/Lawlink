@@ -6,6 +6,7 @@ import adminRouter from "../modules/admin/admin.routes.js";
 import adminCaseMonitoringRouter from "../modules/admin_case_monitoring/admin_case_monitoring.routes.js";
 
 import aiRouter from "../modules/Ai_tools/ai_tools.routes.js";
+
 import messageRouter from "../modules/Message/message.routes.js";
 import knowledgeBaseRouter from "../modules/Knowledge_base/knowledge_base.routes.js";
 
@@ -77,6 +78,9 @@ export const setupAppRoutes = (app) => {
     app.use("/api/notifications", notificationRouter); 
 
     // 🤖 الكود الجديد: موديول الذكاء الاصطناعي (المربوط مع React وسيرفر البايثون)
+    app.use('/api/ai', aiRouter);
+
+    // Backward-compatible mount for any older clients
     app.use('/api/v1/ai-tools', aiRouter);
 
     // 💬 مسار الشات الجديد الخاص بـ MongoDB 👈 (الإضافة الجديدة)

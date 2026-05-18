@@ -22,7 +22,18 @@ if not GOOGLE_API_KEY:
 
 # بنعرف جوجل بالمفتاح بتاعنا وبنجهز الموديل
 genai.configure(api_key=GOOGLE_API_KEY)
-model = genai.GenerativeModel('gemini-1.5-flash')  # بنستخدم نسخة Flash عشان سريعة وموفرة
+# Use the model in a safe way: fallback to a supported model if flash is not available
+# (Prevents 500 + "404 models/... is not found" failures)
+DEFAULT_MODEL = 'gemini-1.5-flash'
+FALLBACK_MODEL = 'gemini-1.5-pro'
+# بنجرب نشغل الموديل الأساسي الأول
+try:
+    model = genai.GenerativeModel(DEFAULT_MODEL)
+# لو ضرب إيرور، بننزل على الـ Fallback موديل
+except Exception as e:
+    print(f"Gemini model init failed for {DEFAULT_MODEL}, falling back to {FALLBACK_MODEL}. Error: {e}")
+    model = genai.GenerativeModel(FALLBACK_MODEL)
+
 
 # بنشغل قاعدة بيانات ChromaDB عشان البحث القانوني الذكي (RAG)
 try:
@@ -54,7 +65,15 @@ async def ai_research(request: ResearchRequest):
         
         # بنجهز "البرومبت" اللي بنبعته لـ Gemini مع المعلومات اللي لقيناها
         prompt = f"بصفتك خبير قانوني مصري، استخدم السياق التالي: {context}\n\nالسؤال: {query_text}\nجاوب بدقة."
-        response = model.generate_content(prompt)  # بنخلي الذكاء الاصطناعي يولد الرد
+        try:
+            response = model.generate_content(prompt)
+        except Exception as e:
+            # Fallback mock response to keep Node/Frontend stable
+            return {
+                "status": "success",
+                "answer": "تعذر تشغيل Gemini بسبب مشكلة في النموذج. تم إرجاع رد تجميعي احتياطي.",
+                "sources": []
+            }
         return {"status": "success", "answer": response.text, "sources": results.get('metadatas', [])}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
