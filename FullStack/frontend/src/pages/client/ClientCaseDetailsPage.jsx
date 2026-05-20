@@ -4,8 +4,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Briefcase, CheckCircle, XCircle, User, FileText, 
   MessageSquare, Clock, Download, ChevronDown, AlertCircle,
-  CalendarDays, Scale, CreditCard, Trash2, FolderPlus, UploadCloud
+  CalendarDays, Scale, CreditCard, Trash2, FolderPlus, UploadCloud, Star
 } from 'lucide-react';
+
+// ✅ استيراد نافذة التقييم (تأكد من مسار الملف لديك)
+import FeedbackModal from '../../components/FeedbackModal';
 
 const ClientCaseDetailsPage = () => {
   const params = useParams();
@@ -19,6 +22,9 @@ const ClientCaseDetailsPage = () => {
   const [showDocs, setShowDocs] = useState(false); 
   const [loading, setLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
+
+  // ✅ حالات التقييم (Feedback)
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
 
   // مراجع (Refs) لمدخلات الملفات المخفية
   const fileInputRef = useRef(null);
@@ -93,6 +99,17 @@ const ClientCaseDetailsPage = () => {
     return () => clearInterval(interval);
   }, [routeId]);
 
+  // ✅ تأثير برمجي يفتح الـ Feedback تلقائياً بمجرد ما القضية تتقفل
+  useEffect(() => {
+    if (caseData && caseData.status && caseData.status.trim().toLowerCase() === 'closed') {
+      const feedbackFlag = sessionStorage.getItem(`feedback_shown_${caseData.case_id}`);
+      if (!feedbackFlag) {
+        setIsFeedbackOpen(true);
+        sessionStorage.setItem(`feedback_shown_${caseData.case_id}`, 'true');
+      }
+    }
+  }, [caseData]);
+
   const handleResponse = async (response) => {
     const cleanId = routeId.toString().replace(':', '');
     try {
@@ -118,7 +135,6 @@ const ClientCaseDetailsPage = () => {
     }
   };
 
-  // ✅ دالة رفع الملفات أو المجلدات
   const handleFileUpload = async (event) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
@@ -128,9 +144,8 @@ const ClientCaseDetailsPage = () => {
     const formData = new FormData();
     
     formData.append('caseId', cleanId);
-    formData.append('userId', currentUserId); // مطلوب في الباك إند
+    formData.append('userId', currentUserId);
 
-    // الباك إند بتاعك بياخد لحد 10 ملفات حسب المكتوب في Routes
     const maxFiles = Math.min(files.length, 10);
     for (let i = 0; i < maxFiles; i++) {
       formData.append('document_file', files[i]);
@@ -145,27 +160,24 @@ const ClientCaseDetailsPage = () => {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       alert("تم رفع الملفات بنجاح! 📁");
-      fetchCaseDetails(); // تحديث المستندات
+      fetchCaseDetails(); 
     } catch (err) {
       alert(err.response?.data?.message || "حدث خطأ أثناء الرفع");
     } finally {
       setIsUploading(false);
-      // تصفير المدخلات عشان يقدر يرفع نفس الملف تاني لو حابب
       if(fileInputRef.current) fileInputRef.current.value = "";
       if(folderInputRef.current) folderInputRef.current.value = "";
     }
   };
 
-  // ✅ دالة حذف الملف
   const handleDeleteDocument = async (documentId) => {
     if (!window.confirm("هل أنت متأكد من حذف هذا المستند نهائياً؟")) return;
     
     try {
       await axios.delete(`${BASE_URL}/api/documents/${documentId}`, {
-        data: { userId: currentUserId } // الباك إند بيطلب الـ userId في البودي
+        data: { userId: currentUserId } 
       });
       
-      // تحديث الواجهة بعد الحذف
       setDocuments(prevDocs => prevDocs.filter(doc => doc.document_id !== documentId));
       alert("تم حذف المستند بنجاح 🗑️");
     } catch (err) {
@@ -217,6 +229,16 @@ const ClientCaseDetailsPage = () => {
 
   return (
     <div className="min-h-screen pt-28 pb-16 bg-slate-950 text-white px-6 font-['Cairo']" dir="rtl">
+      
+      {/* ✅ استدعاء نافذة التقييم للمحامي */}
+      <FeedbackModal 
+         isOpen={isFeedbackOpen} 
+         onClose={() => setIsFeedbackOpen(false)} 
+         clientId={currentUserId} 
+         lawyerId={caseData?.lawyer_id} 
+         caseId={caseData?.case_id}
+      />
+
       <div className="max-w-5xl mx-auto bg-slate-900 p-10 rounded-[3rem] border border-white/5 shadow-2xl">
         
         {/* Header */}
@@ -333,27 +355,39 @@ const ClientCaseDetailsPage = () => {
              <div className={`${isClosed ? 'bg-red-500/10 border-red-500/20' : 'bg-green-500/10 border-green-500/20'} border p-8 rounded-[2.5rem] flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xl`}>
                 <div>
                   <h3 className={`text-2xl font-black italic mb-2 ${isClosed ? 'text-red-500' : 'text-green-500'}`}>
-                    {isClosed ? 'تم إغلاق القضية' : 'القضية قيد التنفيذ (Ongoing)'}
+                    {isClosed ? 'تم إغلاق القضية (القراءة فقط)' : 'القضية قيد التنفيذ (Ongoing)'}
                   </h3>
                   <p className={`text-xs font-bold opacity-80 ${isClosed ? 'text-red-100' : 'text-green-100'}`}>
-                    {isClosed ? 'تم إصدار الحكم النهائي وإغلاق ملف القضية في الأرشيف.' : 'المحامي يعمل على ملفك الآن (القضية قيد التنفيذ سواء تم الدفع كلياً أو جزئياً).'}
+                    {isClosed ? 'تم إغلاق ملف القضية، لا يمكن تعديل أو إضافة بيانات جديدة.' : 'المحامي يعمل على ملفك الآن (القضية قيد التنفيذ سواء تم الدفع كلياً أو جزئياً).'}
                   </p>
                 </div>
 
-                <div className={`flex items-center gap-3 bg-slate-950/50 p-3 rounded-2xl border ${isClosed ? 'border-red-500/20' : 'border-green-500/20'}`}>
-                  <div className={`w-14 h-14 rounded-xl overflow-hidden border flex items-center justify-center shadow-inner ${isClosed ? 'border-red-500/50 bg-red-500/20' : 'border-green-500/50 bg-green-500/20'}`}>
-                    <img 
-                        src={formatImg(caseData.lawyer_image)} 
-                        alt="Lawyer" 
-                        className="w-full h-full object-cover" 
-                        onError={(e) => { e.target.src = 'https://cdn-icons-png.flaticon.com/512/149/149071.png'; }} 
-                    />
-                  </div>
-                  <div className="pl-2">
-                    <p className={`text-[9px] font-black opacity-50 uppercase tracking-widest ${isClosed ? 'text-red-400' : 'text-green-400'}`}>
-                      المحامي المسؤول
-                    </p>
-                    <p className="text-sm font-black text-white">{caseData.lawyer_name}</p>
+                <div className="flex items-center gap-3">
+                  {/* ✅ زر التقييم يظهر فقط عند إغلاق القضية لتشجيع العميل على التقييم */}
+                  {isClosed && (
+                    <button 
+                      onClick={() => setIsFeedbackOpen(true)}
+                      className="px-4 py-3 bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500 hover:text-black transition-all rounded-xl font-bold text-sm flex items-center gap-2 border border-yellow-500/30 shadow-lg"
+                    >
+                      <Star size={18} /> تقييم المحامي
+                    </button>
+                  )}
+
+                  <div className={`flex items-center gap-3 bg-slate-950/50 p-3 rounded-2xl border ${isClosed ? 'border-red-500/20' : 'border-green-500/20'}`}>
+                    <div className={`w-14 h-14 rounded-xl overflow-hidden border flex items-center justify-center shadow-inner ${isClosed ? 'border-red-500/50 bg-red-500/20' : 'border-green-500/50 bg-green-500/20'}`}>
+                      <img 
+                          src={formatImg(caseData.lawyer_image)} 
+                          alt="Lawyer" 
+                          className="w-full h-full object-cover" 
+                          onError={(e) => { e.target.src = 'https://cdn-icons-png.flaticon.com/512/149/149071.png'; }} 
+                      />
+                    </div>
+                    <div className="pl-2">
+                      <p className={`text-[9px] font-black opacity-50 uppercase tracking-widest ${isClosed ? 'text-red-400' : 'text-green-400'}`}>
+                        المحامي المسؤول
+                      </p>
+                      <p className="text-sm font-black text-white">{caseData.lawyer_name}</p>
+                    </div>
                   </div>
                 </div>
              </div>
@@ -371,13 +405,16 @@ const ClientCaseDetailsPage = () => {
                    </p>
                 </button>
                 
+                {/* ✅ حماية المحادثات في وضع الإغلاق (تظهر رسالة وتمنع التوجه، أو يتم التوجه للقراءة فقط) */}
                 <div 
-                  onClick={() => navigate('/client/messages')}
-                  className="bg-slate-900 p-8 rounded-3xl border border-white/5 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-800 hover:border-emerald-500/50 transition-all shadow-lg group min-h-[140px]"
+                  onClick={() => isClosed ? alert('القضية مغلقة، المحادثات أصبحت للقراءة فقط أو مؤرشفة.') : navigate('/client/messages')}
+                  className={`bg-slate-900 p-8 rounded-3xl border border-white/5 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-800 transition-all shadow-lg group min-h-[140px] ${isClosed ? 'opacity-50 hover:border-red-500/50' : 'hover:border-emerald-500/50'}`}
                 >
-                   <MessageSquare className="text-emerald-500 mb-3 group-hover:scale-110 transition-transform" size={32} />
+                   <MessageSquare className={`${isClosed ? 'text-slate-500' : 'text-emerald-500'} mb-3 group-hover:scale-110 transition-transform`} size={32} />
                    <span className="text-xs font-black uppercase opacity-40 tracking-widest">المحادثات</span>
-                   <p className="font-bold italic mt-2 text-emerald-500 uppercase text-sm">تواصل الآن</p>
+                   <p className={`font-bold italic mt-2 uppercase text-sm ${isClosed ? 'text-slate-500' : 'text-emerald-500'}`}>
+                     {isClosed ? 'مؤرشفة' : 'تواصل الآن'}
+                   </p>
                 </div>
 
                 <div className="bg-slate-900 p-8 rounded-3xl border border-white/5 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-800 hover:border-cyan-500/50 transition-all shadow-lg group min-h-[140px]">
@@ -402,6 +439,7 @@ const ClientCaseDetailsPage = () => {
                    <p className="font-bold italic mt-2 text-sm text-blue-400" dir="ltr">{formatDate(caseData.updated_at || caseData.created_at)}</p>
                 </div>
 
+                {/* ✅ زر المدفوعات يختفي تماماً إذا القضية مغلقة بناءً على الشروط القديمة */}
                 {!isClosed && (
                   <div 
                     onClick={() => navigate(`/client/payments/new?caseId=${caseData.case_id}`)}
@@ -416,12 +454,12 @@ const ClientCaseDetailsPage = () => {
 
              {showDocs && (
                 <div className="bg-slate-950 p-6 rounded-3xl border border-white/10 animate-in fade-in slide-in-from-top-4 shadow-2xl mt-4">
-                  {/* أزرار رفع الملفات والمجلدات */}
                   <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
                     <h4 className="font-black italic text-yellow-500 flex items-center gap-2 text-lg">
                       <FileText size={22} /> ملفات القضية المرفوعة
                     </h4>
                     
+                    {/* ✅ لا يمكن رفع ملفات لو القضية مقفولة */}
                     {!isClosed && (
                       <div className="flex gap-3">
                         <input 
@@ -431,7 +469,6 @@ const ClientCaseDetailsPage = () => {
                           onChange={handleFileUpload} 
                           className="hidden" 
                         />
-                        {/* خاصية webkitdirectory هي اللي بتسمح برفع مجلد كامل */}
                         <input 
                           type="file" 
                           webkitdirectory="true" 
@@ -473,7 +510,6 @@ const ClientCaseDetailsPage = () => {
                           </span>
                         </div>
                         <div className="flex items-center gap-3">
-                          {/* زر التحميل */}
                           <a 
                             href={`${BASE_URL}/${doc.file_path}`} 
                             download 
@@ -484,7 +520,7 @@ const ClientCaseDetailsPage = () => {
                             تحميل <Download size={16} />
                           </a>
                           
-                          {/* زر الحذف */}
+                          {/* ✅ زر الحذف مخفي في وضع القراءة فقط */}
                           {!isClosed && (
                             <button 
                               onClick={() => handleDeleteDocument(doc.document_id)}

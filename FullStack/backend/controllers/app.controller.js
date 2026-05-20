@@ -32,6 +32,9 @@ import notificationRouter from "../modules/Notification/notification.routes.js";
 // 💬 موديول المحادثات الجديد (MongoDB) 👈 (الإضافة الجديدة)
 import chatRouter from '../modules/Message/message.routes.js'; 
 
+// ⭐ موديول التقييمات (Feedback) - الإضافة الجديدة
+import feedbackRouter from '../modules/Feedback/feedback.routes.js'; 
+
 // ❌ (تم إيقافه - كود قديم) 
 // import OpenAI from "openai";
 
@@ -76,6 +79,9 @@ export const setupAppRoutes = (app) => {
     
     // 🔔 موديول الإشعارات - تم تفعيله ✅
     app.use("/api/notifications", notificationRouter); 
+
+    // ⭐ موديول التقييمات - تم تفعيله ✅
+    app.use("/api/feedbacks", feedbackRouter);
 
     // 🤖 الكود الجديد: موديول الذكاء الاصطناعي (المربوط مع React وسيرفر البايثون)
     app.use('/api/ai', aiRouter);

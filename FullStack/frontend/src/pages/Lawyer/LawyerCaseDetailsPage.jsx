@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Briefcase, CheckCircle, XCircle, User, FileText, 
   MessageSquare, Clock, Download, ChevronDown, AlertCircle,
-  CalendarDays, Scale, CreditCard, Trash2, FolderPlus, UploadCloud
+  CalendarDays, Scale, CreditCard, Trash2, FolderPlus, UploadCloud, Star
 } from 'lucide-react';
 
 const LawyerCaseDetailsPage = () => {
@@ -19,6 +19,9 @@ const LawyerCaseDetailsPage = () => {
   const [showDocs, setShowDocs] = useState(false); 
   const [loading, setLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
+  
+  // ✅ حالة تقييمات المحامي
+  const [lawyerFeedbacks, setLawyerFeedbacks] = useState([]);
 
   // مراجع (Refs) لمدخلات الملفات المخفية
   const fileInputRef = useRef(null);
@@ -87,27 +90,38 @@ const LawyerCaseDetailsPage = () => {
     }
   };
 
+  // ✅ جلب تقييمات المحامي
+  const fetchLawyerFeedbacks = async () => {
+    if (!currentUserId) return;
+    try {
+      const res = await axios.get(`${BASE_URL}/api/feedbacks/lawyer/${currentUserId}`);
+      if (res.data.success) {
+        setLawyerFeedbacks(res.data.data);
+      }
+    } catch (err) {
+      console.error("Error fetching feedbacks:", err);
+    }
+  };
+
   useEffect(() => {
     fetchCaseDetails();
+    fetchLawyerFeedbacks();
     const interval = setInterval(fetchCaseDetails, 3000);
     return () => clearInterval(interval);
-  }, [routeId]);
+  }, [routeId, currentUserId]);
 
-  // دالة لتحديث تاريخ ووقت القضية (يتسجل كتحديث)
   const updateCaseTimestamp = async () => {
     const cleanId = routeId.toString().replace(':', '');
     try {
-      // افتراض وجود مسار لتحديث بيانات القضية، بنبعت ليه تحديث بسيط عشان الـ updated_at يتغير
       await axios.put(`${BASE_URL}/api/cases/${cleanId}`, { 
         updated_at: new Date().toISOString() 
       });
-      fetchCaseDetails(); // إعادة جلب البيانات لتحديث كارت "آخر تحديث"
+      fetchCaseDetails(); 
     } catch (err) {
       console.log("لم يتم تحديث وقت القضية في السيرفر", err);
     }
   };
 
-  // ✅ دالة رفع الملفات أو المجلدات
   const handleFileUpload = async (event) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
@@ -117,15 +131,11 @@ const LawyerCaseDetailsPage = () => {
     const formData = new FormData();
     
     formData.append('caseId', cleanId);
-    formData.append('userId', currentUserId); // المحامي هو اللي بيرفع
+    formData.append('userId', currentUserId);
 
     const maxFiles = Math.min(files.length, 10);
     for (let i = 0; i < maxFiles; i++) {
       formData.append('document_file', files[i]);
-    }
-
-    if (files.length > 10) {
-      alert("تم اختيار أكثر من 10 ملفات. سيتم رفع أول 10 ملفات فقط.");
     }
 
     try {
@@ -133,9 +143,7 @@ const LawyerCaseDetailsPage = () => {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       alert("تم رفع الملفات بنجاح! 📁");
-      
-      await updateCaseTimestamp(); // تحديث وقت القضية بعد الرفع
-      
+      await updateCaseTimestamp(); 
     } catch (err) {
       alert(err.response?.data?.message || "حدث خطأ أثناء الرفع");
     } finally {
@@ -145,7 +153,6 @@ const LawyerCaseDetailsPage = () => {
     }
   };
 
-  // ✅ دالة حذف الملف
   const handleDeleteDocument = async (documentId) => {
     if (!window.confirm("هل أنت متأكد من حذف هذا المستند نهائياً؟")) return;
     
@@ -156,9 +163,7 @@ const LawyerCaseDetailsPage = () => {
       
       setDocuments(prevDocs => prevDocs.filter(doc => doc.document_id !== documentId));
       alert("تم حذف المستند بنجاح 🗑️");
-      
-      await updateCaseTimestamp(); // تحديث وقت القضية بعد الحذف
-
+      await updateCaseTimestamp(); 
     } catch (err) {
       alert(err.response?.data?.message || "حدث خطأ أثناء الحذف");
     }
@@ -242,14 +247,13 @@ const LawyerCaseDetailsPage = () => {
              <div className={`${isClosed ? 'bg-red-500/10 border-red-500/20' : 'bg-green-500/10 border-green-500/20'} border p-8 rounded-[2.5rem] flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xl`}>
                 <div>
                   <h3 className={`text-2xl font-black italic mb-2 ${isClosed ? 'text-red-500' : 'text-green-500'}`}>
-                    {isClosed ? 'تم إغلاق القضية' : 'القضية قيد التنفيذ (Ongoing)'}
+                    {isClosed ? 'تم إغلاق القضية (القراءة فقط)' : 'القضية قيد التنفيذ (Ongoing)'}
                   </h3>
                   <p className={`text-xs font-bold opacity-80 ${isClosed ? 'text-red-100' : 'text-green-100'}`}>
-                    {isClosed ? 'تم إصدار الحكم النهائي وإغلاق ملف القضية في الأرشيف.' : 'أنت تعمل على ملف العميل الآن (القضية قيد التنفيذ سواء تم الدفع كلياً أو جزئياً).'}
+                    {isClosed ? 'تم إصدار الحكم النهائي وإغلاق ملف القضية، لا يمكن تعديلها حالياً.' : 'أنت تعمل على ملف العميل الآن (القضية قيد التنفيذ سواء تم الدفع كلياً أو جزئياً).'}
                   </p>
                 </div>
 
-                {/* بيانات العميل بدلاً من المحامي */}
                 <div className={`flex items-center gap-3 bg-slate-950/50 p-3 rounded-2xl border ${isClosed ? 'border-red-500/20' : 'border-green-500/20'}`}>
                   <div className={`w-14 h-14 rounded-xl overflow-hidden border flex items-center justify-center shadow-inner ${isClosed ? 'border-red-500/50 bg-red-500/20' : 'border-green-500/50 bg-green-500/20'}`}>
                     <img 
@@ -283,12 +287,14 @@ const LawyerCaseDetailsPage = () => {
                 </button>
                 
                 <div 
-                  onClick={() => navigate(`/lawyer/messages?client=${caseData.client_id}`)}
-                  className="bg-slate-900 p-8 rounded-3xl border border-white/5 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-800 hover:border-emerald-500/50 transition-all shadow-lg group min-h-[140px]"
+                  onClick={() => isClosed ? alert('القضية مغلقة، المحادثات أصبحت للقراءة فقط أو مؤرشفة.') : navigate(`/lawyer/messages?client=${caseData.client_id}`)}
+                  className={`bg-slate-900 p-8 rounded-3xl border border-white/5 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-800 transition-all shadow-lg group min-h-[140px] ${isClosed ? 'opacity-50 hover:border-red-500/50' : 'hover:border-emerald-500/50'}`}
                 >
-                   <MessageSquare className="text-emerald-500 mb-3 group-hover:scale-110 transition-transform" size={32} />
+                   <MessageSquare className={`${isClosed ? 'text-slate-500' : 'text-emerald-500'} mb-3 group-hover:scale-110 transition-transform`} size={32} />
                    <span className="text-xs font-black uppercase opacity-40 tracking-widest">المحادثات</span>
-                   <p className="font-bold italic mt-2 text-emerald-500 uppercase text-sm">تواصل الآن</p>
+                   <p className={`font-bold italic mt-2 uppercase text-sm ${isClosed ? 'text-slate-500' : 'text-emerald-500'}`}>
+                     {isClosed ? 'مؤرشفة' : 'تواصل الآن'}
+                   </p>
                 </div>
 
                 <div className="bg-slate-900 p-8 rounded-3xl border border-white/5 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-800 hover:border-cyan-500/50 transition-all shadow-lg group min-h-[140px]">
@@ -323,6 +329,28 @@ const LawyerCaseDetailsPage = () => {
                      <p className="font-bold italic mt-2 text-yellow-500 uppercase text-sm">متابعة مدفوعات العميل</p>
                   </div>
                 )}
+             </div>
+
+             {/* ✅ قسم عرض التقييمات للمحامي */}
+             <div className="mt-8 bg-slate-900 p-8 rounded-3xl border border-white/5 shadow-lg">
+                <h3 className="text-xl font-black italic text-white mb-6 flex items-center gap-2">
+                   <Star className="text-yellow-500" /> تقييمات العملاء عن أدائك
+                </h3>
+                <div className="space-y-4 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
+                   {lawyerFeedbacks.length > 0 ? lawyerFeedbacks.map((f) => (
+                      <div key={f._id} className="bg-slate-950 p-5 rounded-2xl border border-white/5 flex items-start gap-4">
+                         <div className="bg-yellow-500/10 p-3 rounded-xl text-yellow-500 font-black">
+                            {f.rating}.0
+                         </div>
+                         <div>
+                            <p className="text-sm font-bold text-slate-300">{f.comment || 'بدون تعليق'}</p>
+                            <p className="text-[10px] text-slate-500 mt-2">{new Date(f.created_at).toLocaleDateString('ar-EG')}</p>
+                         </div>
+                      </div>
+                   )) : (
+                      <p className="text-center py-6 text-slate-500 italic font-bold">لا توجد تقييمات حتى الآن.</p>
+                   )}
+                </div>
              </div>
 
              {/* قسم المستندات */}
