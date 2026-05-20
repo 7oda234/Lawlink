@@ -1,13 +1,11 @@
+// استيراد الأدوات اللي بنحتاجها من مكتبات رياكت الخارجية
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom'; 
 import { Sun, Moon, Globe, Bell, User, LogOut, LayoutDashboard, ChevronDown } from 'lucide-react'; 
 import { useLanguage } from '../context/useLanguage'; 
 import { useTheme } from '../context/ThemeContextHook';
-
-import axios from 'axios'; // ✅ تم استيراد axios
+import axios from 'axios'; 
 import logoImage from '../Assets/logo/logo lawlink half.png'; 
-
-// ✅ الإضافة الجديدة: استدعاء مكون قائمة الإشعارات المنسدلة
 import NotificationDropdown from './NotificationDropdown';
 
 const Navbar = () => {
@@ -21,7 +19,6 @@ const Navbar = () => {
 
   const isLoggedIn = !!localStorage.getItem('token'); 
 
-  // ✅ 1. الحالة الابتدائية (Initial State)
   const [userData, setUserData] = useState({
     name: localStorage.getItem('userName') || 'مستخدم',
     role: localStorage.getItem('userRole') || 'Client',
@@ -29,16 +26,12 @@ const Navbar = () => {
     unreadNotifications: parseInt(localStorage.getItem('unreadNotifications')) || 0
   });
 
-  // ✅ 2. جلب البيانات من السيرفر مباشرة لضمان ظهور الصورة
   useEffect(() => {
     const fetchUserData = async () => {
       const userId = localStorage.getItem('userId');
       const token = localStorage.getItem('token');
-
-      // تحديث الإشعارات من اللوكال ستوريدج تحسباً لأي تغيير
       const unread = parseInt(localStorage.getItem('unreadNotifications')) || 0;
 
-      // لو مفيش تسجيل دخول، نحدث الإشعارات بس ونخرج
       if (!userId || userId === 'undefined' || userId === 'null' || !token) {
         setUserData(prev => ({ ...prev, unreadNotifications: unread }));
         return;
@@ -52,7 +45,6 @@ const Navbar = () => {
         if (response.data.success || response.data.ok) {
           const data = response.data.data || response.data.user || response.data;
           
-          // تأمين مسار الصورة
           let finalImage = data.image_url;
           if (finalImage && !finalImage.startsWith('http') && !finalImage.startsWith('data:image')) {
             finalImage = `http://localhost:5000${finalImage.startsWith('/') ? '' : '/'}${finalImage}`;
@@ -66,7 +58,6 @@ const Navbar = () => {
             unreadNotifications: unread
           }));
 
-          // تحديث اللوكال ستوريدج برضه عشان لو صفحة تانية احتاجها
           if (finalImage) localStorage.setItem('userImage', finalImage);
         }
       } catch (err) {
@@ -75,20 +66,16 @@ const Navbar = () => {
     };
 
     fetchUserData();
-  }, [location.pathname]); // ✅ التحديث بيحصل مع كل تنقل بين الصفحات
+  }, [location.pathname]);
 
   const handleLogout = () => {
-    localStorage.clear(); 
+    localStorage.clear();
     setIsMenuOpen(false); 
     navigate('/login'); 
   };
 
   const cardBg = mode === 'dark' ? 'bg-slate-900 border-slate-800' : 'bg-white border-gray-200';
-
-  // ✅ تحديد مسار الإشعارات بناءً على نوع المستخدم
-  const notificationPath = userData.role.toLowerCase() === 'lawyer' 
-    ? '/lawyer/notifications' 
-    : '/client/notifications';
+  const notificationPath = userData.role.toLowerCase() === 'lawyer' ? '/lawyer/notifications' : '/client/notifications';
 
   return (
     <nav dir={isRTL ? 'rtl' : 'ltr'} className={`fixed top-0 w-full z-[100] transition-all border-b ${
@@ -103,18 +90,38 @@ const Navbar = () => {
           </span>
         </Link>
 
+        {/* الجزء ده بيعرض اللينكات حسب حالة المستخدم ونوعه */}
         <div className="hidden md:flex gap-8 font-bold">
-          <Link to="/" className="hover:text-yellow-500 transition-colors">{t('nav.home', 'Home')}</Link>
-          <Link to="/find-lawyer" className="hover:text-yellow-500 transition-colors">{t('nav.findLawyer', 'Find Lawyer')}</Link>
-          <Link to="/how-it-works" className="hover:text-yellow-500 transition-colors">{t('nav.how', 'How it Works')}</Link>
+          
+          {/* الحالة 1: المحامي (Dashboard + How it Works) */}
+          {isLoggedIn && userData.role.toLowerCase() === 'lawyer' && (
+            <>
+              <Link to="/lawyer/dashboard" className="hover:text-yellow-500 transition-colors">{t('nav.dashboard', 'Dashboard')}</Link>
+              <Link to="/how-it-works" className="hover:text-yellow-500 transition-colors">{t('nav.how', 'How it Works')}</Link>
+            </>
+          )}
+
+          {/* الحالة 2: العميل (Dashboard + Find Lawyer + How it Works) */}
+          {isLoggedIn && userData.role.toLowerCase() === 'client' && (
+            <>
+              <Link to="/client/dashboard" className="hover:text-yellow-500 transition-colors">{t('nav.dashboard', 'Dashboard')}</Link>
+              <Link to="/find-lawyer" className="hover:text-yellow-500 transition-colors">{t('nav.findLawyer', 'Find Lawyer')}</Link>
+              <Link to="/how-it-works" className="hover:text-yellow-500 transition-colors">{t('nav.how', 'How it Works')}</Link>
+            </>
+          )}
+
+          {/* الحالة 3: الزوار (Home + Find Lawyer + How it Works) */}
+          {!isLoggedIn && (
+            <>
+              <Link to="/" className="hover:text-yellow-500 transition-colors">{t('nav.home', 'Home')}</Link>
+              <Link to="/find-lawyer" className="hover:text-yellow-500 transition-colors">{t('nav.findLawyer', 'Find Lawyer')}</Link>
+              <Link to="/how-it-works" className="hover:text-yellow-500 transition-colors">{t('nav.how', 'How it Works')}</Link>
+            </>
+          )}
         </div>
 
         <div className="flex items-center gap-2 md:gap-4">
-          
-          {/* ✅ تم استبدال الجرس القديم بمكون الإشعارات مع تمرير المسار */}
-          {isLoggedIn && (
-            <NotificationDropdown notificationPath={notificationPath} />
-          )}
+          {isLoggedIn && <NotificationDropdown notificationPath={notificationPath} />}
 
           <button onClick={toggleMode} className="p-2 hover:bg-gray-500/10 rounded-full transition-colors">
             {mode === 'dark' ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} />}
@@ -138,7 +145,7 @@ const Navbar = () => {
                   src={userData.image} 
                   alt="User" 
                   className="w-10 h-10 rounded-full object-cover border-2 border-yellow-500"
-                  onError={(e) => { e.target.src = 'https://cdn-icons-png.flaticon.com/512/149/149071.png' }} // ✅ حماية الصورة
+                  onError={(e) => { e.target.src = 'https://cdn-icons-png.flaticon.com/512/149/149071.png' }}
                 />
                 <ChevronDown size={16} className={`transition-transform ${isMenuOpen ? 'rotate-180' : ''}`} />
               </button>
