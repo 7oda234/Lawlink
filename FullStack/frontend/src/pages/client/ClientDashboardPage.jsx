@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -88,8 +89,7 @@ const ClientDashboardPage = () => {
   const stats = [
     { icon: Briefcase, value: activeCases.length, label: isRTL ? 'القضايا النشطة' : 'Active Cases', colorClass: 'text-blue-500', bgClass: 'bg-blue-500/10' },
     { icon: Calendar, value: appointments.length, label: isRTL ? 'المواعيد القادمة' : 'Upcoming Appointments', colorClass: 'text-green-500', bgClass: 'bg-green-500/10' },
-    { icon: MessageSquare, value: '0', label: isRTL ? 'رسائل غير مقروءة' : 'Unread Messages', colorClass: 'text-yellow-500', bgClass: 'bg-yellow-500/10' },
-    { icon: CreditCard, value: profile?.income_level || '0', label: isRTL ? 'مستوى الدخل' : 'Income Level', colorClass: 'text-purple-500', bgClass: 'bg-purple-500/10' }
+    { icon: MessageSquare, value: '0', label: isRTL ? 'رسائل غير مقروءة' : 'Unread Messages', colorClass: 'text-yellow-500', bgClass: 'bg-yellow-500/10' }
   ];
 
   const lawyerOffices = activeCases.reduce((acc, currentCase) => {
@@ -118,8 +118,8 @@ const ClientDashboardPage = () => {
           <div className="ai-icon-wrapper !mb-0 !w-14 !h-14"><Gavel /></div>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        {/* Stats Grid - Updated to lg:grid-cols-3 */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {stats.map((stat, index) => (
             <div key={index} className="client-card !p-6 flex items-center gap-4 hover:border-yellow-500/50 transition-all cursor-default shadow-xl shadow-black/20">
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.bgClass}`}>
@@ -184,7 +184,6 @@ const ClientDashboardPage = () => {
                     <ChevronRight size={20} className="text-slate-600 group-hover:text-yellow-500 group-hover:translate-x-1 transition-all" />
                 </Link>
 
-                {/* 💬 تم تعديل الرابط هنا ليوجه إلى /chat المباشر */}
                 <Link to="/chat" className="group relative flex items-center justify-between p-6 bg-emerald-600 rounded-3xl transition-all hover:scale-[1.02] hover:shadow-2xl shadow-emerald-600/30">
                     <div className="flex items-center gap-4">
                         <div className="p-3 bg-white/10 rounded-2xl group-hover:bg-white/20 transition-colors">
