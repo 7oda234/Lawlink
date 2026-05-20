@@ -157,7 +157,7 @@ const LawyerProfileDashboardPage = () => {
             <h3 className="font-black text-lg mb-6 flex items-center gap-2">
               <MessageSquare className="text-yellow-500" /> {isRTL ? 'دردشة العملاء' : 'Client Chat'}
             </h3>
-            <Link to="/lawyer/messages" className="block w-full py-4 rounded-2xl bg-slate-500/10 font-bold text-sm text-center hover:bg-yellow-500 hover:text-black transition-all">
+            <Link to="/chat" className="block w-full py-4 rounded-2xl bg-slate-500/10 font-bold text-sm text-center hover:bg-yellow-500 hover:text-black transition-all">
               {isRTL ? 'فتح صندوق الرسائل' : 'Open Inbox'}
             </Link>
           </div>
