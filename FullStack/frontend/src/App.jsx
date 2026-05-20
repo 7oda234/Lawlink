@@ -3,18 +3,28 @@
 import { AuthProvider } from './context/AuthContext'; 
 // ✅ الإضافة هنا: استيراد مزود الإشعارات
 import { NotificationProvider } from './context/NotificationContext'; 
-
+// استيراد React - Importing React
 import React from 'react';
+// استيراد الأيقونات - Importing icons
 import { Component } from 'lucide-react';
+// استيراد مزود الثيم - Importing theme provider
 import { ThemeProvider } from './context/ThemeContextProvider.jsx';
+// استيراد هوك الثيم - Importing theme hook
 import { useTheme } from './context/ThemeContextHook.js';
 
+// استيراد مزود اللغة - Importing language provider
 import { LanguageProvider } from './context/LanguageContext';
+// استيراد مزود تخطيط الصفحة - Importing page layout provider
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+// استيراد انيميشن - Importing animation
 import { AnimatePresence, motion } from 'framer-motion';
+// استيراد مزود تخطيط الصفحة - Importing page layout provider
 import { PageLayoutProvider } from './components/PageLayout';
+// استيراد مكون الحدود الخطأ - Importing error boundary component
 import { ErrorBoundary } from './components/ErrorBoundary';
+// استيراد مكونات الواجهة - Importing UI components
 import Navbar from './components/Navbar';
+// استيراد مكون الفوتر - Importing footer component
 import Footer from './components/Footer';
 
 // استيراد ملفات الستايل - Importing style files
@@ -29,7 +39,9 @@ import './styles/utility/UtilityBase.css';
 
 // استيراد الصفحات العامة - Importing public pages
 const HomePage = React.lazy(() => import('./pages/HomePage'));
+// 🌟 إضافة جديدة للسيناريو: صفحة من نحن - About Us page
 const AboutPage = React.lazy(() => import('./pages/AboutPage'));
+// 🌟 إضافة جديدة للسيناريو: صفحة اتصل بنا - Contact Us page
 const ContactPage = React.lazy(() => import('./pages/ContactPage'));
 const ServicesPage = React.lazy(() => import('./pages/ServicesPage'));
 const HowItWorksPage = React.lazy(() => import('./pages/HowItWorksPage'));
@@ -66,17 +78,29 @@ const ClientWalletPage = React.lazy(() => import('./pages/client/ClientWalletPag
 const ClientFindLawyer = React.lazy(() => import('./pages/client/ClientFindLawyer'));
 
 // استيراد صفحات المحامي - Importing lawyer pages
+// 🌟 إضافة جديدة للسيناريو: صفحة لوحة تحكم المحامي الرئيسية (عرض ملخص القضايا، الإحصائيات، إلخ)
 const LawyerDashboard = React.lazy(() => import('./pages/Lawyer/LawyerDashboardPage'));
+// 🌟 إضافة جديدة للسيناريو: صفحة ملف المحامي الشخصي في لوحة التحكم (تحتوي على معلومات الملف، الإحصائيات، إلخ)
 const LawyerProfileDashboardPage = React.lazy(() => import('./pages/Lawyer/LawyerProfileDashboardPage'));
+// 🌟 إضافة جديدة للسيناريو: صفحة تعديل ملف المحامي الشخصي في لوحة التحكم (تعديل المعلومات، الخبرات، إلخ)
 const LawyerEditProfilePage = React.lazy(() => import('./pages/Lawyer/LawyerEditProfilePage'));
+// 🌟 إضافة جديدة للسيناريو: صفحة عرض القضايا المخصصة للمحامي في لوحة التحكم (عرض القضايا المعينة، حالة كل قضية، إلخ)
 const LawyerAssignedCasesPage = React.lazy(() => import('./pages/Lawyer/LawyerAssignedCasesPage'));
+// 🌟 إضافة جديدة للسيناريو: صفحة تفاصيل القضية للمحامي في لوحة التحكم (عرض تفاصيل القضية، المستندات، الرسائل، إلخ)
 const LawyerCaseDetailsPage = React.lazy(() => import('./pages/Lawyer/LawyerCaseDetailsPage'));
+// 🌟 إضافة جديدة للسيناريو: صفحة تحديث حالة القضية من قبل المحامي (تحديث الحالة، إضافة ملاحظات، إلخ)
 const LawyerUpdateStatusPage = React.lazy(() => import('./pages/Lawyer/LawyerUpdateStatusPage'));
+// 🌟 إضافة جديدة للسيناريو: صفحة رفع المستندات من قبل المحامي (لإرفاق مستندات جديدة للقضية)
 const LawyerUploadDocumentsPage = React.lazy(() => import('./pages/Lawyer/LawyerUploadDocumentsPage'));
+// 🌟 إضافة جديدة للسيناريو: صفحة رسائل المحامي مع العملاء (تواصل مباشر، عرض الرسائل، إلخ)
 const LawyerClientMessagesPage = React.lazy(() => import('./pages/Lawyer/LawyerClientMessagesPage'));
+// 🌟 إضافة جديدة للسيناريو: صفحة إدارة مواعيد المحامي (عرض المواعيد، إدارة التوافر، إلخ)
 const LawyerSchedulePage = React.lazy(() => import('./pages/Lawyer/LawyerSchedulePage'));
+// 🌟 إضافة جديدة للسيناريو: صفحة تقويم المحامي (عرض المواعيد، إدارة التوافر، إلخ)
 const LawyerCalendarPage = React.lazy(() => import('./pages/Lawyer/LawyerCalendarPage'));
+// 🌟 إضافة جديدة للسيناريو: صفحة إدارة طلبات المحامي (قبول/رفض الطلبات)
 const LawyerManageRequestsPage = React.lazy(() => import('./pages/Lawyer/LawyerManageRequestsPage'));
+// 🌟 إضافة جديدة للسيناريو: صفحة إدارة أرباح المحامي
 const LawyerEarningsPage = React.lazy(() => import('./pages/Lawyer/LawyerEarningsPage'));
 // 🌟 إضافة جديدة للسيناريو: صفحة إدارة العروض المالية للمحامي
 const LawyerOfferPage = React.lazy(() => import('./pages/Lawyer/LawyerOfferPage'));

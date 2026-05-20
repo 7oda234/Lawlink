@@ -1,46 +1,73 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import dataService from '../../services/DataService';
-import { Globe } from 'lucide-react';
+import { 
+  Sparkles, 
+  Search, 
+  Cpu, 
+  ShieldAlert, 
+  ChevronRight, 
+  ChevronLeft, 
+  ArrowLeft,
+  Terminal,
+  Activity,
+  Copy,
+  CheckCircle,
+  Scale,
+  BookOpen
+} from 'lucide-react';
+import { useLanguage } from '../../context/useLanguage';
+import { useTheme } from '../../context/ThemeContext';
 
 const ResearchTool = () => {
-  const [lang, setLang] = useState('ar');
+  // ✅ ربط لغة الأداة بلغة الـ Navbar والسيستم الموحدة
+  const { language, toggleLanguage } = useLanguage();
+  const { mode } = useTheme();
+  
+  const isRTL = language === 'ar' || language === 'eg';
+  const isDark = mode === 'dark';
+  const currentLang = isRTL ? 'ar' : 'en';
+
   const [query, setQuery] = useState('');
   const [result, setResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [copied, setCopied] = useState(false);
 
   const content = {
     en: {
-      title: 'AI Legal Research',
-      subtitle: 'Egyptian law only — focused on local regulations and precedent.',
-      questionLabel: 'What legal concept or precedent are you researching today?',
-      placeholder: 'e.g., Requirements for forming an LLC in Egypt...',
-      btnDefault: 'Conduct Research',
-      btnLoading: 'Processing...',
-      errorMsg: 'Failed to connect to the research service. Please try again.',
-      emptyTitle: 'Ready to assist',
-      emptyDesc: 'Enter a legal concept, precedent, or specific scenario above to generate a comprehensive AI-driven analysis.',
-      resultTitle: 'Research Findings',
-      disclaimer: 'Disclaimer: AI-generated content. Not formal legal advice.',
-      copy: 'Copy to Clipboard'
+      title: 'AI Legal Research Terminal',
+      subtitle: 'Egyptian jurisprudence database — focused on constitutional codes, decrees & local precedents.',
+      questionLabel: 'What legal concept, statutory article, or precedent are you investigating today?',
+      placeholder: 'e.g., Corporate breakdown requirements for LLC liquidation in Egypt...',
+      btnDefault: 'Execute Deep Research',
+      btnLoading: 'Scanning Statutory Records...',
+      errorMsg: 'Quantum query failure inside the legal knowledge base.',
+      emptyTitle: 'System Staged & Ready',
+      emptyDesc: 'Enter a detailed legal concept, scenario, or complex case pattern above to generate an automated AI jurisprudential report.',
+      resultTitle: 'Research Discovery Findings',
+      disclaimer: 'System Notice: Generative legal computing. Validate with formal codes before submission.',
+      copy: 'Copy Report Text',
+      copiedBtn: 'Copied to Clipboard!'
     },
     ar: {
       title: 'البحث القانوني بالذكاء الاصطناعي',
-      subtitle: 'القانون المصري فقط — التركيز على اللوائح والسوابق القضائية المحلية.',
-      questionLabel: 'ما هو المبدأ القانوني أو السابقة التي تبحث عنها اليوم؟',
-      placeholder: 'مثال: متطلبات تأسيس شركة ذات مسئولية محدودة في مصر...',
-      btnDefault: 'إجراء البحث',
-      btnLoading: 'جاري المعالجة...',
-      errorMsg: 'فشل الاتصال بخدمة البحث. يرجى المحاولة مرة أخرى.',
-      emptyTitle: 'مستعد للمساعدة',
-      emptyDesc: 'أدخل مبدأ قانونياً، سابقة، أو سيناريو محدد بالأعلى لإنشاء تحليل شامل مدعوم بالذكاء الاصطناعي.',
-      resultTitle: 'نتائج البحث',
-      disclaimer: 'إخلاء مسؤولية: محتوى مُنشأ بالذكاء الاصطناعي. لا يعتبر استشارة قانونية رسمية.',
-      copy: 'نسخ النص'
+      subtitle: 'موسوعة التشريع المصري — التركيز على اللوائح، القوانين المحلية والسوابق القضائية.',
+      questionLabel: 'ما هو المبدأ القانوني، المادة التشريعية، أو السابقة القضائية التي تبحث عنها اليوم؟',
+      placeholder: 'مثال: الشروط القانونية لتصفية الشركات ذات المسؤولية المحدودة في مصر...',
+      btnDefault: 'إجراء بحث معمق فوراً',
+      btnLoading: 'جاري مسح وفحص السوابق والأكواد...',
+      errorMsg: 'فشل الاتصال بخدمة البحث، يرجى مراجعة اتصال السيرفر.',
+      emptyTitle: 'المحرك جاهز ومستعد للمساعدة',
+      emptyDesc: 'أدخل مبدأ قانونياً، سابقة قضائية، أو سيناريو واقعي بالأعلى لإنشاء تقرير فحص تحليلي مدعوم بالذكاء الاصطناعي.',
+      resultTitle: 'نتائج تقرير البحث المستخرج',
+      disclaimer: 'تنبيه: محتوى قانوني مُنشأ بالذكاء الاصطناعي. يرجى المراجعة مع المواد الرسمية.',
+      copy: 'نسخ تقرير البحث بالكامل',
+      copiedBtn: 'تم النسخ للحافظة!'
     }
   };
-  const t = content[lang];
-  const isRtl = lang === 'ar';
+  
+  const t = content[currentLang];
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -49,6 +76,7 @@ const ResearchTool = () => {
     setIsLoading(true);
     setError('');
     setResult(null);
+    setCopied(false);
 
     try {
       const response = await dataService.aiTools.research({ query, jurisdiction: 'Egypt' });
@@ -65,118 +93,154 @@ const ResearchTool = () => {
     }
   };
 
+  const handleCopy = () => {
+    if (!result?.answer) return;
+    navigator.clipboard.writeText(result.answer);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
-    <div className="max-w-4xl mx-auto mt-12 bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-slate-100 overflow-hidden transition-all duration-300" dir={isRtl ? 'rtl' : 'ltr'}>
-      
-      {/* Premium Header */}
-      <div className="bg-slate-900 px-8 py-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-slate-800 rounded-lg text-blue-400">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path>
-            </svg>
+    <div className={`min-h-screen p-4 md:p-8 pt-24 transition-colors duration-300 ${isDark ? 'bg-[#06080c] text-white' : 'bg-slate-50 text-slate-900'}`} dir={isRTL ? 'rtl' : 'ltr'}>
+      <div className="max-w-4xl mx-auto space-y-8">
+        
+        {/* 🧭 Top Breadcrumbs & Unified Language Sync */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest opacity-50">
+            <Link to="/lawyer/dashboard" className="hover:text-yellow-500 transition-colors">Dashboard</Link>
+            {isRTL ? <ChevronLeft size={12} /> : <ChevronRight size={12} />}
+            <Link to="/ai-tools" className="hover:text-yellow-500 transition-colors">AI Hub</Link>
+            {isRTL ? <ChevronLeft size={12} /> : <ChevronRight size={12} />}
+            <span className="text-yellow-500">{t.title}</span>
           </div>
-          <div>
-            <h2 className="text-xl font-bold text-white tracking-wide">{t.title}</h2>
-            <p className="text-slate-400 text-sm mt-1">{t.subtitle}</p>
-          </div>
+
+          <button 
+            type="button"
+            onClick={toggleLanguage} 
+            className="px-4 py-1.5 rounded-xl bg-slate-900/50 hover:bg-slate-900 border border-white/5 text-gray-400 hover:text-white flex items-center gap-2 text-xs font-black transition-all"
+          >
+            <Sparkles size={12} className="text-yellow-500" />
+            <span>{isRTL ? 'English Terminal' : 'الواجهة العربية'}</span>
+          </button>
         </div>
-        <button onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')} className="text-slate-400 hover:text-white flex items-center gap-1 bg-slate-800 px-3 py-1.5 rounded-full transition-colors">
-          <Globe size={16} /> <span className="text-xs font-semibold">{lang === 'ar' ? 'EN' : 'عربي'}</span>
-        </button>
-      </div>
 
-      {/* Main Content Area */}
-      <div className="p-8">
-        <form onSubmit={handleSearch} className="mb-8">
-          <label className="block text-sm font-semibold text-slate-700 mb-3">
-            {t.questionLabel}
-          </label>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <div className="absolute inset-y-0 start-0 ps-4 flex items-center pointer-events-none text-slate-400">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
+        {/* 🧠 Core Research Intelligence Panel */}
+        <div className="bg-slate-900/30 backdrop-blur-md border border-white/5 rounded-[2.5rem] p-6 md:p-10 shadow-2xl space-y-8 relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-8 opacity-[0.01] pointer-events-none">
+            <BookOpen size={200} />
+          </div>
+
+          {/* Header */}
+          <div className="flex items-start gap-4 pb-6 border-b border-white/5">
+            <div className="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0 shadow-lg shadow-blue-500/5">
+              <Scale size={26} className="animate-pulse" />
+            </div>
+            <div>
+              <h2 className="text-xl md:text-2xl font-black italic uppercase text-white tracking-tight">{t.title}</h2>
+              <p className="text-xs opacity-50 font-bold mt-1 uppercase tracking-wide text-slate-300">{t.subtitle}</p>
+            </div>
+          </div>
+
+          {/* Form Processing Input Area */}
+          <form onSubmit={handleSearch} className="space-y-4">
+            <label className="block text-xs font-black uppercase tracking-widest text-slate-400">
+              {t.questionLabel}
+            </label>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1">
+                <div className="absolute inset-y-0 start-0 ps-4 flex items-center pointer-events-none text-slate-500">
+                  <Search size={18} />
+                </div>
+                <input
+                  type="text"
+                  className="w-full ps-12 pe-4 py-4 rounded-2xl bg-slate-950 border border-white/5 focus:border-yellow-500/50 text-white placeholder-slate-600 outline-none text-xs md:text-sm font-medium transition-all shadow-inner"
+                  placeholder={t.placeholder}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  disabled={isLoading}
+                  required
+                />
               </div>
-              <input
-                type="text"
-                className="w-full ps-11 pe-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                placeholder={t.placeholder}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                disabled={isLoading}
-              />
-            </div>
-            
-            <button
-              type="submit"
-              disabled={isLoading || !query.trim()}
-              className="group relative flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 px-8 rounded-xl disabled:bg-slate-300 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow"
-            >
-              {isLoading ? (
-                <>
-                  <svg className={`animate-spin h-5 w-5 text-white ${isRtl ? 'ml-2 -mr-1' : 'mr-2 -ml-1'}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  {t.btnLoading}
-                </>
-              ) : (
-                t.btnDefault
-              )}
-            </button>
-          </div>
-        </form>
-
-        {/* Error State */}
-        {error && (
-          <div className="flex items-start gap-3 p-4 mb-8 bg-red-50 text-red-700 rounded-xl border border-red-100 animate-in fade-in slide-in-from-top-2">
-            <svg className="w-5 h-5 flex-shrink-0 mt-0.5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            <p className="text-sm font-medium">{error}</p>
-          </div>
-        )}
-
-        {/* Empty State */}
-        {!result && !isLoading && !error && (
-          <div className="text-center py-12 px-6 border-2 border-dashed border-slate-100 rounded-xl bg-slate-50/50">
-            <svg className="w-12 h-12 mx-auto text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-            </svg>
-            <h3 className="text-sm font-semibold text-slate-600">{t.emptyTitle}</h3>
-            <p className="text-sm text-slate-400 mt-1 max-w-md mx-auto">{t.emptyDesc}</p>
-          </div>
-        )}
-
-        {/* Results State */}
-        {result && (
-          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm animate-in fade-in slide-in-from-bottom-4">
-            <div className="bg-slate-50 border-b border-slate-200 px-6 py-4 flex items-center gap-2">
-              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-              </svg>
-              <h3 className="text-md font-bold text-slate-800">{t.resultTitle}</h3>
-            </div>
-            
-            <div className="p-6">
-              <div className="prose prose-slate max-w-none text-slate-700 leading-relaxed whitespace-pre-wrap" dir="auto">
-                {result.answer}
-              </div>
-            </div>
-            
-            <div className="bg-slate-50 px-6 py-3 border-t border-slate-100 text-xs text-slate-500 flex justify-between items-center">
-              <span>{t.disclaimer}</span>
-              <button 
-                onClick={() => navigator.clipboard.writeText(result.answer)}
-                className="hover:text-blue-600 font-medium transition-colors"
+              
+              <button
+                type="submit"
+                disabled={isLoading || !query.trim()}
+                className="px-8 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black italic text-xs uppercase tracking-widest hover:scale-[1.03] transition-all active:scale-[0.98] disabled:opacity-30 disabled:scale-100 flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/10 shrink-0"
               >
-                {t.copy}
+                {isLoading ? <Activity size={14} className="animate-spin" /> : <Sparkles size={14} />}
+                <span>{isLoading ? t.btnLoading : t.btnDefault}</span>
               </button>
             </div>
-          </div>
-        )}
+          </form>
+
+          {/* Error Terminal Block */}
+          {error && (
+            <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center gap-3 text-xs font-bold animate-pulse">
+              <ShieldAlert className="shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {/* 🔍 Empty Staged Screen */}
+          {!result && !isLoading && !error && (
+            <div className="text-center py-12 border border-dashed border-white/5 rounded-[2rem] bg-slate-950/20">
+              <BookOpen size={40} className="mx-auto text-slate-600 mb-3 opacity-30" />
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t.emptyTitle}</h3>
+              <p className="text-[11px] text-slate-500 mt-1 max-w-xs mx-auto leading-relaxed">{t.emptyDesc}</p>
+            </div>
+          )}
+
+          {/* 📄 Results Showcase Render Box */}
+          {result && (
+            <div className="mt-8 border-t border-white/5 pt-8 space-y-4 animate-fadeIn">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                  <Terminal size={12} className="text-blue-400" />
+                  {t.resultTitle}
+                </h3>
+                
+                {/* Copied Interactive Trigger Button */}
+                <button 
+                  type="button"
+                  onClick={handleCopy}
+                  className={`flex items-center gap-2 text-[10px] font-black italic uppercase px-4 py-2 rounded-xl border transition-all ${
+                    copied 
+                      ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' 
+                      : 'bg-white/5 border-white/5 text-slate-400 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  {copied ? <CheckCircle size={12} /> : <Copy size={12} />}
+                  {copied ? t.copiedBtn : t.copy}
+                </button>
+              </div>
+              
+              {/* Report Dashboard Screen */}
+              <div 
+                className="p-6 rounded-[2rem] bg-slate-950 border border-white/5 text-slate-200 font-sans text-xs md:text-sm leading-loose whitespace-pre-wrap max-h-[450px] overflow-y-auto shadow-inner border-l-blue-500/30 border-l-4" 
+                dir="auto"
+              >
+                {result.answer}
+              </div>
+
+              {/* Disclaimer Meta Element */}
+              <div className="p-4 rounded-xl bg-slate-950 border border-white/5 text-[10px] font-bold opacity-30 uppercase tracking-wide">
+                 {t.disclaimer}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Secure Footer Controls */}
+        <div className="flex items-center justify-between p-5 rounded-2xl bg-slate-900/10 border border-dashed border-white/5">
+          <p className="text-[10px] font-bold opacity-30 uppercase tracking-wider">
+             LawLink Matrix Core • Deep Jurisprudence Retrieval Hub
+          </p>
+          <Link to="/ai-tools" className="inline-flex items-center gap-1 text-[10px] font-black italic uppercase text-yellow-500 hover:underline tracking-widest">
+             {isRTL ? <ArrowLeft size={12} className="rotate-180" /> : <ArrowLeft size={12} />} 
+             {isRTL ? 'الرجوع للمكتبة الذكية' : 'Back to AI Terminal'}
+          </Link>
+        </div>
+
       </div>
     </div>
   );

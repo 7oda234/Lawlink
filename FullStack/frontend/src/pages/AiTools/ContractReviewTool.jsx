@@ -1,9 +1,32 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import dataService from '../../services/DataService';
-import { Globe } from 'lucide-react';
+import { 
+  FileText, 
+  Sparkles, 
+  Cpu, 
+  ShieldAlert, 
+  ChevronRight, 
+  ChevronLeft, 
+  ArrowLeft,
+  Terminal,
+  Activity,
+  UploadCloud,
+  FileCheck2,
+  ShieldCheck
+} from 'lucide-react';
+import { useLanguage } from '../../context/useLanguage';
+import { useTheme } from '../../context/ThemeContext';
 
 const ContractReviewTool = () => {
-  const [lang, setLang] = useState('ar');
+  // ✅ الربط الكامل والمباشر مع الـ Navbar لتوحيد اللغة
+  const { language, toggleLanguage } = useLanguage();
+  const { mode } = useTheme();
+  
+  const isRTL = language === 'ar' || language === 'eg';
+  const isDark = mode === 'dark';
+  const currentLang = isRTL ? 'ar' : 'en';
+
   const [file, setFile] = useState(null);
   const [analysis, setAnalysis] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -11,29 +34,32 @@ const ContractReviewTool = () => {
 
   const content = {
     en: {
-      title: 'AI Contract Review',
-      uploadLabel: 'Upload Contract (PDF):',
-      uploadNote: 'Upload standard contract file formats for Egyptian law review.',
-      selectedFile: 'Selected file:',
-      btnReview: 'Review Contract',
-      btnAnalyzing: 'Analyzing...',
-      errorMsg: 'Failed to analyze the contract.',
-      errorFile: 'Please upload a file to review.',
-      summaryTitle: 'Review Summary:'
+      title: 'AI Contract Review & Audit',
+      subtitle: 'Neural contract intelligence for vulnerability scanning and risk extraction',
+      uploadLabel: 'Upload Legal Instrument (PDF, DOCX, TXT)',
+      uploadNote: 'Upload formal contract files for statutory compliance checking under Egyptian law.',
+      selectedFile: 'Target File Staged:',
+      btnReview: 'Execute Contract Audit',
+      btnAnalyzing: 'Deconstructing Clauses...',
+      errorMsg: 'Analysis failure inside the quantum neural core.',
+      errorFile: 'Please stage a valid legal document file first.',
+      summaryTitle: 'Audit Matrix Report & Summary'
     },
     ar: {
-      title: 'مراجعة العقود بالذكاء الاصطناعي',
-      uploadLabel: 'ارفع العقد (PDF):',
-      uploadNote: 'قم برفع ملفات العقود القياسية للمراجعة وفقاً للقانون المصري.',
-      selectedFile: 'الملف المحدد:',
-      btnReview: 'مراجعة العقد',
-      btnAnalyzing: 'جاري التحليل...',
-      errorMsg: 'فشل في تحليل العقد.',
-      errorFile: 'يرجى رفع ملف لمراجعته.',
-      summaryTitle: 'ملخص المراجعة:'
+      title: 'مراجعة وتدقيق العقود الذكي',
+      subtitle: 'استخراج الثغرات، تقييم المخاطر، والتحقق الامتثالي الآلي للعقود',
+      uploadLabel: 'ارفع وثيقة العقد القانونية (PDF, DOCX, TXT)',
+      uploadNote: 'قم برفع ملفات العقود القياسية للفحص والتدقيق القانوني وفقاً لمواد القانون المصري.',
+      selectedFile: 'الملف المستهدف والمجهز:',
+      btnReview: 'بدء التدقيق والفحص الفوري',
+      btnAnalyzing: 'جاري تفكيك البنود وتحليل الثغرات...',
+      errorMsg: 'فشل في تحليل العقد، يرجى التحقق من اتصال الخادم.',
+      errorFile: 'يرجى اختيار وثيقة قانونية صالحة أولاً لمراجعتها.',
+      summaryTitle: 'تقرير الفحص والتحليل القانوني المستخرج'
     }
   };
-  const t = content[lang];
+  
+  const t = content[currentLang];
 
   const handleReview = async (e) => {
     e.preventDefault();
@@ -65,46 +91,127 @@ const ContractReviewTool = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-10" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
-      <div className="flex justify-between items-center mb-6 border-b pb-2">
-        <h2 className="text-2xl font-bold text-gray-800">{t.title}</h2>
-        <button onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')} className="text-gray-500 hover:text-gray-800 flex items-center gap-1">
-          <Globe size={18} /> <span className="text-sm font-semibold">{lang === 'ar' ? 'EN' : 'عربي'}</span>
-        </button>
-      </div>
-      
-      <form onSubmit={handleReview} className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">{t.uploadLabel}</label>
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
-          <div className="flex-1">
-            <input
-              type="file"
-              accept=".pdf,.doc,.docx,.txt,.rtf"
-              className={`w-full p-2 border border-gray-300 rounded-md file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 ${lang === 'ar' ? 'file:ml-4' : 'file:mr-4'}`}
-              onChange={(e) => setFile(e.target.files[0])}
-              disabled={isLoading}
-            />
-            <p className="mt-2 text-sm text-slate-500">{t.uploadNote}</p>
-            {file && <p className="mt-2 text-sm text-slate-500">{t.selectedFile} <strong>{file.name}</strong></p>}
+    <div className={`min-h-screen p-4 md:p-8 pt-24 transition-colors duration-300 ${isDark ? 'bg-[#06080c] text-white' : 'bg-slate-50 text-slate-900'}`} dir={isRTL ? 'rtl' : 'ltr'}>
+      <div className="max-w-4xl mx-auto space-y-8">
+        
+        {/* 🧭 Top Navigation & Language Link */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest opacity-50">
+            <Link to="/lawyer/dashboard" className="hover:text-yellow-500 transition-colors">Dashboard</Link>
+            {isRTL ? <ChevronLeft size={12} /> : <ChevronRight size={12} />}
+            <Link to="/ai-tools" className="hover:text-yellow-500 transition-colors">AI Hub</Link>
+            {isRTL ? <ChevronLeft size={12} /> : <ChevronRight size={12} />}
+            <span className="text-yellow-500">{t.title}</span>
           </div>
-          <button
-            type="submit"
-            disabled={isLoading || !file}
-            className="shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-md disabled:bg-indigo-400"
+
+          <button 
+            type="button"
+            onClick={toggleLanguage} 
+            className="px-4 py-1.5 rounded-xl bg-slate-900/50 hover:bg-slate-900 border border-white/5 text-gray-400 hover:text-white flex items-center gap-2 text-xs font-black transition-all"
           >
-            {isLoading ? t.btnAnalyzing : t.btnReview}
+            <Sparkles size={12} className="text-yellow-500" />
+            <span>{isRTL ? 'English Terminal' : 'الواجهة العربية'}</span>
           </button>
         </div>
-      </form>
 
-      {error && <div className="p-4 mb-6 bg-red-50 text-red-700 rounded-md border border-red-200">{error}</div>}
+        {/* 🧠 Audit Core Panel */}
+        <div className="bg-slate-900/30 backdrop-blur-md border border-white/5 rounded-[2.5rem] p-6 md:p-10 shadow-2xl space-y-8 relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-8 opacity-[0.01] pointer-events-none">
+            <FileText size={200} />
+          </div>
 
-      {analysis && (
-        <div className="bg-gray-50 p-6 rounded-md border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">{t.summaryTitle}</h3>
-          <div className="text-gray-700 whitespace-pre-wrap">{analysis}</div>
+          {/* Header */}
+          <div className="flex items-start gap-4 pb-6 border-b border-white/5">
+            <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0 shadow-lg shadow-emerald-500/5">
+              <Cpu size={26} className="animate-pulse" />
+            </div>
+            <div>
+              <h2 className="text-xl md:text-2xl font-black italic uppercase text-white tracking-tight">{t.title}</h2>
+              <p className="text-xs opacity-50 font-bold mt-1 uppercase tracking-wide text-slate-300">{t.subtitle}</p>
+            </div>
+          </div>
+
+          {/* Audit Action Upload Form */}
+          <form onSubmit={handleReview} className="space-y-6">
+            <div className="space-y-3">
+              <label className="block text-xs font-black uppercase tracking-widest text-slate-400">
+                {t.uploadLabel}
+              </label>
+              
+              <div className="group relative w-full p-8 rounded-2xl bg-slate-950 border border-dashed border-white/10 hover:border-emerald-500/40 transition-all flex flex-col items-center justify-center text-center cursor-pointer shadow-inner">
+                <input
+                  type="file"
+                  accept=".pdf,.doc,.docx,.txt,.rtf"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  onChange={(e) => setFile(e.target.files[0])}
+                  disabled={isLoading}
+                />
+                
+                <UploadCloud size={36} className="text-slate-500 group-hover:text-emerald-400 transition-colors mb-3" />
+                <p className="text-xs font-medium text-slate-400 max-w-sm leading-relaxed">
+                  {t.uploadNote}
+                </p>
+
+                {file && (
+                  <div className="mt-4 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20 text-emerald-400 text-xs font-black flex items-center gap-2 animate-fadeIn relative z-20">
+                     <FileCheck2 size={14} />
+                     <span>{t.selectedFile} <strong className="underline font-serif text-white">{file.name}</strong></span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Submit Audit Trigger */}
+            <button
+              type="submit"
+              disabled={isLoading || !file}
+              className="w-full relative group overflow-hidden bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black italic py-4 rounded-2xl text-sm uppercase tracking-widest shadow-xl shadow-emerald-500/5 hover:shadow-emerald-500/10 transition-all active:scale-[0.99] disabled:opacity-30 disabled:scale-100"
+            >
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                {isLoading ? <Activity size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                {isLoading ? t.btnAnalyzing : t.btnReview}
+              </span>
+              <div className="absolute inset-0 w-full h-full bg-white/20 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
+            </button>
+          </form>
+
+          {/* Error Terminal Banner */}
+          {error && (
+            <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center gap-3 text-xs font-bold animate-pulse">
+              <ShieldAlert className="shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {/* 📊 Premium Analysis Report Interface */}
+          {analysis && (
+            <div className="mt-8 border-t border-white/5 pt-8 space-y-4 animate-fadeIn">
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                <Terminal size={12} className="text-emerald-400" />
+                {t.summaryTitle}
+              </h3>
+              <div 
+                className="p-6 rounded-[2rem] bg-slate-950 border border-white/5 text-slate-300 font-sans text-xs md:text-sm leading-relaxed whitespace-pre-wrap max-h-[400px] overflow-y-auto no-scrollbar shadow-inner border-l-emerald-500/30 border-l-4"
+                dir="auto"
+              >
+                {analysis}
+              </div>
+            </div>
+          )}
         </div>
-      )}
+
+        {/* Secure Footer Controls */}
+        <div className="flex items-center justify-between p-5 rounded-2xl bg-slate-900/10 border border-dashed border-white/5">
+          <p className="text-[10px] font-bold opacity-30 uppercase tracking-wider">
+             LawLink Matrix Core • Enterprise Document Encryption Shield
+          </p>
+          <Link to="/ai-tools" className="inline-flex items-center gap-1 text-[10px] font-black italic uppercase text-yellow-500 hover:underline tracking-widest">
+             {isRTL ? <ArrowLeft size={12} className="rotate-180" /> : <ArrowLeft size={12} />} 
+             {isRTL ? 'الرجوع للمكتبة الذكية' : 'Back to AI Terminal'}
+          </Link>
+        </div>
+
+      </div>
     </div>
   );
 };

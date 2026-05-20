@@ -113,7 +113,7 @@ const ClientCaseDetailsPage = () => {
         alert("تم رفض العرض 🔄");
         navigate('/client/dashboard');
       }
-    } catch (err) {
+    } catch  {
       alert("حدث خطأ أثناء إرسال الرد");
     }
   };

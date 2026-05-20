@@ -202,7 +202,7 @@ const ClientDashboardPage = () => {
                     <ChevronRight size={20} className="text-white/50 group-hover:translate-x-1 transition-transform" />
                 </Link>
 
-                <Link to="/ai-chat" className="group relative flex items-center justify-between p-6 bg-indigo-600 rounded-3xl transition-all hover:scale-[1.02] hover:shadow-2xl shadow-indigo-600/30">
+                <Link to="/ai-tools" className="group relative flex items-center justify-between p-6 bg-indigo-600 rounded-3xl transition-all hover:scale-[1.02] hover:shadow-2xl shadow-indigo-600/30">
                     <div className="flex items-center gap-4">
                         <div className="p-3 bg-white/10 rounded-2xl group-hover:bg-white/20 transition-colors">
                             <Sparkles size={24} className="text-white animate-pulse" />

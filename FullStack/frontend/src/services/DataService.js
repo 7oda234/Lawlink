@@ -12,6 +12,8 @@ import axios from 'axios';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
+const AI_SERVICE_URL = 'http://localhost:8000/api/ai';
+
 const http = axios.create({
   baseURL: API_BASE,
   withCredentials: true,
@@ -162,19 +164,37 @@ const dataService = {
   },
 
   aiTools: {
-    // Document drafting
-    draft: (payload) => http.post('/api/ai/draft', payload || {}).then(unwrap),
+    // AI Legal Research: POST /api/ai/research
+    research: async (payload) => {
+      const response = await http.post('/api/ai/research', payload || {});
+      return response.data;
+    },
 
-    // Contract review (expects FormData under key "contract")
-    contractReview: (formData) => http.post('/api/ai/contract-review', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    }).then(unwrap),
+    // Document Drafting: POST /api/ai/draft
+    draft: async (payload) => {
+      const response = await http.post('/api/ai/draft', payload || {});
+      return response.data;
+    },
 
-    // Case outcome prediction
-    predict: (payload) => http.post('/api/ai/predict', payload || {}).then(unwrap),
+    // Contract Review (expects FormData under key "contract"): POST /api/ai/contract-review
+    contractReview: async (formData) => {
+      const response = await http.post('/api/ai/contract-review', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return response.data;
+    },
 
-    // Legal chatbot
-    chat: (payload) => http.post('/api/ai/chat', payload || {}).then(unwrap),
+    // Case Outcome Predictor: POST /api/ai/predict
+    predict: async (payload) => {
+      const response = await http.post('/api/ai/predict', payload || {});
+      return response.data;
+    },
+
+    // Legal Chatbot: POST /api/ai/chat
+    chat: async (payload) => {
+      const response = await http.post('/api/ai/chat', payload || {});
+      return response.data;
+    },
   },
 
   notifications: {
