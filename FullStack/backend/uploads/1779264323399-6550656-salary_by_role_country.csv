@@ -1,0 +1,454 @@
+role,country,median_salary,avg_salary,respondents
+Back-End Developer,Argentina,12750.0,13433.0,12
+Back-End Developer,Australia,96100.0,96775.0,31
+Back-End Developer,Austria,60450.0,67020.0,10
+Back-End Developer,Bangladesh,9700.0,9229.0,17
+Back-End Developer,Brazil,22400.0,23954.0,67
+Back-End Developer,Canada,78850.0,82781.0,60
+Back-End Developer,Chile,24400.0,27978.0,9
+Back-End Developer,China,39200.0,37873.0,23
+Back-End Developer,Colombia,19700.0,21995.0,21
+Back-End Developer,Czech Republic,37700.0,43440.0,9
+Back-End Developer,Denmark,92800.0,75076.0,9
+Back-End Developer,Egypt,13800.0,13027.0,15
+Back-End Developer,Finland,38300.0,56275.0,8
+Back-End Developer,France,56100.0,55538.0,58
+Back-End Developer,Germany,70500.0,76426.0,97
+Back-End Developer,India,19650.0,20151.0,244
+Back-End Developer,Indonesia,14650.0,14095.0,26
+Back-End Developer,Ireland,78000.0,91279.0,14
+Back-End Developer,Israel,78300.0,74181.0,17
+Back-End Developer,Italy,43500.0,48893.0,51
+Back-End Developer,Japan,51350.0,55008.0,24
+Back-End Developer,Kenya,14700.0,15102.0,9
+Back-End Developer,Malaysia,23300.0,22522.0,9
+Back-End Developer,Mexico,31250.0,27021.0,14
+Back-End Developer,Netherlands,62050.0,66412.0,50
+Back-End Developer,New Zealand,65950.0,62500.0,6
+Back-End Developer,Nigeria,13550.0,14196.0,32
+Back-End Developer,Norway,97750.0,99337.0,14
+Back-End Developer,Pakistan,10300.0,9893.0,25
+Back-End Developer,Philippines,18700.0,16477.0,13
+Back-End Developer,Poland,37200.0,40248.0,54
+Back-End Developer,Portugal,38800.0,40710.0,10
+Back-End Developer,Romania,28600.0,32762.0,22
+Back-End Developer,Russia,28100.0,27828.0,37
+Back-End Developer,Singapore,82800.0,87311.0,9
+Back-End Developer,South Africa,33400.0,33847.0,17
+Back-End Developer,South Korea,56100.0,55921.0,28
+Back-End Developer,Spain,49600.0,51296.0,25
+Back-End Developer,Sweden,61100.0,61810.0,21
+Back-End Developer,Switzerland,97400.0,106817.0,18
+Back-End Developer,Thailand,20900.0,19850.0,8
+Back-End Developer,Turkey,18900.0,20304.0,27
+Back-End Developer,Ukraine,20650.0,21070.0,20
+Back-End Developer,United Kingdom,72100.0,71640.0,81
+Back-End Developer,United States,128800.0,132403.0,308
+Back-End Developer,Vietnam,14100.0,18492.0,12
+Cloud Engineer,Argentina,24400.0,21240.0,5
+Cloud Engineer,Australia,99200.0,95371.0,9
+Cloud Engineer,Brazil,22550.0,23506.0,20
+Cloud Engineer,Canada,67950.0,75650.0,14
+Cloud Engineer,China,45200.0,38843.0,7
+Cloud Engineer,Finland,60600.0,59580.0,5
+Cloud Engineer,France,61400.0,60486.0,7
+Cloud Engineer,Germany,75950.0,85427.0,18
+Cloud Engineer,India,18400.0,20325.0,33
+Cloud Engineer,Italy,66700.0,60686.0,7
+Cloud Engineer,Netherlands,93700.0,99633.0,6
+Cloud Engineer,Pakistan,13000.0,13129.0,7
+Cloud Engineer,Philippines,19500.0,18120.0,5
+Cloud Engineer,Poland,44400.0,45875.0,12
+Cloud Engineer,Russia,43800.0,42000.0,7
+Cloud Engineer,South Korea,70200.0,68944.0,10
+Cloud Engineer,Spain,59300.0,50700.0,5
+Cloud Engineer,Sweden,44500.0,76040.0,5
+Cloud Engineer,Turkey,17800.0,18712.0,8
+Cloud Engineer,Ukraine,18300.0,20617.0,6
+Cloud Engineer,United Kingdom,61800.0,78325.0,19
+Cloud Engineer,United States,159800.0,158175.0,41
+Data Engineer,Australia,69450.0,77612.0,8
+Data Engineer,Brazil,24900.0,27567.0,15
+Data Engineer,Canada,102500.0,100628.0,23
+Data Engineer,China,43100.0,39460.0,5
+Data Engineer,Egypt,18900.0,16304.0,5
+Data Engineer,France,74500.0,81756.0,9
+Data Engineer,Germany,90400.0,90196.0,33
+Data Engineer,India,20100.0,21477.0,75
+Data Engineer,Indonesia,18300.0,15076.0,5
+Data Engineer,Ireland,64850.0,70283.0,6
+Data Engineer,Italy,41500.0,44200.0,11
+Data Engineer,Japan,83000.0,80650.0,10
+Data Engineer,Kenya,15600.0,15750.0,6
+Data Engineer,Netherlands,87050.0,86888.0,8
+Data Engineer,Nigeria,15000.0,15242.0,12
+Data Engineer,Pakistan,8450.0,9392.0,10
+Data Engineer,Poland,37400.0,39859.0,17
+Data Engineer,Portugal,32800.0,28020.0,5
+Data Engineer,Russia,19250.0,20224.0,10
+Data Engineer,Spain,47700.0,44129.0,7
+Data Engineer,Turkey,17300.0,18250.0,8
+Data Engineer,Ukraine,23250.0,24938.0,10
+Data Engineer,United Kingdom,72550.0,81380.0,30
+Data Engineer,United States,132200.0,136025.0,81
+Data Engineer,Vietnam,23200.0,20580.0,5
+Data Scientist,Australia,106950.0,107734.0,14
+Data Scientist,Bangladesh,9100.0,9062.0,9
+Data Scientist,Brazil,22600.0,22838.0,24
+Data Scientist,Canada,86850.0,92096.0,24
+Data Scientist,China,42700.0,41913.0,12
+Data Scientist,Colombia,21150.0,21145.0,12
+Data Scientist,Czech Republic,23000.0,26126.0,7
+Data Scientist,Egypt,7350.0,9720.0,6
+Data Scientist,France,57100.0,57222.0,25
+Data Scientist,Germany,75700.0,76474.0,47
+Data Scientist,India,20300.0,21286.0,102
+Data Scientist,Indonesia,16300.0,17486.0,7
+Data Scientist,Ireland,57100.0,65317.0,6
+Data Scientist,Israel,109000.0,111150.0,6
+Data Scientist,Italy,41700.0,44980.0,10
+Data Scientist,Japan,55650.0,61592.0,12
+Data Scientist,Netherlands,81050.0,87867.0,18
+Data Scientist,Nigeria,13700.0,14567.0,6
+Data Scientist,Norway,105900.0,112920.0,5
+Data Scientist,Pakistan,9200.0,8958.0,11
+Data Scientist,Philippines,23000.0,22771.0,7
+Data Scientist,Poland,41700.0,44841.0,17
+Data Scientist,Russia,37400.0,33054.0,14
+Data Scientist,South Korea,36200.0,43582.0,11
+Data Scientist,Spain,50350.0,51812.0,8
+Data Scientist,Sweden,49800.0,58638.0,8
+Data Scientist,Switzerland,111200.0,124250.0,10
+Data Scientist,Turkey,15650.0,15567.0,12
+Data Scientist,Ukraine,30300.0,27884.0,10
+Data Scientist,United Kingdom,74200.0,78720.0,35
+Data Scientist,United States,127550.0,133501.0,116
+Data Scientist,Vietnam,15000.0,15407.0,6
+DevOps / SRE,Australia,114250.0,111940.0,10
+DevOps / SRE,Brazil,26800.0,28134.0,29
+DevOps / SRE,Canada,108250.0,99674.0,26
+DevOps / SRE,China,49100.0,50847.0,15
+DevOps / SRE,Colombia,15100.0,16800.0,7
+DevOps / SRE,Czech Republic,47050.0,45230.0,10
+DevOps / SRE,Denmark,109600.0,107033.0,6
+DevOps / SRE,Egypt,14000.0,12376.0,5
+DevOps / SRE,France,63750.0,79350.0,16
+DevOps / SRE,Germany,84400.0,88676.0,35
+DevOps / SRE,India,20200.0,21900.0,81
+DevOps / SRE,Indonesia,16000.0,17091.0,11
+DevOps / SRE,Israel,113800.0,132120.0,5
+DevOps / SRE,Italy,50750.0,53869.0,16
+DevOps / SRE,Japan,64400.0,65715.0,13
+DevOps / SRE,Kenya,20000.0,19350.0,6
+DevOps / SRE,Netherlands,55400.0,56992.0,16
+DevOps / SRE,Nigeria,12350.0,15880.0,10
+DevOps / SRE,Pakistan,10100.0,9648.0,8
+DevOps / SRE,Poland,46800.0,45485.0,26
+DevOps / SRE,Romania,39300.0,40129.0,7
+DevOps / SRE,Russia,31500.0,34447.0,11
+DevOps / SRE,Singapore,85900.0,82180.0,5
+DevOps / SRE,South Africa,27400.0,35948.0,5
+DevOps / SRE,South Korea,42200.0,50680.0,13
+DevOps / SRE,Spain,39500.0,44557.0,15
+DevOps / SRE,Sweden,78350.0,75198.0,10
+DevOps / SRE,Switzerland,159200.0,157371.0,7
+DevOps / SRE,Turkey,17400.0,17312.0,15
+DevOps / SRE,Ukraine,25700.0,27045.0,11
+DevOps / SRE,United Kingdom,98800.0,96924.0,38
+DevOps / SRE,United States,149700.0,149265.0,145
+DevOps / SRE,Vietnam,15600.0,15800.0,7
+Embedded Developer,Argentina,13500.0,13460.0,5
+Embedded Developer,Brazil,30650.0,27650.0,8
+Embedded Developer,Canada,62550.0,57707.0,14
+Embedded Developer,Germany,97500.0,103900.0,5
+Embedded Developer,India,20800.0,21507.0,29
+Embedded Developer,Japan,76050.0,66700.0,8
+Embedded Developer,Netherlands,93200.0,87883.0,6
+Embedded Developer,Turkey,11300.0,13340.0,5
+Embedded Developer,United Kingdom,70100.0,71089.0,9
+Embedded Developer,United States,117900.0,125914.0,35
+Embedded Developer,Vietnam,15200.0,14567.0,6
+Engineering Manager,Brazil,42900.0,41489.0,14
+Engineering Manager,Canada,155100.0,141973.0,12
+Engineering Manager,China,88800.0,87662.0,8
+Engineering Manager,France,113400.0,121200.0,13
+Engineering Manager,Germany,139400.0,145515.0,23
+Engineering Manager,India,35450.0,35579.0,58
+Engineering Manager,Indonesia,30550.0,31450.0,6
+Engineering Manager,Italy,78200.0,82311.0,9
+Engineering Manager,Malaysia,42200.0,44084.0,5
+Engineering Manager,Netherlands,123300.0,135814.0,7
+Engineering Manager,Nigeria,28300.0,27786.0,7
+Engineering Manager,Pakistan,17750.0,21200.0,6
+Engineering Manager,Poland,57200.0,63878.0,9
+Engineering Manager,Russia,58100.0,59243.0,7
+Engineering Manager,South Korea,93500.0,86064.0,5
+Engineering Manager,Sweden,139050.0,139583.0,6
+Engineering Manager,Turkey,26600.0,25040.0,5
+Engineering Manager,United Kingdom,148850.0,151469.0,16
+Engineering Manager,United States,214100.0,217208.0,60
+Freelancer / Consultant,Australia,70150.0,70257.0,12
+Freelancer / Consultant,Bangladesh,9800.0,9138.0,8
+Freelancer / Consultant,Brazil,27500.0,24928.0,21
+Freelancer / Consultant,Canada,105050.0,94466.0,20
+Freelancer / Consultant,France,78300.0,73982.0,17
+Freelancer / Consultant,Germany,85600.0,78670.0,29
+Freelancer / Consultant,India,19350.0,19686.0,78
+Freelancer / Consultant,Indonesia,20800.0,19100.0,7
+Freelancer / Consultant,Israel,91200.0,94632.0,5
+Freelancer / Consultant,Italy,45700.0,46829.0,14
+Freelancer / Consultant,Japan,60500.0,61900.0,5
+Freelancer / Consultant,Netherlands,56900.0,77578.0,11
+Freelancer / Consultant,Nigeria,13500.0,15307.0,6
+Freelancer / Consultant,Philippines,12900.0,13443.0,7
+Freelancer / Consultant,Poland,33700.0,31746.0,13
+Freelancer / Consultant,Romania,24600.0,26720.0,5
+Freelancer / Consultant,Russia,36350.0,33180.0,10
+Freelancer / Consultant,South Korea,71400.0,67214.0,7
+Freelancer / Consultant,Spain,24200.0,39477.0,7
+Freelancer / Consultant,Sri Lanka,10300.0,11820.0,5
+Freelancer / Consultant,Switzerland,86500.0,104560.0,5
+Freelancer / Consultant,Turkey,13550.0,14250.0,8
+Freelancer / Consultant,Ukraine,21700.0,17800.0,5
+Freelancer / Consultant,United Kingdom,81100.0,77006.0,17
+Freelancer / Consultant,United States,123800.0,131833.0,91
+Front-End Developer,Argentina,19100.0,17800.0,10
+Front-End Developer,Australia,88950.0,87134.0,22
+Front-End Developer,Bangladesh,8250.0,8792.0,16
+Front-End Developer,Belgium,56600.0,55454.0,13
+Front-End Developer,Brazil,22250.0,23375.0,42
+Front-End Developer,Canada,81050.0,77780.0,60
+Front-End Developer,Chile,27300.0,28622.0,9
+Front-End Developer,China,33500.0,37246.0,17
+Front-End Developer,Colombia,19900.0,19432.0,19
+Front-End Developer,Czech Republic,30800.0,33164.0,14
+Front-End Developer,Denmark,47600.0,60143.0,7
+Front-End Developer,Egypt,11900.0,12713.0,15
+Front-End Developer,Finland,51050.0,46035.0,8
+Front-End Developer,France,59050.0,55651.0,32
+Front-End Developer,Germany,71600.0,73395.0,72
+Front-End Developer,Ghana,8100.0,10100.0,5
+Front-End Developer,India,17550.0,17278.0,210
+Front-End Developer,Indonesia,13500.0,13900.0,21
+Front-End Developer,Ireland,74300.0,67333.0,9
+Front-End Developer,Israel,87250.0,88417.0,18
+Front-End Developer,Italy,42200.0,46894.0,31
+Front-End Developer,Japan,56150.0,62336.0,22
+Front-End Developer,Kenya,14700.0,14908.0,13
+Front-End Developer,Mexico,14100.0,17457.0,12
+Front-End Developer,Netherlands,56100.0,60148.0,23
+Front-End Developer,New Zealand,57800.0,66156.0,9
+Front-End Developer,Nigeria,10700.0,10715.0,26
+Front-End Developer,Norway,80950.0,77825.0,12
+Front-End Developer,Pakistan,9800.0,9321.0,19
+Front-End Developer,Peru,14700.0,14180.0,5
+Front-End Developer,Philippines,9900.0,11992.0,13
+Front-End Developer,Poland,35850.0,37752.0,48
+Front-End Developer,Portugal,27500.0,26546.0,13
+Front-End Developer,Romania,23000.0,28678.0,9
+Front-End Developer,Russia,22500.0,23508.0,37
+Front-End Developer,Singapore,63600.0,67014.0,7
+Front-End Developer,South Africa,30800.0,30555.0,8
+Front-End Developer,South Korea,49400.0,53340.0,27
+Front-End Developer,Spain,36500.0,39564.0,28
+Front-End Developer,Sri Lanka,14450.0,14000.0,6
+Front-End Developer,Sweden,69100.0,66092.0,12
+Front-End Developer,Switzerland,97850.0,111348.0,18
+Front-End Developer,Turkey,13900.0,15229.0,24
+Front-End Developer,Ukraine,18100.0,19068.0,19
+Front-End Developer,United Kingdom,71150.0,68892.0,74
+Front-End Developer,United States,112050.0,115986.0,236
+Front-End Developer,Vietnam,14600.0,14336.0,11
+Full-Stack Developer,Argentina,16900.0,17032.0,25
+Full-Stack Developer,Australia,97400.0,95791.0,51
+Full-Stack Developer,Austria,56800.0,61567.0,18
+Full-Stack Developer,Bangladesh,7500.0,8012.0,25
+Full-Stack Developer,Belgium,67550.0,64040.0,10
+Full-Stack Developer,Brazil,20300.0,22564.0,98
+Full-Stack Developer,Canada,93550.0,95038.0,96
+Full-Stack Developer,Chile,17300.0,18960.0,5
+Full-Stack Developer,China,34400.0,38354.0,32
+Full-Stack Developer,Colombia,17300.0,17984.0,19
+Full-Stack Developer,Czech Republic,36200.0,37828.0,25
+Full-Stack Developer,Denmark,78300.0,67548.0,13
+Full-Stack Developer,Egypt,11700.0,12628.0,25
+Full-Stack Developer,Finland,44150.0,51098.0,18
+Full-Stack Developer,France,55400.0,58445.0,82
+Full-Stack Developer,Germany,73600.0,74380.0,141
+Full-Stack Developer,Ghana,8300.0,9088.0,8
+Full-Stack Developer,India,18400.0,19460.0,345
+Full-Stack Developer,Indonesia,13200.0,13323.0,39
+Full-Stack Developer,Ireland,66300.0,67889.0,13
+Full-Stack Developer,Israel,71800.0,80914.0,29
+Full-Stack Developer,Italy,48550.0,49274.0,54
+Full-Stack Developer,Japan,55300.0,57733.0,52
+Full-Stack Developer,Kenya,11500.0,14456.0,16
+Full-Stack Developer,Malaysia,20750.0,18660.0,10
+Full-Stack Developer,Mexico,20350.0,22159.0,36
+Full-Stack Developer,Netherlands,69400.0,68258.0,58
+Full-Stack Developer,New Zealand,77900.0,74833.0,17
+Full-Stack Developer,Nigeria,13200.0,13602.0,65
+Full-Stack Developer,Norway,67400.0,79095.0,19
+Full-Stack Developer,Pakistan,10300.0,10847.0,46
+Full-Stack Developer,Philippines,10300.0,14071.0,17
+Full-Stack Developer,Poland,31400.0,32732.0,76
+Full-Stack Developer,Portugal,42100.0,41598.0,21
+Full-Stack Developer,Romania,31200.0,31457.0,21
+Full-Stack Developer,Russia,24800.0,26432.0,41
+Full-Stack Developer,Singapore,72500.0,72342.0,12
+Full-Stack Developer,South Africa,25700.0,29235.0,17
+Full-Stack Developer,South Korea,57950.0,53488.0,26
+Full-Stack Developer,Spain,41600.0,40354.0,45
+Full-Stack Developer,Sri Lanka,9800.0,9320.0,5
+Full-Stack Developer,Sweden,61750.0,64753.0,30
+Full-Stack Developer,Switzerland,104750.0,114332.0,26
+Full-Stack Developer,Thailand,18500.0,17282.0,11
+Full-Stack Developer,Turkey,14500.0,15601.0,54
+Full-Stack Developer,Ukraine,21900.0,22723.0,39
+Full-Stack Developer,United Kingdom,61700.0,66432.0,130
+Full-Stack Developer,United States,127850.0,130119.0,464
+Full-Stack Developer,Vietnam,15700.0,17000.0,36
+Game Developer,Australia,66650.0,89833.0,6
+Game Developer,Brazil,28400.0,24245.0,11
+Game Developer,Canada,56200.0,62629.0,7
+Game Developer,Germany,54950.0,47908.0,16
+Game Developer,India,14100.0,14855.0,26
+Game Developer,Italy,39300.0,35075.0,8
+Game Developer,Poland,33200.0,31294.0,7
+Game Developer,Portugal,40450.0,37350.0,6
+Game Developer,Russia,25500.0,24900.0,5
+Game Developer,Spain,32600.0,29940.0,5
+Game Developer,Turkey,19000.0,16529.0,7
+Game Developer,United Kingdom,53300.0,53465.0,13
+Game Developer,United States,105350.0,113252.0,40
+Machine Learning Engineer,Argentina,19300.0,19509.0,11
+Machine Learning Engineer,Australia,113000.0,124850.0,12
+Machine Learning Engineer,Belgium,64700.0,62360.0,5
+Machine Learning Engineer,Brazil,27400.0,26910.0,31
+Machine Learning Engineer,Canada,83900.0,94144.0,30
+Machine Learning Engineer,China,42700.0,45127.0,11
+Machine Learning Engineer,Colombia,21300.0,19340.0,5
+Machine Learning Engineer,Czech Republic,22000.0,27448.0,5
+Machine Learning Engineer,Egypt,17300.0,16629.0,7
+Machine Learning Engineer,France,64050.0,68685.0,16
+Machine Learning Engineer,Germany,100500.0,103343.0,37
+Machine Learning Engineer,India,23850.0,24999.0,80
+Machine Learning Engineer,Indonesia,17600.0,15842.0,9
+Machine Learning Engineer,Italy,26200.0,38858.0,9
+Machine Learning Engineer,Japan,47200.0,52560.0,10
+Machine Learning Engineer,Netherlands,68400.0,75218.0,12
+Machine Learning Engineer,Nigeria,14300.0,15046.0,7
+Machine Learning Engineer,Pakistan,11900.0,11045.0,11
+Machine Learning Engineer,Poland,49900.0,47758.0,19
+Machine Learning Engineer,Romania,37100.0,39124.0,10
+Machine Learning Engineer,Russia,34400.0,37514.0,7
+Machine Learning Engineer,South Korea,59200.0,66720.0,5
+Machine Learning Engineer,Spain,49900.0,49580.0,16
+Machine Learning Engineer,Turkey,15750.0,16047.0,14
+Machine Learning Engineer,Ukraine,28550.0,31990.0,10
+Machine Learning Engineer,United Kingdom,98000.0,95836.0,28
+Machine Learning Engineer,United States,156700.0,160260.0,114
+Machine Learning Engineer,Vietnam,19500.0,22562.0,8
+Mobile Developer,Argentina,15050.0,18850.0,6
+Mobile Developer,Australia,92700.0,90123.0,13
+Mobile Developer,Bangladesh,8400.0,7433.0,9
+Mobile Developer,Brazil,21600.0,20450.0,25
+Mobile Developer,Canada,80050.0,80498.0,24
+Mobile Developer,China,36700.0,35783.0,13
+Mobile Developer,Czech Republic,52600.0,46240.0,5
+Mobile Developer,France,51750.0,57862.0,16
+Mobile Developer,Germany,85700.0,79693.0,29
+Mobile Developer,Ghana,10200.0,10540.0,5
+Mobile Developer,India,18500.0,18965.0,94
+Mobile Developer,Indonesia,12600.0,13120.0,5
+Mobile Developer,Italy,48600.0,45167.0,12
+Mobile Developer,Japan,60300.0,64075.0,8
+Mobile Developer,Kenya,10300.0,10940.0,5
+Mobile Developer,Mexico,16300.0,19246.0,7
+Mobile Developer,Netherlands,62750.0,69193.0,14
+Mobile Developer,Nigeria,10100.0,11482.0,12
+Mobile Developer,Poland,34300.0,38418.0,11
+Mobile Developer,Romania,35300.0,32233.0,6
+Mobile Developer,Russia,20000.0,27420.0,15
+Mobile Developer,Singapore,105300.0,95080.0,5
+Mobile Developer,South Africa,30100.0,30400.0,6
+Mobile Developer,South Korea,46350.0,52180.0,10
+Mobile Developer,Spain,30050.0,31393.0,12
+Mobile Developer,Switzerland,98800.0,104100.0,5
+Mobile Developer,Turkey,18900.0,18290.0,8
+Mobile Developer,Ukraine,18100.0,19829.0,7
+Mobile Developer,United Kingdom,64550.0,73611.0,38
+Mobile Developer,United States,119050.0,126704.0,94
+QA / Test Engineer,Australia,93650.0,85118.0,8
+QA / Test Engineer,Brazil,17950.0,17560.0,10
+QA / Test Engineer,Canada,73550.0,79967.0,12
+QA / Test Engineer,China,31000.0,25332.0,5
+QA / Test Engineer,France,42700.0,44734.0,17
+QA / Test Engineer,Germany,47400.0,55722.0,22
+QA / Test Engineer,India,14400.0,15154.0,41
+QA / Test Engineer,Italy,27600.0,30132.0,8
+QA / Test Engineer,Japan,52200.0,50460.0,5
+QA / Test Engineer,Netherlands,44300.0,47912.0,8
+QA / Test Engineer,Nigeria,9400.0,10457.0,7
+QA / Test Engineer,Pakistan,6300.0,7560.0,5
+QA / Test Engineer,Poland,30400.0,37022.0,9
+QA / Test Engineer,Romania,19300.0,21217.0,7
+QA / Test Engineer,Russia,19800.0,21606.0,16
+QA / Test Engineer,South Korea,36000.0,41020.0,5
+QA / Test Engineer,Spain,34850.0,38367.0,6
+QA / Test Engineer,Ukraine,22300.0,21329.0,7
+QA / Test Engineer,United Kingdom,55750.0,52844.0,16
+QA / Test Engineer,United States,102700.0,108832.0,63
+Security Engineer,Australia,92900.0,91117.0,6
+Security Engineer,Brazil,29600.0,30489.0,9
+Security Engineer,Canada,83900.0,88380.0,11
+Security Engineer,Czech Republic,42600.0,43240.0,5
+Security Engineer,France,70000.0,84320.0,5
+Security Engineer,Germany,104750.0,116067.0,12
+Security Engineer,India,23900.0,24925.0,28
+Security Engineer,Nigeria,14100.0,12860.0,5
+Security Engineer,Poland,46050.0,49090.0,10
+Security Engineer,South Korea,52700.0,65900.0,6
+Security Engineer,Spain,31600.0,38166.0,7
+Security Engineer,Sweden,73850.0,74750.0,6
+Security Engineer,Ukraine,21700.0,23414.0,7
+Security Engineer,United Kingdom,67200.0,71755.0,11
+Security Engineer,United States,139700.0,144134.0,43
+Student / Intern,Argentina,2600.0,2871.0,7
+Student / Intern,Australia,13200.0,14513.0,15
+Student / Intern,Bangladesh,2000.0,2040.0,10
+Student / Intern,Brazil,3950.0,4108.0,24
+Student / Intern,Canada,14000.0,15985.0,26
+Student / Intern,Chile,3800.0,4320.0,5
+Student / Intern,China,7500.0,8429.0,7
+Student / Intern,Colombia,5000.0,4417.0,6
+Student / Intern,Czech Republic,7000.0,6978.0,9
+Student / Intern,Denmark,14900.0,13163.0,6
+Student / Intern,France,9400.0,10888.0,19
+Student / Intern,Germany,12300.0,13698.0,36
+Student / Intern,India,3300.0,3340.0,87
+Student / Intern,Indonesia,2100.0,2343.0,7
+Student / Intern,Ireland,12100.0,11350.0,6
+Student / Intern,Israel,12200.0,12712.0,8
+Student / Intern,Italy,6500.0,7538.0,13
+Student / Intern,Japan,7700.0,8778.0,9
+Student / Intern,Mexico,3200.0,3740.0,5
+Student / Intern,Netherlands,12950.0,12792.0,18
+Student / Intern,Nigeria,2350.0,2722.0,18
+Student / Intern,Pakistan,2000.0,2100.0,9
+Student / Intern,Philippines,2500.0,2543.0,7
+Student / Intern,Poland,5600.0,5682.0,17
+Student / Intern,Portugal,5000.0,5256.0,9
+Student / Intern,Romania,5800.0,5117.0,6
+Student / Intern,Russia,4200.0,4256.0,9
+Student / Intern,Singapore,10800.0,10500.0,5
+Student / Intern,South Africa,5600.0,5120.0,5
+Student / Intern,South Korea,8000.0,7896.0,11
+Student / Intern,Spain,6700.0,6802.0,20
+Student / Intern,Sweden,11400.0,11183.0,12
+Student / Intern,Switzerland,20300.0,20290.0,6
+Student / Intern,Turkey,2700.0,3006.0,16
+Student / Intern,Ukraine,3500.0,3410.0,10
+Student / Intern,United Kingdom,12000.0,12022.0,36
+Student / Intern,United States,21350.0,22080.0,136
+Student / Intern,Vietnam,3000.0,3022.0,9

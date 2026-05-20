@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Briefcase, CheckCircle, XCircle, User, FileText, 
   MessageSquare, Clock, Download, ChevronDown, AlertCircle,
-  CalendarDays, Scale, CreditCard 
+  CalendarDays, Scale, CreditCard, Trash2, FolderPlus, UploadCloud
 } from 'lucide-react';
 
 const ClientCaseDetailsPage = () => {
@@ -18,8 +18,16 @@ const ClientCaseDetailsPage = () => {
   const [caseDecision, setCaseDecision] = useState(null); 
   const [showDocs, setShowDocs] = useState(false); 
   const [loading, setLoading] = useState(true);
+  const [isUploading, setIsUploading] = useState(false);
+
+  // مراجع (Refs) لمدخلات الملفات المخفية
+  const fileInputRef = useRef(null);
+  const folderInputRef = useRef(null);
 
   const BASE_URL = "http://localhost:5000";
+
+  // ⚠️ تنبيه: يرجى استبدال هذا المتغير بطريقة جلب الـ ID الخاص بالمستخدم الحالي من الـ Auth أو localStorage
+  const currentUserId = localStorage.getItem('userId') || caseData?.client_id;
 
   const formatImg = (path) => {
     if (!path || path === "null" || path === "undefined") {
@@ -35,51 +43,51 @@ const ClientCaseDetailsPage = () => {
     return `${BASE_URL}/uploads/${cleanPath}`;
   };
 
+  const fetchCaseDetails = async () => {
+    const cleanId = routeId ? routeId.toString().replace(':', '') : null;
+    if (!cleanId || cleanId === 'undefined') {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const timestamp = new Date().getTime();
+      
+      const res = await axios.get(`${BASE_URL}/api/cases?t=${timestamp}`);
+      const allCases = res.data.cases || [];
+      const found = allCases.find(c => c.case_id.toString() === cleanId);
+      if (found) setCaseData(found);
+
+      const docsRes = await axios.get(`${BASE_URL}/api/documents/case/${cleanId}?t=${timestamp}`).catch(() => null);
+      if (docsRes && docsRes.data) {
+        const fetchedDocs = docsRes.data.data || docsRes.data.documents || docsRes.data;
+        if (Array.isArray(fetchedDocs)) setDocuments(fetchedDocs);
+      }
+
+      const sessionsRes = await axios.get(`${BASE_URL}/api/court-sessions/case/${cleanId}?t=${timestamp}`).catch(() => null);
+      if (sessionsRes && sessionsRes.data) {
+        const fetchedSessions = sessionsRes.data.data || sessionsRes.data.sessions || sessionsRes.data;
+        if (Array.isArray(fetchedSessions) && fetchedSessions.length > 0) {
+          const sortedSessions = fetchedSessions.sort((a, b) => new Date(b.session_date) - new Date(a.session_date));
+          setLatestSession(sortedSessions[0]);
+        }
+      }
+
+      const decisionRes = await axios.get(`${BASE_URL}/api/court-sessions/decision/${cleanId}?t=${timestamp}`).catch(() => null);
+      if (decisionRes && decisionRes.data && decisionRes.data.data) {
+        setCaseDecision(decisionRes.data.data.session_decision);
+      } else {
+        setCaseDecision(null);
+      }
+
+    } catch (err) {
+      console.error("Error fetching case details:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchCaseDetails = async () => {
-      const cleanId = routeId ? routeId.toString().replace(':', '') : null;
-      if (!cleanId || cleanId === 'undefined') {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const timestamp = new Date().getTime();
-        
-        const res = await axios.get(`${BASE_URL}/api/cases?t=${timestamp}`);
-        const allCases = res.data.cases || [];
-        const found = allCases.find(c => c.case_id.toString() === cleanId);
-        if (found) setCaseData(found);
-
-        const docsRes = await axios.get(`${BASE_URL}/api/documents/case/${cleanId}?t=${timestamp}`).catch(() => null);
-        if (docsRes && docsRes.data) {
-          const fetchedDocs = docsRes.data.data || docsRes.data.documents || docsRes.data;
-          if (Array.isArray(fetchedDocs)) setDocuments(fetchedDocs);
-        }
-
-        const sessionsRes = await axios.get(`${BASE_URL}/api/court-sessions/case/${cleanId}?t=${timestamp}`).catch(() => null);
-        if (sessionsRes && sessionsRes.data) {
-          const fetchedSessions = sessionsRes.data.data || sessionsRes.data.sessions || sessionsRes.data;
-          if (Array.isArray(fetchedSessions) && fetchedSessions.length > 0) {
-            const sortedSessions = fetchedSessions.sort((a, b) => new Date(b.session_date) - new Date(a.session_date));
-            setLatestSession(sortedSessions[0]);
-          }
-        }
-
-        const decisionRes = await axios.get(`${BASE_URL}/api/court-sessions/decision/${cleanId}?t=${timestamp}`).catch(() => null);
-        if (decisionRes && decisionRes.data && decisionRes.data.data) {
-          setCaseDecision(decisionRes.data.data.session_decision);
-        } else {
-          setCaseDecision(null);
-        }
-
-      } catch (err) {
-        console.error("Error fetching case details:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchCaseDetails();
     const interval = setInterval(fetchCaseDetails, 3000);
     return () => clearInterval(interval);
@@ -95,13 +103,73 @@ const ClientCaseDetailsPage = () => {
       
       if (response === 'accept') {
         alert("تم قبول العرض بنجاح! جاري التحويل للدفع.. 💳");
-        navigate(`/client/payments/new?caseId=${cleanId}`);
+        
+        // إعطاء فرصة للباك إند لعمل التحديث قبل التحويل لصفحة الدفع
+        setTimeout(() => {
+          navigate(`/client/payments/new?caseId=${cleanId}`);
+        }, 1000);
+        
       } else {
         alert("تم رفض العرض 🔄");
         navigate('/client/dashboard');
       }
     } catch (err) {
       alert("حدث خطأ أثناء إرسال الرد");
+    }
+  };
+
+  // ✅ دالة رفع الملفات أو المجلدات
+  const handleFileUpload = async (event) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploading(true);
+    const cleanId = routeId.toString().replace(':', '');
+    const formData = new FormData();
+    
+    formData.append('caseId', cleanId);
+    formData.append('userId', currentUserId); // مطلوب في الباك إند
+
+    // الباك إند بتاعك بياخد لحد 10 ملفات حسب المكتوب في Routes
+    const maxFiles = Math.min(files.length, 10);
+    for (let i = 0; i < maxFiles; i++) {
+      formData.append('document_file', files[i]);
+    }
+
+    if (files.length > 10) {
+      alert("تم اختيار أكثر من 10 ملفات. سيتم رفع أول 10 ملفات فقط.");
+    }
+
+    try {
+      await axios.post(`${BASE_URL}/api/documents`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      alert("تم رفع الملفات بنجاح! 📁");
+      fetchCaseDetails(); // تحديث المستندات
+    } catch (err) {
+      alert(err.response?.data?.message || "حدث خطأ أثناء الرفع");
+    } finally {
+      setIsUploading(false);
+      // تصفير المدخلات عشان يقدر يرفع نفس الملف تاني لو حابب
+      if(fileInputRef.current) fileInputRef.current.value = "";
+      if(folderInputRef.current) folderInputRef.current.value = "";
+    }
+  };
+
+  // ✅ دالة حذف الملف
+  const handleDeleteDocument = async (documentId) => {
+    if (!window.confirm("هل أنت متأكد من حذف هذا المستند نهائياً؟")) return;
+    
+    try {
+      await axios.delete(`${BASE_URL}/api/documents/${documentId}`, {
+        data: { userId: currentUserId } // الباك إند بيطلب الـ userId في البودي
+      });
+      
+      // تحديث الواجهة بعد الحذف
+      setDocuments(prevDocs => prevDocs.filter(doc => doc.document_id !== documentId));
+      alert("تم حذف المستند بنجاح 🗑️");
+    } catch (err) {
+      alert(err.response?.data?.message || "حدث خطأ أثناء الحذف");
     }
   };
 
@@ -127,7 +195,7 @@ const ClientCaseDetailsPage = () => {
   if (loading && !caseData) return (
     <div className="min-h-screen flex items-center justify-center bg-slate-950">
       <div className="text-yellow-500 font-black italic animate-pulse text-2xl uppercase tracking-widest">
-        LAWLINK IS LOADING...
+        SYSTEM IS LOADING...
       </div>
     </div>
   );
@@ -208,7 +276,7 @@ const ClientCaseDetailsPage = () => {
               </div>
               <div>
                 <p className="text-[10px] font-black opacity-40 uppercase mb-1 tracking-widest">المحامي مقدم العرض</p>
-                <p className="text-xl font-black text-white">{caseData.lawyer_name || "محامي LawLink"}</p>
+                <p className="text-xl font-black text-white">{caseData.lawyer_name || "المحامي"}</p>
               </div>
             </div>
 
@@ -348,9 +416,51 @@ const ClientCaseDetailsPage = () => {
 
              {showDocs && (
                 <div className="bg-slate-950 p-6 rounded-3xl border border-white/10 animate-in fade-in slide-in-from-top-4 shadow-2xl mt-4">
-                  <h4 className="font-black italic mb-4 text-yellow-500 border-b border-white/10 pb-4 flex items-center gap-2 text-lg">
-                    <FileText size={22} /> ملفات القضية المرفوعة
-                  </h4>
+                  {/* أزرار رفع الملفات والمجلدات */}
+                  <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
+                    <h4 className="font-black italic text-yellow-500 flex items-center gap-2 text-lg">
+                      <FileText size={22} /> ملفات القضية المرفوعة
+                    </h4>
+                    
+                    {!isClosed && (
+                      <div className="flex gap-3">
+                        <input 
+                          type="file" 
+                          multiple 
+                          ref={fileInputRef} 
+                          onChange={handleFileUpload} 
+                          className="hidden" 
+                        />
+                        {/* خاصية webkitdirectory هي اللي بتسمح برفع مجلد كامل */}
+                        <input 
+                          type="file" 
+                          webkitdirectory="true" 
+                          directory="true" 
+                          multiple 
+                          ref={folderInputRef} 
+                          onChange={handleFileUpload} 
+                          className="hidden" 
+                        />
+                        
+                        <button 
+                          disabled={isUploading}
+                          onClick={() => fileInputRef.current.click()}
+                          className="px-4 py-2 bg-slate-800 text-white rounded-xl hover:bg-slate-700 transition-colors flex items-center gap-2 text-sm font-bold border border-white/10"
+                        >
+                          <UploadCloud size={16} /> رفع ملف
+                        </button>
+                        
+                        <button 
+                          disabled={isUploading}
+                          onClick={() => folderInputRef.current.click()}
+                          className="px-4 py-2 bg-yellow-500/10 text-yellow-500 rounded-xl hover:bg-yellow-500 hover:text-black transition-colors flex items-center gap-2 text-sm font-bold border border-yellow-500/30"
+                        >
+                          <FolderPlus size={16} /> {isUploading ? 'جاري الرفع...' : 'رفع مجلد'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
                   <div className="space-y-4 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
                     {documents.length > 0 ? documents.map(doc => (
                       <div key={doc.document_id} className="flex items-center justify-between p-5 bg-white/5 rounded-2xl border border-white/5 hover:border-yellow-500/30 transition-all">
@@ -358,17 +468,33 @@ const ClientCaseDetailsPage = () => {
                           <div className="p-3 bg-slate-900 rounded-xl">
                              <FileText className="text-slate-400" size={24} />
                           </div>
-                          <span className="text-base font-medium text-slate-200 truncate max-w-[250px]">{doc.file_path.split('/').pop() || `ملف رقم ${doc.document_id}`}</span>
+                          <span className="text-base font-medium text-slate-200 truncate max-w-[250px]" dir="ltr">
+                            {doc.file_path.split('/').pop() || `ملف رقم ${doc.document_id}`}
+                          </span>
                         </div>
-                        <a 
-                          href={`${BASE_URL}/${doc.file_path}`} 
-                          download 
-                          target="_blank" 
-                          rel="noreferrer" 
-                          className="p-3 px-6 bg-yellow-500 text-black rounded-xl hover:bg-yellow-400 transition-colors flex items-center gap-2 text-sm font-black shadow-lg shadow-yellow-500/10"
-                        >
-                          تحميل <Download size={16} />
-                        </a>
+                        <div className="flex items-center gap-3">
+                          {/* زر التحميل */}
+                          <a 
+                            href={`${BASE_URL}/${doc.file_path}`} 
+                            download 
+                            target="_blank" 
+                            rel="noreferrer" 
+                            className="p-3 px-6 bg-yellow-500 text-black rounded-xl hover:bg-yellow-400 transition-colors flex items-center gap-2 text-sm font-black shadow-lg shadow-yellow-500/10"
+                          >
+                            تحميل <Download size={16} />
+                          </a>
+                          
+                          {/* زر الحذف */}
+                          {!isClosed && (
+                            <button 
+                              onClick={() => handleDeleteDocument(doc.document_id)}
+                              className="p-3 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all border border-red-500/20 shadow-lg"
+                              title="حذف الملف"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          )}
+                        </div>
                       </div>
                     )) : (
                       <div className="text-center py-12 opacity-30 italic font-black uppercase tracking-widest text-sm">

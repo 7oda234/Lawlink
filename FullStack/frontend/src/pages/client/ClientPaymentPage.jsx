@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { CreditCard, ShieldCheck, CheckCircle, AlertCircle } from 'lucide-react';
+import axios from 'axios'; 
 
 import DataService from '../../services/DataService';
 
@@ -24,12 +25,14 @@ const ClientPaymentPage = () => {
   const [expiryError, setExpiryError] = useState('');
   
   const userId = localStorage.getItem('userId');
+  const BASE_URL = "http://localhost:5000"; 
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await DataService.cases.getAll();
-        const allCases = res.data?.cases || res.data?.data?.cases || [];
+        const timestamp = new Date().getTime();
+        const res = await axios.get(`${BASE_URL}/api/cases?t=${timestamp}`);
+        const allCases = res.data?.cases || [];
         
         const myCases = allCases.filter(c => String(c.client_id) === String(userId));
         
@@ -39,13 +42,13 @@ const ClientPaymentPage = () => {
         let caseToPay = null;
 
         if (targetCaseId) {
-          caseToPay = myCases.find(c => String(c.case_id) === String(targetCaseId));
+          caseToPay = allCases.find(c => String(c.case_id) === String(targetCaseId));
         } 
         
         if (!caseToPay) {
-          caseToPay = myCases.find(c => c.status === 'Awaiting_Payment');
+          caseToPay = myCases.find(c => c.status?.toLowerCase() === 'awaiting_payment');
           if (!caseToPay) {
-            caseToPay = myCases.find(c => c.status === 'Ongoing');
+            caseToPay = myCases.find(c => c.status?.toLowerCase() === 'ongoing');
           }
         }
         
@@ -54,7 +57,7 @@ const ClientPaymentPage = () => {
           await loadInstallments(caseToPay.case_id);
         }
       } catch (err) {
-        console.error("Error fetching cases:", err);
+        console.error("Error fetching cases for payment:", err);
       } finally {
         setLoading(false);
       }
@@ -70,6 +73,11 @@ const ClientPaymentPage = () => {
       
       setInstallments(unpaid);
       setHasExistingPlan(allInst.length > 0); 
+      
+      // تحويل وضع الدفع لأقساط تلقائياً لو العميل عنده خطة سابقة
+      if (allInst.length > 0) {
+        setPaymentMode('installment');
+      }
       
       if (unpaid.length > 0) setSelectedInstallment(unpaid[0]);
     } catch (err) {
@@ -137,10 +145,14 @@ const ClientPaymentPage = () => {
     return true;
   };
 
-  // 🔴 اللوجيك الذكي لمعرفة هل القضية مدفوعة بالكامل (كاش أو أقساط خلصت)
-  const isFullyPaid = pendingCase && 
-    ['Ongoing', 'Closed', 'Resolved'].includes(pendingCase.status) && 
-    installments.length === 0;
+  // 🔴 اللوجيك الذكي لمعرفة هل القضية مدفوعة بالكامل
+  // يتم اعتبارها مدفوعة بالكامل في الحالات الآتية:
+  // 1. حالة القضية مغلقة (closed أو resolved).
+  // 2. حالة القضية مستمرة (ongoing أو in_progress) ولا يوجد أي أقساط مستحقة (سواء دفع كاش من البداية ومفيش أقساط، أو خلص أقساطه).
+  const isFullyPaid = pendingCase && (
+    ['closed', 'resolved'].includes(pendingCase.status?.toLowerCase()) || 
+    (['ongoing', 'in_progress'].includes(pendingCase.status?.toLowerCase()) && installments.length === 0)
+  );
 
   const amountToPay = isFullyPaid ? 0 : (
     paymentMode === 'full' 
@@ -249,7 +261,7 @@ const ClientPaymentPage = () => {
               </div>
             )}
 
-            {paymentMode === 'installment' && hasExistingPlan && installments.length > 0 && (
+            {paymentMode === 'installment' && hasExistingPlan && installments.length > 0 && !isFullyPaid && (
               <div className="bg-slate-950 p-6 rounded-3xl border border-white/5">
                 <p className="text-xs font-bold text-slate-500 uppercase mb-2">اختر القسط المراد دفعه</p>
                 <select 
@@ -268,7 +280,6 @@ const ClientPaymentPage = () => {
               </div>
             )}
 
-            {/* 🔴 حالة السداد بالكامل */}
             {isFullyPaid && (
               <div className="bg-green-500/10 p-6 rounded-3xl border border-green-500/30 text-center animate-in fade-in">
                 <CheckCircle size={48} className="mx-auto mb-4 text-green-500" />
@@ -300,7 +311,6 @@ const ClientPaymentPage = () => {
             </div>
           )}
 
-          {/* 🔴 لو مدفوعة بالكامل بنقفل شاشة البطاقة */}
           {isFullyPaid ? (
             <div className="flex flex-col items-center justify-center h-full text-center opacity-50 min-h-[300px]">
                <ShieldCheck size={80} className="mb-4 text-slate-500" />

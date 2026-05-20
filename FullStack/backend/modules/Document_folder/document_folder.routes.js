@@ -5,10 +5,17 @@ import * as documentsController from "./document_folder.controller.js";
 const router = express.Router();
 
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) { cb(null, 'uploads/'); },
+  destination: function (req, file, cb) { 
+    cb(null, 'uploads/'); 
+  },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + '-' + file.originalname);
+    
+    // ✅ إصلاح مشكلة اللغة العربية في أسماء الملفات
+    // تحويل اسم الملف من ترميز latin1 إلى utf8 عشان يقرأ العربي صح
+    const originalName = Buffer.from(file.originalname, 'latin1').toString('utf8');
+    
+    cb(null, uniqueSuffix + '-' + originalName);
   }
 });
 

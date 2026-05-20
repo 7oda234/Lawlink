@@ -22,9 +22,15 @@ export const getDocumentById = async (documentId) => {
   return result.length > 0 ? result[0] : null;
 };
 
+// ✅ إضافة ملف وتحديث تاريخ القضية
 export const addDocument = async (filePath, userId, caseId) => {
+  // 1. إضافة الملف
   const sql = `INSERT INTO document (file_path, user_id, case_id) VALUES (?, ?, ?)`;
   const res = await runQuery(sql, [filePath, userId, caseId]);
+  
+  // 2. تحديث وقت القضية فوراً
+  await runQuery(`UPDATE cases SET updated_at = CURRENT_TIMESTAMP WHERE case_id = ?`, [caseId]);
+  
   return { ok: true, documentId: res.insertId };
 };
 
@@ -36,11 +42,25 @@ export const getDocumentsByCaseId = async (caseId) => {
 export const updateDocument = async (documentId, newFilePath) => {
   const sql = `UPDATE document SET file_path = ? WHERE document_id = ?`;
   await runQuery(sql, [newFilePath, documentId]);
+  // تحديث الوقت أيضاً عند التعديل
+  const doc = await getDocumentById(documentId);
+  if(doc) await runQuery(`UPDATE cases SET updated_at = CURRENT_TIMESTAMP WHERE case_id = ?`, [doc.case_id]);
+  
   return { ok: true, message: "تم التحديث بنجاح 🔄" };
 };
 
+// ✅ حذف ملف وتحديث تاريخ القضية
 export const deleteDocument = async (documentId) => {
+  // 1. جلب بيانات الملف لمعرفة الـ case_id قبل حذفه
+  const doc = await getDocumentById(documentId);
+  
+  // 2. الحذف
   const sql = `DELETE FROM document WHERE document_id = ?`;
   await runQuery(sql, [documentId]);
+  
+  // 3. تحديث الوقت في جدول القضايا
+  if (doc) {
+      await runQuery(`UPDATE cases SET updated_at = CURRENT_TIMESTAMP WHERE case_id = ?`, [doc.case_id]);
+  }
   return { ok: true, message: "تم الحذف بنجاح 🗑️" };
 };
