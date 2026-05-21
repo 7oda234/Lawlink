@@ -64,3 +64,29 @@ export const getPaymentHistory = async (clientId) => {
   const res = await runQuery(sql, [clientId]);
   return res;
 };
+
+// --- الدوال الجديدة الخاصة بالمحفظة والمحامي ---
+
+export const getWalletBalance = async (userId) => {
+  const sql = `SELECT balance FROM wallet WHERE user_id = ?`;
+  const res = await runQuery(sql, [userId]);
+  return res.length > 0 ? res[0].balance : 0;
+};
+
+export const getLawyerPaymentHistory = async (lawyerId) => {
+  try {
+    const sql = `
+      SELECT p.payment_id, p.amount, p.created_at, p.status, 
+             u.name as client_name, c.title as case_title, 'income' as type
+      FROM payment p
+      JOIN cases c ON p.case_id = c.case_id
+      JOIN users u ON p.client_id = u.user_id 
+      WHERE c.lawyer_id = ?
+      ORDER BY p.created_at DESC
+    `;
+    return await runQuery(sql, [lawyerId]);
+  } catch (err) {
+    console.error("🔥 SQL Database Error in getLawyerPaymentHistory:", err.sqlMessage || err.message);
+    throw err;
+  }
+};

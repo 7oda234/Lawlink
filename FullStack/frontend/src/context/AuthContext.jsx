@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }) => {
   /**
    * 🔐 تسجيل الدخول - تم التعديل ليدعم الـ Role
    */
-  const login = async (email, password, role) => { // 👈 أضفنا الـ role كمعامل ثالث
+  const login = async (email, password, role) => { 
     try {
       setLoading(true);
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'}/auth/login`, {
@@ -44,17 +44,26 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({ 
           email, 
           password, 
-          role // 👈 السطر ده هو اللي هيفتح لك بوابات المحامي
+          role 
         }),
       });
 
-      const data = await response.json();
+      // التعديل هنا: فحص نوع البيانات قبل تحويلها
+      const contentType = response.headers.get("content-type");
+      let data;
+      
+      if (contentType && contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        const errorText = await response.text();
+        console.error("Server HTML Error:", errorText);
+        throw new Error(`حدث خطأ في السيرفر (Status: ${response.status})`);
+      }
 
       if (!response.ok) {
         throw new Error(data.message || 'فشل في تسجيل الدخول');
       }
 
-      // حفظ التوكن والبيانات - اتأكدنا إن الـ role متسيف جوه الـ user object
       localStorage.setItem('token', data.token);
       
       const userToStore = data.data?.user || data.user;
@@ -83,10 +92,20 @@ export const AuthProvider = ({ children }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(userData), // الـ role موجود جوه الـ userData أصلاً
+        body: JSON.stringify(userData), 
       });
 
-      const data = await response.json();
+      // التعديل هنا: فحص نوع البيانات قبل تحويلها
+      const contentType = response.headers.get("content-type");
+      let data;
+      
+      if (contentType && contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        const errorText = await response.text();
+        console.error("Server HTML Error:", errorText); // ده هيطبعلك الخطأ الحقيقي بتاع السيرفر في الكونسول
+        throw new Error(`حدث خطأ في السيرفر (Status: ${response.status})`);
+      }
 
       if (!response.ok) {
         throw new Error(data.message || 'فشل في التسجيل');

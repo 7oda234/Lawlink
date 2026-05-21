@@ -6,7 +6,7 @@ import {
   Clock, TrendingUp, FileText, Bell, CheckCircle, 
   Plus, ChevronRight, Star, Gavel, Sparkles,
   ShieldCheck, Zap, CircleDollarSign, 
-  MapPin
+  MapPin, Wallet
 } from 'lucide-react';
 import { useLanguage } from '../../context/useLanguage';
 import { useTheme } from '../../context/ThemeContext';
@@ -125,7 +125,6 @@ const LawyerDashboardPage = () => {
               <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">{isRTL ? 'إدارة الطلبات' : 'Manage Requests'}</p>
           </Link>
 
-          {/* 💬 تم تعديل الرابط هنا ليوجه إلى /chat المباشر */}
           <Link to="/chat" className="group p-8 bg-slate-900 border border-white/5 rounded-[2rem] transition-all hover:scale-[1.03] hover:border-emerald-500/50 flex flex-col justify-center min-h-[160px]">
             <MessageSquare size={32} className="text-emerald-500 mb-4 group-hover:scale-110 transition-transform" />
             <h3 className="text-white font-black italic text-lg uppercase leading-tight">{isRTL ? 'المراسلات' : 'Client Chat'}</h3>
@@ -154,6 +153,16 @@ const LawyerDashboardPage = () => {
             <Sparkles size={32} className="text-white mb-4 animate-pulse" />
             <h3 className="text-white font-black italic text-lg uppercase leading-tight">{isRTL ? 'الذكاء' : 'AI Tools'}</h3>
             <p className="text-white/50 text-[10px] font-bold uppercase mt-1">{isRTL ? 'تحليل ذكي' : 'Smart Draft'}</p>
+          </Link>
+
+          <Link to="/lawyer/earnings" className="group p-8 bg-slate-900 border border-white/5 rounded-[2rem] transition-all hover:scale-[1.03] hover:border-green-500/50 shadow-xl shadow-green-500/5 flex flex-col justify-center min-h-[160px]">
+            <Wallet size={32} className="text-green-500 mb-4 group-hover:-translate-y-1 transition-transform" />
+            <h3 className="text-white font-black italic text-lg uppercase leading-tight tracking-wide">
+              {isRTL ? 'المحفظة' : 'My Wallet'}
+            </h3>
+            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">
+              {isRTL ? 'الأرباح والسجل' : 'Earnings & History'}
+            </p>
           </Link>
         </div>
 
@@ -217,7 +226,6 @@ const LawyerDashboardPage = () => {
                       <p className="text-[10px] font-bold text-emerald-500/60 uppercase mt-0.5">ID: #{msg.case_id}</p>
                     </div>
                   </div>
-                  {/* 💬 تم تعديل الرابط هنا ليوجه إلى /chat المباشر */}
                   <Link 
                     to="/chat" 
                     className="w-12 h-12 rounded-2xl bg-emerald-500 text-slate-950 flex items-center justify-center hover:scale-110 transition-transform shadow-lg shadow-emerald-500/20"
