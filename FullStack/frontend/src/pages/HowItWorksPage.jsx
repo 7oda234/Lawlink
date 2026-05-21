@@ -3,19 +3,21 @@ import { Link } from 'react-router-dom';
 import { LanguageContext } from '../context/LanguageContextObject';
 import { useTheme } from '../context/ThemeContextHook';
 
-
 const HowItWorksPage = () => {
   const { language } = useContext(LanguageContext);
   const { mode, palette } = useTheme();
   const isRTL = language === 'ar' || language === 'eg';
   const [selectedRole, setSelectedRole] = useState('client');
+  
+  // التحقق من حالة تسجيل الدخول عشان نخفي الكارت لو المستخدم دخل حسابه
+  const isLoggedIn = !!localStorage.getItem('token'); 
 
-  // Integrated content from Project Document (Chapter 1 & Features)
+  // محتوى الخطوات للعميل
   const clientSteps = [
     { 
       number: '1', 
       title: isRTL ? 'ابحث عن محامي' : 'Find a Lawyer', 
-      description: isRTL ? 'ابحث عن محامين متخصصين في مجالات القانون المختلفة وقارن بين سنوات الخبرة.' : 'Search for lawyers specializing in various areas of law and compare years of experience.' // [cite: 4]
+      description: isRTL ? 'ابحث عن محامين متخصصين في مجالات القانون المختلفة وقارن بين سنوات الخبرة.' : 'Search for lawyers specializing in various areas of law and compare years of experience.' //
     },
     { 
       number: '2', 
@@ -25,55 +27,56 @@ const HowItWorksPage = () => {
     { 
       number: '3', 
       title: isRTL ? 'عرض الملف الشخصي' : 'View Profile', 
-      description: isRTL ? 'اطلع على المؤهلات العلمية، القضايا السابقة، والتقييمات الموثقة.' : 'View educational background, previous cases, and verified credentials.' // [cite: 36]
+      description: isRTL ? 'اطلع على المؤهلات العلمية، القضايا السابقة، والتقييمات الموثقة.' : 'View educational background, previous cases, and verified credentials.' //
     },
     { 
       number: '4', 
       title: isRTL ? 'حجز موعد' : 'Book Appointment', 
-      description: isRTL ? 'احجز استشارة قانونية أونلاين أو مقابلة شخصية لتوفير الوقت والجهد.' : 'Book online or in-person consultations to save time and effort.' // [cite: 28]
+      description: isRTL ? 'احجز استشارة قانونية أونلاين أو مقابلة شخصية لتوفير الوقت والجهد.' : 'Book online or in-person consultations to save time and effort.' //
     },
     { 
       number: '5', 
       title: isRTL ? 'تواصل آمن' : 'Secure Messaging', 
-      description: isRTL ? 'تواصل مع محاميك عبر الرسائل المشفرة لتبادل المستندات والبيانات الحساسة.' : 'Safely message clients and exchange legal documents through secure channels.' // [cite: 5, 39]
+      description: isRTL ? 'تواصل مع محاميك عبر الرسائل المشفرة لتبادل المستندات والبيانات الحساسة.' : 'Safely message clients and exchange legal documents through secure channels.' //
     },
     { 
       number: '6', 
       title: isRTL ? 'تتبع قضيتك' : 'Track Progress', 
-      description: isRTL ? 'تابع تطورات قضيتك خطوة بخطوة من خلال نظام إدارة القضايا.' : 'Monitor your legal case progress step-by-step through our tracker.' // [cite: 131]
+      description: isRTL ? 'تابع تطورات قضيتك خطوة بخطوة من خلال نظام إدارة القضايا.' : 'Monitor your legal case progress step-by-step through our tracker.' //
     }
   ];
 
+  // محتوى الخطوات للمحامي
   const lawyerSteps = [
     { 
       number: '1', 
       title: isRTL ? 'إنشاء ملف تعريفي' : 'Create Profile', 
-      description: isRTL ? 'روج لخدماتك ووضح تخصصك العلمي وخبراتك المهنية.' : 'Promote your services and showcase expertise, credentials, and past cases.' // [cite: 127]
+      description: isRTL ? 'روج لخدماتك ووضح تخصصك العلمي وخبراتك المهنية.' : 'Promote your services and showcase expertise, credentials, and past cases.' //
     },
     { 
       number: '2', 
       title: isRTL ? 'توثيق الحساب' : 'Get Verified', 
-      description: isRTL ? 'ارفع كارنيه النقابة للحصول على شارة التوثيق وبناء الثقة مع العملاء.' : 'Upload Bar registration to receive a verification badge and build trust.' // [cite: 104, 109]
+      description: isRTL ? 'ارفع كارنيه النقابة للحصول على شارة التوثيق وبناء الثقة مع العملاء.' : 'Upload Bar registration to receive a verification badge and build trust.' //
     },
     { 
       number: '3', 
       title: isRTL ? 'إدارة المواعيد' : 'Manage Bookings', 
-      description: isRTL ? 'استخدم أدوات الإدارة لتنظيم جدول المواعيد والاستشارات.' : 'Use management tools to organize bookings, schedules, and client interaction.' // [cite: 29]
+      description: isRTL ? 'استخدم أدوات الإدارة لتنظيم جدول المواعيد والاستشارات.' : 'Use management tools to organize bookings, schedules, and client interaction.' //
     },
     { 
       number: '4', 
       title: isRTL ? 'أدوات الذكاء الاصطناعي' : 'AI Research Tools', 
-      description: isRTL ? 'استخدم مساعد البحث القانوني لتلخيص القوانين بسرعة ودقة.' : 'Use AI research tools to easily find relevant laws and summarize them.' // [cite: 123]
+      description: isRTL ? 'استخدم مساعد البحث القانوني لتلخيص القوانين بسرعة ودقة.' : 'Use AI research tools to easily find relevant laws and summarize them.' //
     },
     { 
       number: '5', 
       title: isRTL ? 'إدارة المستندات' : 'Case Management', 
-      description: isRTL ? 'نظم ملفات العملاء والمواعيد النهائية في مكان واحد آمن.' : 'Organize clients, documents, and deadlines in a centralized system.' // [cite: 128]
+      description: isRTL ? 'نظم ملفات العملاء والمواعيد النهائية في مكان واحد آمن.' : 'Organize clients, documents, and deadlines in a centralized system.' //
     },
     { 
       number: '6', 
       title: isRTL ? 'توسيع نطاق العمل' : 'Grow Practice', 
-      description: isRTL ? 'تواصل مع عملاء جدد وزد من ظهورك المهني في السوق الرقمي.' : 'Reach new clients and increase professional visibility in the digital market.' // [cite: 22, 43]
+      description: isRTL ? 'تواصل مع عملاء جدد وزد من ظهورك المهني في السوق الرقمي.' : 'Reach new clients and increase professional visibility in the digital market.' //
     }
   ];
 
@@ -94,7 +97,7 @@ const HowItWorksPage = () => {
           {isRTL ? 'كيف يعمل لاو-لينك' : 'How LawLink Works'}
         </h1>
         <p className={`text-xl max-w-2xl ${mode === 'dark' ? 'text-gray-300' : 'text-gray-200'}`}>
-          {isRTL ? 'بوابة إلكترونية متكاملة تربط بين العملاء والمحامين بطريقة سريعة وسهلة.' : 'An integrated online portal designed to connect clients and lawyers quickly and easily.'} {/* [cite: 3] */}
+          {isRTL ? 'بوابة إلكترونية متكاملة تربط بين العملاء والمحامين بطريقة سريعة وسهلة.' : 'An integrated online portal designed to connect clients and lawyers quickly and easily.'} {/* */}
         </p>
       </section>
 
@@ -153,20 +156,22 @@ const HowItWorksPage = () => {
         </div>
       </section>
 
-      {/* FINAL CTA */}
-      <section className={`rounded-3xl p-10 text-center ${mode === 'dark' ? 'bg-slate-800/50 border border-white/5' : 'bg-gray-50'}`}>
-        <h2 className={`text-3xl font-bold mb-4 ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>
-          {isRTL ? 'هل أنت مستعد للبدء؟' : 'Ready to start?'}
-        </h2>
-        <div className="flex gap-4 justify-center mt-8">
-          <Link 
-            to="/register" 
-            className={`px-10 py-4 rounded-xl font-black text-xl transition shadow-xl hover:scale-105 ${paletteColors[palette]}`}
-          >
-            {isRTL ? 'انضم إلى لاو-لينك' : 'Join LawLink'}
-          </Link>
-        </div>
-      </section>
+      {/* FINAL CTA - يظهر فقط لو المستخدم مش مسجل دخول */}
+      {!isLoggedIn && (
+        <section className={`rounded-3xl p-10 text-center ${mode === 'dark' ? 'bg-slate-800/50 border border-white/5' : 'bg-gray-50'}`}>
+          <h2 className={`text-3xl font-bold mb-4 ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+            {isRTL ? 'هل أنت مستعد للبدء؟' : 'Ready to start?'}
+          </h2>
+          <div className="flex gap-4 justify-center mt-8">
+            <Link 
+              to="/register" 
+              className={`px-10 py-4 rounded-xl font-black text-xl transition shadow-xl hover:scale-105 ${paletteColors[palette]}`}
+            >
+              {isRTL ? 'انضم إلى لاو-لينك' : 'Join LawLink'}
+            </Link>
+          </div>
+        </section>
+      )}
     </div>
   );
 };
