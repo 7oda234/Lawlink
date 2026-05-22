@@ -1,138 +1,141 @@
-import React, { useEffect, useState } from 'react';
-import PageLayout from '../../components/PageLayout';
-import { useTranslation } from '../../hooks/useTranslation';
-import DataService from '../../services/DataService';
+import React, { useState, useEffect } from 'react';
+import { Wallet, ArrowDownRight, ArrowUpRight, Clock, User, Briefcase, Calendar as CalendarIcon } from 'lucide-react';
+import axios from 'axios';
+import { useLanguage } from '../../context/useLanguage';
+import { useTheme } from '../../context/ThemeContext';
 
 const LawyerEarningsPage = () => {
-  const { t } = useTranslation();
-  const [summary, setSummary] = useState({
-    totalEarnings: 0,
-    totalPaid: 0,
-    pendingPayout: 0,
-  });
-  const [records, setRecords] = useState([]);
+  const { language } = useLanguage();
+  const { mode } = useTheme();
+  const isRTL = language === 'ar' || language === 'eg';
+  const isDark = mode === 'dark';
+
+  const [walletBalance, setWalletBalance] = useState(0);
+  const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+
+  const userId = localStorage.getItem('userId');
+  const BASE_URL = "http://localhost:5000";
 
   useEffect(() => {
-    const loadEarnings = async () => {
+    const fetchEarningsData = async () => {
       try {
-        const response = await DataService.finance.getLawyerEarnings();
-        const data = response.data;
+        const token = localStorage.getItem('token');
+        const config = { headers: { Authorization: `Bearer ${token}` } };
 
-        let normalizedRecords = [];
-        let totalEarnings = 0;
-        let totalPaid = 0;
-        let pendingPayout = 0;
-
-        if (Array.isArray(data)) {
-          normalizedRecords = data;
-          totalEarnings = data.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
-          totalPaid = data.filter((item) => item.paid || item.status === 'paid').reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
-          pendingPayout = totalEarnings - totalPaid;
-        } else {
-          normalizedRecords = Array.isArray(data.records)
-            ? data.records
-            : Array.isArray(data.payments)
-            ? data.payments
-            : [];
-          totalEarnings = Number(data.totalEarnings ?? data.totalAmount ?? 0);
-          totalPaid = Number(data.totalPaid ?? data.paidAmount ?? 0);
-          pendingPayout = Number(data.pendingPayout ?? (totalEarnings - totalPaid));
+        // 1. Fetch Wallet Balance
+        const walletRes = await axios.get(`${BASE_URL}/api/payments/wallet/${userId}`, config);
+        if (walletRes.data.ok) {
+          setWalletBalance(walletRes.data.balance || 0);
         }
 
-        setSummary({ totalEarnings, totalPaid, pendingPayout });
-        setRecords(normalizedRecords);
+        // 2. Fetch Payment History
+        const historyRes = await axios.get(`${BASE_URL}/api/payments/history/lawyer/${userId}`, config);
+        if (historyRes.data.ok) {
+          setTransactions(historyRes.data.payments || []);
+        }
       } catch (err) {
-        console.error('Failed to load lawyer earnings', err);
-        setError(t('lawyer_earnings_error', 'Unable to load earnings data.'));
+        console.error("Error fetching earnings data:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    loadEarnings();
-  }, [t]);
+    fetchEarningsData();
+  }, [userId]);
 
-  const formatCurrency = (value) => {
-    return typeof value === 'number' ? value.toFixed(2) : value;
-  };
-
-  const getRecordValue = (record) => {
-    return record.amount ?? record.value ?? record.total ?? 0;
-  };
-
-  const getStatus = (record) => {
-    if (record.status) return record.status;
-    if (record.paid) return 'Paid';
-    return 'Pending';
-  };
-
-  const getDate = (record) => {
-    const dateValue = record.paid_at || record.created_at || record.date || record.transactionDate;
-    if (!dateValue) return '-';
-    return new Date(dateValue).toLocaleDateString();
-  };
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center bg-slate-950">
+      <div className="text-green-500 font-black italic animate-pulse tracking-widest text-2xl uppercase">
+        LOADING WALLET...
+      </div>
+    </div>
+  );
 
   return (
-    <PageLayout title={t('lawyer_earnings', 'Earnings')} subtitle={t('lawyer_earnings_subtitle', 'Review your income and payment history')}>
-      <div className="space-y-8">
-        <div className="grid gap-6 md:grid-cols-3">
-          <div className="rounded-3xl border p-6 shadow-sm bg-white">
-            <p className="text-sm uppercase tracking-[0.24em] text-slate-500">{t('total_earnings', 'Total Earnings')}</p>
-            <p className="mt-4 text-3xl font-semibold text-slate-900">{formatCurrency(summary.totalEarnings)} EGP</p>
-          </div>
-          <div className="rounded-3xl border p-6 shadow-sm bg-white">
-            <p className="text-sm uppercase tracking-[0.24em] text-slate-500">{t('paid_to_date', 'Paid to Date')}</p>
-            <p className="mt-4 text-3xl font-semibold text-slate-900">{formatCurrency(summary.totalPaid)} EGP</p>
-          </div>
-          <div className="rounded-3xl border p-6 shadow-sm bg-white">
-            <p className="text-sm uppercase tracking-[0.24em] text-slate-500">{t('pending_payout', 'Pending Payout')}</p>
-            <p className="mt-4 text-3xl font-semibold text-slate-900">{formatCurrency(summary.pendingPayout)} EGP</p>
+    <div className={`min-h-screen p-4 md:p-8 pt-24 ${isDark ? 'bg-[#0a0c10] text-white' : 'bg-slate-50 text-slate-900'}`} dir={isRTL ? 'rtl' : 'ltr'}>
+      <div className="max-w-5xl mx-auto space-y-8">
+        
+        {/* رأس الصفحة */}
+        <div>
+          <h1 className="text-3xl md:text-4xl font-black italic uppercase">
+            {isRTL ? 'المحفظة والأرباح' : 'Wallet & Earnings'}
+          </h1>
+          <p className="opacity-60 font-medium mt-2">
+            {isRTL ? 'تابع رصيدك وسجل معاملاتك المالية' : 'Track your balance and financial transactions'}
+          </p>
+        </div>
+
+        {/* كارت الرصيد */}
+        <div className="p-10 rounded-[3rem] bg-gradient-to-br from-green-600 to-emerald-900 border border-green-500/20 shadow-2xl relative overflow-hidden">
+          <Wallet className="absolute -bottom-10 -right-10 text-white/10" size={200} />
+          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div>
+              <p className="text-green-100 font-bold uppercase tracking-widest text-sm mb-2">
+                {isRTL ? 'الرصيد المتاح' : 'Available Balance'}
+              </p>
+              <h2 className="text-5xl md:text-6xl font-black text-white tracking-tight">
+                {walletBalance} <span className="text-2xl text-green-300">EGP</span>
+              </h2>
+            </div>
+            <button className="px-8 py-4 bg-white text-emerald-900 rounded-full font-black uppercase tracking-wider hover:bg-green-50 transition-colors shadow-lg">
+              {isRTL ? 'سحب الرصيد' : 'Withdraw Funds'}
+            </button>
           </div>
         </div>
 
-        <div className="rounded-3xl border bg-white p-6 shadow-sm">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-slate-900">{t('recent_payouts', 'Recent Payouts')}</h2>
-            <span className="text-sm text-slate-500">{loading ? t('loading', 'Loading...') : `${records.length} ${t('records', 'records')}`}</span>
-          </div>
+        {/* سجل المعاملات */}
+        <div className={`rounded-[2rem] border p-6 md:p-10 ${isDark ? 'bg-slate-900/50 border-white/5' : 'bg-white border-slate-200 shadow-sm'}`}>
+          <h3 className="text-xl font-black italic mb-8 uppercase flex items-center gap-2">
+            <Clock className="text-blue-500" size={24} />
+            {isRTL ? 'سجل المعاملات' : 'Payment History'}
+          </h3>
 
-          {error && <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>}
+          <div className="space-y-4">
+            {transactions.length > 0 ? (
+              transactions.map((txn, index) => {
+                const isIncoming = txn.type === 'income' || !txn.type;
+                return (
+                  <div key={index} className={`flex flex-col md:flex-row md:items-center justify-between p-6 rounded-2xl border transition-all ${isDark ? 'bg-white/5 border-white/5 hover:bg-white/10' : 'bg-slate-50 border-slate-100 hover:bg-slate-100'}`}>
+                    
+                    {/* تفاصيل المعاملة */}
+                    <div className="flex items-start gap-4">
+                      <div className={`p-3 rounded-full ${isIncoming ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
+                        {isIncoming ? <ArrowDownRight size={24} /> : <ArrowUpRight size={24} />}
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-lg">{isIncoming ? (isRTL ? 'استلام دفعة' : 'Payment Received') : (isRTL ? 'سحب رصيد' : 'Withdrawal')}</h4>
+                        
+                        <div className="flex flex-wrap items-center gap-4 mt-2 text-sm opacity-70">
+                          <span className="flex items-center gap-1"><User size={14} /> {txn.client_name || (isRTL ? 'غير معروف' : 'Unknown')}</span>
+                          <span className="flex items-center gap-1"><Briefcase size={14} /> {txn.case_title || (isRTL ? 'بدون قضية' : 'N/A')}</span>
+                          <span className="flex items-center gap-1"><CalendarIcon size={14} /> 
+                            {new Date(txn.created_at).toLocaleDateString()} - {new Date(txn.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
 
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-left text-sm text-slate-700">
-              <thead className="border-b bg-slate-100 text-slate-700">
-                <tr>
-                  <th className="px-4 py-3">{t('date', 'Date')}</th>
-                  <th className="px-4 py-3">{t('client', 'Client')}</th>
-                  <th className="px-4 py-3">{t('description', 'Description')}</th>
-                  <th className="px-4 py-3">{t('amount', 'Amount')}</th>
-                  <th className="px-4 py-3">{t('status', 'Status')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {records.length === 0 && !loading ? (
-                  <tr>
-                    <td className="px-4 py-6 text-center text-slate-500" colSpan={5}>{t('no_earnings_records', 'No earnings records available.')}</td>
-                  </tr>
-                ) : (
-                  records.map((record, index) => (
-                    <tr key={record.id ?? index} className="border-b last:border-none">
-                      <td className="px-4 py-4">{getDate(record)}</td>
-                      <td className="px-4 py-4">{record.clientName || record.client || record.customer || '-'}</td>
-                      <td className="px-4 py-4">{record.description || record.note || record.type || '-'}</td>
-                      <td className="px-4 py-4 font-semibold text-slate-900">{formatCurrency(getRecordValue(record))} EGP</td>
-                      <td className="px-4 py-4">{getStatus(record)}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                    {/* المبلغ */}
+                    <div className="mt-4 md:mt-0 text-right">
+                      <p className={`text-2xl font-black ${isIncoming ? 'text-green-500' : 'text-red-500'}`}>
+                        {isIncoming ? '+' : '-'}{txn.amount} EGP
+                      </p>
+                    </div>
+
+                  </div>
+                );
+              })
+            ) : (
+              <div className="text-center py-12 opacity-50">
+                <p className="font-bold uppercase tracking-widest">{isRTL ? 'لا توجد معاملات سابقة' : 'No Transactions Found'}</p>
+              </div>
+            )}
           </div>
         </div>
+
       </div>
-    </PageLayout>
+    </div>
   );
 };
 

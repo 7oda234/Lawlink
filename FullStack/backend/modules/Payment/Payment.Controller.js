@@ -81,5 +81,22 @@ export const handleWalletWithdrawal = async (req, res) => {
 };
 
 export const getWalletInfo = async (req, res) => {
-  res.status(501).json({ ok: false, message: "Not implemented" });
+  try {
+    const { userId } = req.params;
+    const balance = await paymentsService.getWalletBalance(userId);
+    return res.status(200).json({ ok: true, balance });
+  } catch (err) {
+    return res.status(500).json({ ok: false, message: err.message });
+  }
+};
+
+export const getLawyerPaymentHistory = async (req, res) => {
+  try {
+    const { lawyerId } = req.params;
+    const payments = await paymentsService.getLawyerPaymentHistory(lawyerId);
+    return res.status(200).json({ ok: true, payments });
+  } catch (err) {
+    console.error("🔥 Controller Error in getLawyerPaymentHistory:", err.message);
+    return res.status(500).json({ ok: false, message: err.message });
+  }
 };
