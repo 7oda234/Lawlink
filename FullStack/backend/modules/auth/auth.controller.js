@@ -1,21 +1,26 @@
 import * as authService from "./auth.service.js";
+// ✅ استدعاء دالة loginService الموجودة بالفعل في قسم المستخدمين
+import { loginService } from "../user/user.service.js"; 
 
 export const loginController = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    const result = await authService.login(email, password);
+    
+    // استخدام دالة الدخول الصحيحة بدلاً من الدالة المفقودة
+    const data = await loginService(email, password);
 
-    if (!result.ok) {
-      return res.status(401).json({ ok: false, message: result.message });
-    }
-
+    // إرجاع البيانات بنفس الهيكلية التي يتوقعها الـ Frontend
     return res.status(200).json({ 
       ok: true, 
-      token: result.token, 
-      role: result.role, 
-      user: result.user 
+      token: data.token, 
+      role: data.user.role, 
+      user: data.user 
     });
   } catch (err) {
+    // معالجة الأخطاء مثل "الحساب غير موجود" وإرجاع كود 401
+    if (err.message === "الحساب غير موجود" || err.message === "كلمة المرور غير صحيحة.") {
+      return res.status(401).json({ ok: false, message: err.message });
+    }
     next(err);
   }
 };
