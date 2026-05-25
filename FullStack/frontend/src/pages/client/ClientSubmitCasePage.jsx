@@ -1,30 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { Save, X, Briefcase, AlignLeft, UploadCloud, FileText, ChevronDown, ShieldCheck } from 'lucide-react';
+import { Save, X, Briefcase, AlignLeft, UploadCloud, FileText, ChevronDown, ShieldCheck, Bot, Sparkles } from 'lucide-react'; // تم إضافة Bot و Sparkles
 import { useLanguage } from '../../context/useLanguage';
 import { useTheme } from '../../context/ThemeContext';
 import "../../styles/client/ClientBase.css";
 
 const ClientSubmitCasePage = () => {
-  // جلب إعدادات اللغة والثيم من الـ Context
   const { language } = useLanguage();
   const { mode } = useTheme();
   const navigate = useNavigate();
   
-  // تحديد اتجاه الصفحة والوضع المظلم بناءً على الإعدادات
   const isDark = mode === 'dark';
   const isRTL = language === 'ar' || language === 'eg';
   
-  // جلب ID العميل من اللوكال ستورج لربطه بالقضية
   const userId = localStorage.getItem('userId');
 
-  // نصوص الصفحة باللغتين الإنجليزية والعربية (المصرية)
   const content = {
-    // ... (النصوص كما هي في الكود السابق)
     en: {
       title: "Submit New Case",
       subtitle: "Step 1: Case Details & Documentation",
+      aiHelpTitle: "Not sure about the details?",
+      aiHelpDesc: "Let our AI analyze your situation and guide you to the right specialist.",
+      aiHelpBtn: "Use AI Assistant",
       caseTitle: "Case Title",
       caseTitlePlaceholder: "e.g. Real Estate Dispute - Mansouri Heirs...",
       category: "Law Category",
@@ -44,6 +42,9 @@ const ClientSubmitCasePage = () => {
     eg: {
       title: "إضافة قضية جديدة",
       subtitle: "الخطوة الأولى: تفاصيل القضية والمستندات",
+      aiHelpTitle: "مش متأكد من تفاصيل أو تخصص قضيتك؟",
+      aiHelpDesc: "خلي مساعد الذكاء الاصطناعي يحلل مشكلتك ويوجهك للتخصص الصح.",
+      aiHelpBtn: "استخدم الذكاء الاصطناعي",
       caseTitle: "عنوان القضية",
       caseTitlePlaceholder: "مثال: نزاع عقاري - ورثة المنصوري...",
       category: "التخصص القانوني",
@@ -62,27 +63,19 @@ const ClientSubmitCasePage = () => {
     }
   };
 
-  // اختيار النصوص بناءً على اللغة الحالية
   const t = content[language] || content['eg'];
 
-  // حالة لتخزين نصوص الفورم (العنوان، التخصص، الوصف)
   const [formData, setFormData] = useState({
     title: '',
     category: '',
     description: '',
-    status: 'Pending' // الحالة الافتراضية للقضية الجديدة
+    status: 'Pending'
   });
 
-  // حالة لتخزين الملفات المرفوعة
   const [files, setFiles] = useState([]);
-  
-  // حالة لتخزين التخصصات المجلوبة من الباك إند
   const [specializations, setSpecializations] = useState([]);
-  
-  // حالة لمنع المستخدم من الضغط على زر الحفظ أكثر من مرة
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // دالة لجلب التخصصات من الباك إند عند تحميل الصفحة لأول مرة
   useEffect(() => {
     const fetchSpecializations = async () => {
       try {
@@ -95,77 +88,61 @@ const ClientSubmitCasePage = () => {
         }
       } catch (err) {
         console.error("Error fetching specializations:", err);
-        // تخصصات احتياطية في حال فشل الاتصال بالباك إند
         setSpecializations(['Family Law', 'Criminal Defense', 'Real Estate', 'Corporate Law', 'Labor Law']);
       }
     };
     fetchSpecializations();
   }, []);
 
-  // دالة لمعالجة اختيار الملفات (فلترة ملفات الـ PDF فقط)
   const handleFileChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
-    // تصفية الملفات للتأكد من أنها PDF فقط
     const pdfFiles = selectedFiles.filter(file => file.type === 'application/pdf');
     
-    // تنبيه المستخدم إذا حاول رفع ملفات غير PDF
     if (pdfFiles.length !== selectedFiles.length) {
       alert(t.alertPdf);
     }
     
-    // إضافة الملفات الجديدة للملفات السابقة
     setFiles(prev => [...prev, ...pdfFiles]);
   };
 
-  // دالة لحذف ملف معين من القائمة قبل الإرسال
   const removeFile = (indexToRemove) => {
     setFiles(files.filter((_, index) => index !== indexToRemove));
   };
 
-  // الدالة الأهم: معالجة إرسال البيانات للباك إند
   const handleSubmit = async (e) => {
-    e.preventDefault(); // منع المتصفح من إعادة تحميل الصفحة
+    e.preventDefault(); 
     
-    // التحقق من أن المستخدم اختار التخصص
     if (!formData.category) return alert(t.alertCategory);
     
-    setIsSubmitting(true); // تشغيل تأثير التحميل على الزر
+    setIsSubmitting(true); 
     
     try {
-      // 1. إنشاء كائن FormData لتغليف النصوص والملفات معاً (لأننا بنرفع ملفات)
       const submitData = new FormData();
       
-      // إضافة النصوص (يجب أن تتطابق الأسماء هنا مع ما يتوقعه الباك إند)
       submitData.append('title', formData.title);
       submitData.append('category', formData.category);
       submitData.append('description', formData.description);
       submitData.append('status', formData.status);
       submitData.append('client_id', userId); 
 
-      // 2. إضافة الملفات باسم 'documents' (يجب أن يتطابق مع upload.array('documents') في الباك إند)
       if (files.length > 0) {
         files.forEach(file => {
           submitData.append('documents', file); 
         });
       }
       
-      // 3. إرسال البيانات باستخدام fetch (fetch يقوم بضبط الـ Headers و الـ boundary تلقائياً بشكل مثالي)
       const response = await fetch('http://localhost:5000/api/cases', {
         method: 'POST',
         body: submitData
       });
       
-      // تحويل استجابة الباك إند إلى كائن JSON
       const data = await response.json();
       
-      // التحقق من نجاح الطلب
       if (response.ok && data.ok) {
-        const newCaseId = data.caseId; // جلب ID القضية الجديدة من الباك إند
+        const newCaseId = data.caseId; 
         alert(t.successMsg);
-        // توجيه المستخدم لصفحة اختيار المحامي مع تمرير بيانات القضية في الرابط
         navigate(`/client/find-specialist?category=${encodeURIComponent(formData.category)}&caseId=${newCaseId}`); 
       } else {
-        // في حالة رفض الباك إند للطلب (مثلاً البيانات ناقصة)
         alert(data.message || "حدث خطأ أثناء حفظ القضية.");
       }
 
@@ -173,7 +150,7 @@ const ClientSubmitCasePage = () => {
       console.error("Error Saving Case:", err);
       alert("حدث خطأ غير متوقع، يرجى التحقق من اتصال السيرفر.");
     } finally {
-      setIsSubmitting(false); // إيقاف تأثير التحميل في كل الأحوال
+      setIsSubmitting(false); 
     }
   };
 
@@ -189,8 +166,32 @@ const ClientSubmitCasePage = () => {
           <p className="client-subtitle font-bold text-yellow-500">{t.subtitle}</p>
         </div>
         
-        {/* نموذج إدخال البيانات */}
         <div className="client-card !p-10 shadow-2xl">
+          
+          {/* AI Helper Banner - البانر الجديد للذكاء الاصطناعي */}
+          <div className={`mb-8 p-5 rounded-2xl border-2 transition-all flex flex-col sm:flex-row items-center justify-between gap-4 
+            ${isDark ? 'bg-yellow-500/10 border-yellow-500/20' : 'bg-yellow-50 border-yellow-200'}`}>
+            <div className="flex items-center gap-4 text-center sm:text-start">
+              <div className="p-3 bg-yellow-500 text-slate-900 rounded-xl shadow-lg">
+                <Bot size={28} />
+              </div>
+              <div>
+                <h3 className={`font-black text-lg ${isDark ? 'text-yellow-400' : 'text-yellow-700'}`}>{t.aiHelpTitle}</h3>
+                <p className={`font-bold text-sm mt-1 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>{t.aiHelpDesc}</p>
+              </div>
+            </div>
+            {/* يرجى التأكد من مسار الـ Route الخاص بصفحة الذكاء الاصطناعي وتعديله إذا كان مختلفاً */}
+            <button 
+  type="button" 
+  onClick={() => navigate('/client/cases/intake')} 
+  className="w-full sm:w-auto px-6 py-3 bg-yellow-500 hover:bg-yellow-400 text-slate-900 rounded-xl font-black italic flex items-center justify-center gap-2 transition-colors shadow-md whitespace-nowrap"
+>
+              <Sparkles size={18} />
+              {t.aiHelpBtn}
+            </button>
+          </div>
+
+          {/* نموذج إدخال البيانات */}
           <form onSubmit={handleSubmit} className="space-y-8">
             
             {/* حقل عنوان القضية */}
