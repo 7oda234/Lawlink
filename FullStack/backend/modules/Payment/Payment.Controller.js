@@ -1,5 +1,4 @@
 import * as paymentsService from "./payment.service.js";
-//import * as notificationService from "../Notification/notification.service.js"; // 👈 استيراد الإشعارات لو محتاجها مستقبلاً
 
 export const handleVisaPayment = async (req, res) => {
   try {
@@ -57,7 +56,6 @@ export const getPaymentHistory = async (req, res) => {
   }
 };
 
-// Used by AdminInvoicesPage download button
 export const downloadInvoice = async (req, res) => {
   try {
     const { paymentId } = req.params;
@@ -101,7 +99,6 @@ export const getLawyerPaymentHistory = async (req, res) => {
   }
 };
 
-// 👇 الدالة الجديدة الخاصة بالعميل
 export const getClientPaymentHistory = async (req, res) => {
   try {
     const { clientId } = req.params;
@@ -110,5 +107,31 @@ export const getClientPaymentHistory = async (req, res) => {
   } catch (err) {
     console.error("🔥 Controller Error in getClientPaymentHistory:", err.message);
     return res.status(500).json({ ok: false, message: err.message });
+  }
+};
+
+// 👇 الكونترولر الجديد الخاص باشتراكات المحامين
+export const handleSubscriptionPayment = async (req, res) => {
+  try {
+    const { lawyerId, planId, totalAmount, paidAmount, paymentType, months } = req.body;
+    
+    const result = await paymentsService.processSubscriptionPayment(
+      lawyerId, 
+      planId, 
+      totalAmount, 
+      paidAmount, 
+      paymentType, 
+      months
+    );
+
+    res.status(200).json({
+      ok: true,
+      message: "تم تسجيل الاشتراك والدفع بنجاح",
+      paymentId: result.paymentId,
+      invoiceNumber: result.invoiceNumber
+    });
+  } catch (err) {
+    console.error("Subscription payment error:", err);
+    res.status(500).json({ ok: false, message: err.message });
   }
 };

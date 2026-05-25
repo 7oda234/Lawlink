@@ -8,12 +8,15 @@ router.post("/withdraw", paymentsController.handleWalletWithdrawal);
 router.get("/invoice/:paymentId", paymentsController.getInvoice);
 router.get("/history/lawyer/:lawyerId", paymentsController.getLawyerPaymentHistory);
 
-// 👇 السطر اللي كان ناقص عشان يجيب داتا العميل ويحل الـ 404
 router.get("/history/client/:clientId", paymentsController.getClientPaymentHistory);
+
+// 👇 الراوت الجديد الخاص باشتراكات المحامين
+router.post("/subscription-checkout", paymentsController.handleSubscriptionPayment);
 
 // Finance alias used by AdminInvoicesPage
 // Note: this router is mounted under /api/payments in app.controller.js
 // so the effective paths are /api/payments/finance/invoices/:paymentId
 router.get("/finance/invoices/:paymentId", paymentsController.getInvoice);
 router.get("/finance/invoices/:paymentId/download", paymentsController.downloadInvoice);
+
 export default router;

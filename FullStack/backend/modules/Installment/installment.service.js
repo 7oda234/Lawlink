@@ -14,6 +14,14 @@ export const getInstallmentsByCaseId = async (caseId) => {
   return res;
 };
 
+// 👇 دالة جديدة لجلب أقساط الاشتراك الخاصة بالمحامي (بدون قضية)
+export const getInstallmentsByUserId = async (userId) => {
+  // بنجيب الأقساط اللي ملهاش case_id ومربوطة بـ user_id (اللي هو المحامي)
+  const sql = `SELECT * FROM installments WHERE user_id = ? AND case_id IS NULL ORDER BY due_date ASC`;
+  const res = await runQuery(sql, [userId]);
+  return res;
+};
+
 export const getLawyerIdByCase = async (caseId) => {
   const sql = `SELECT lawyer_id FROM cases WHERE case_id = ?`;
   const res = await runQuery(sql, [caseId]);
@@ -25,10 +33,11 @@ export const payInstallmentById = async ({ installmentId, payerClientId, payment
   try {
     await connection.beginTransaction();
 
+    // 🔴 التعديل هنا: خلينا الـ JOIN يكون LEFT JOIN عشان لو ده قسط اشتراك ملوش قضية ميضربش
     const installmentSql = `
-      SELECT i.*, c.client_id
+      SELECT i.*, c.client_id, c.lawyer_id as case_lawyer_id
       FROM installments i
-      JOIN cases c ON c.case_id = i.case_id
+      LEFT JOIN cases c ON c.case_id = i.case_id
       WHERE i.installment_id = ?
       LIMIT 1
     `;
@@ -36,8 +45,12 @@ export const payInstallmentById = async ({ installmentId, payerClientId, payment
     if (!rows.length) throw new Error("Installment not found");
     const inst = rows[0];
 
-    const clientId = payerClientId ?? inst.client_id;
-    if (!clientId) throw new Error("Client id not found for this installment");
+    // تحديد لو ده قسط تبع اشتراك محامي ولا قسط تبع قضية عميل
+    const isSubscription = inst.case_id === null;
+    
+    // لو اشتراك يبقى اللي بيدفع هو المحامي نفسه (payerClientId)، لو قضية يبقى العميل (client_id)
+    const clientId = isSubscription ? payerClientId : (payerClientId ?? inst.client_id);
+    if (!clientId) throw new Error("Client/Payer id not found for this installment");
 
     if (inst.status === "Paid") {
       throw new Error("Installment already paid");
@@ -51,6 +64,8 @@ export const payInstallmentById = async ({ installmentId, payerClientId, payment
     }
 
     const insertStatus = paymentStatus || "Installment";
+    
+    // تسجيل الدفع في جدول payment
     const paymentInsertSql = `
       INSERT INTO payment (status, currency, amount, client_id, case_id)
       VALUES (?, 'EGP', ?, ?, ?)
@@ -58,26 +73,28 @@ export const payInstallmentById = async ({ installmentId, payerClientId, payment
     const [paymentResult] = await connection.query(paymentInsertSql, [insertStatus, remaining, clientId, inst.case_id]);
     const paymentId = paymentResult.insertId;
 
+    // إنشاء فاتورة
     const invoiceNumber = `INV-${Date.now()}`;
     await connection.query(
       `INSERT INTO invoices (invoice_number, issue_date, payment_id) VALUES (?, CURDATE(), ?)`,
       [invoiceNumber, paymentId]
     );
 
-    const [lawyerRows] = await connection.query(`SELECT lawyer_id FROM cases WHERE case_id = ?`, [inst.case_id]);
-    const lawyerId = lawyerRows.length ? lawyerRows[0].lawyer_id : null;
-
-    if (lawyerId) {
+    // 🔴 التعديل هنا: هنضيف فلوس لمحفظة المحامي ونغير حالة القضية *فقط* لو ده قسط قضية (مش قسط اشتراك المنصة)
+    if (!isSubscription && inst.case_lawyer_id) {
       await connection.query(
         `
         INSERT INTO wallet (user_id, balance, currency)
         VALUES (?, ?, 'EGP')
         ON DUPLICATE KEY UPDATE balance = balance + ?
       `,
-        [lawyerId, remaining, remaining]
+        [inst.case_lawyer_id, remaining, remaining]
       );
+      
+      await connection.query(`UPDATE cases SET status='Ongoing' WHERE case_id = ?`, [inst.case_id]);
     }
 
+    // تحديث حالة القسط
     const newAmountPaid = Number(inst.amount_paid ?? 0) + remaining;
     const newStatus = newAmountPaid >= Number(inst.amount) ? "Paid" : "Partial";
 
@@ -85,8 +102,6 @@ export const payInstallmentById = async ({ installmentId, payerClientId, payment
       `UPDATE installments SET amount_paid = ?, status = ?, paid_at = NOW() WHERE installment_id = ?`,
       [newAmountPaid, newStatus, installmentId]
     );
-
-    await connection.query(`UPDATE cases SET status='Ongoing' WHERE case_id = ?`, [inst.case_id]);
 
     await connection.commit();
     return {
@@ -97,6 +112,7 @@ export const payInstallmentById = async ({ installmentId, payerClientId, payment
       amountPaid: remaining,
       status: newStatus,
       caseId: inst.case_id,
+      isSubscription // معلومة للفرونت إند عشان يعرف يوجه المستخدم صح
     };
   } catch (err) {
     await connection.rollback();

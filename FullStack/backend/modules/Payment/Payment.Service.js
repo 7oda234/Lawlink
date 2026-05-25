@@ -33,7 +33,6 @@ export const activateCase = async (caseId) => {
   return await runQuery(sql, [caseId]);
 };
 
-// 🔴 تم التعديل: إنشاء الفاتورة في جدول الفواتير المستقل
 export const createInvoice = async (paymentId) => {
   const invoiceNumber = `INV-${Date.now()}`;
   
@@ -47,7 +46,6 @@ export const createInvoice = async (paymentId) => {
   return { ok: true, invoiceNumber, paymentId };
 };
 
-// 🔴 تم التعديل: ربط جدول الدفع بجدول الفواتير عشان نرجع الداتا كاملة للفرونت إند
 export const getInvoiceDetails = async (paymentId) => {
   const sql = `
     SELECT p.*, i.invoice_number, i.issue_date 
@@ -64,8 +62,6 @@ export const getPaymentHistory = async (clientId) => {
   const res = await runQuery(sql, [clientId]);
   return res;
 };
-
-// --- الدوال الجديدة الخاصة بالمحفظة والمحامي ---
 
 export const getWalletBalance = async (userId) => {
   const sql = `SELECT balance FROM wallet WHERE user_id = ?`;
@@ -91,7 +87,6 @@ export const getLawyerPaymentHistory = async (lawyerId) => {
   }
 };
 
-// 👇 الدالة الجديدة الخاصة بالعميل
 export const getClientPaymentHistory = async (clientId) => {
   try {
     const sql = `
@@ -107,5 +102,54 @@ export const getClientPaymentHistory = async (clientId) => {
   } catch (err) {
     console.error("🔥 SQL Database Error in getClientPaymentHistory:", err.sqlMessage || err.message);
     throw err;
+  }
+};
+
+// 👇 الدوال الجديدة الخاصة بمعالجة اشتراكات المحامين
+export const processSubscriptionPayment = async (lawyerId, planId, totalAmount, paidAmount, paymentType, months) => {
+  const connection = await db.promise().getConnection();
+  try {
+    await connection.beginTransaction();
+
+    // 1. تسجيل العملية في جدول الدفع (كمصروفات من المحامي للمنصة)
+    // وضعنا case_id = NULL لأن هذا اشتراك وليس قضية
+    const paymentStatus = paymentType === 'full' ? 'Paid' : 'Partial';
+    const paymentSql = `INSERT INTO payment (status, currency, amount, client_id, case_id) VALUES (?, 'EGP', ?, ?, NULL)`;
+    const [paymentResult] = await connection.query(paymentSql, [paymentStatus, paidAmount, lawyerId]);
+    const paymentId = paymentResult.insertId;
+
+    // 2. إصدار الفاتورة لهذه العملية
+    const invoiceNumber = `INV-SUB-${Date.now()}`;
+    const invoiceSql = `INSERT INTO invoices (invoice_number, issue_date, payment_id) VALUES (?, CURDATE(), ?)`;
+    await connection.query(invoiceSql, [invoiceNumber, paymentId]);
+
+    // 3. لو الدفع تقسيط، هنولد جدول الأقساط للمحامي
+    if (paymentType === 'installment') {
+      const amountPerMonth = totalAmount / months;
+      const queries = [];
+
+      for (let i = 0; i < months; i++) {
+        const dueDate = new Date();
+        dueDate.setMonth(dueDate.getMonth() + i);
+        
+        const isFirstInstallment = (i === 0);
+        const instStatus = isFirstInstallment ? 'Paid' : 'Pending';
+        const instPaid = isFirstInstallment ? amountPerMonth : 0;
+
+        // استخدمنا case_id = NULL لأنها أقساط اشتراك
+        const instSql = `INSERT INTO installments (case_id, amount, amount_paid, status, due_date) VALUES (NULL, ?, ?, ?, ?)`;
+        queries.push(connection.query(instSql, [amountPerMonth, instPaid, instStatus, dueDate]));
+      }
+
+      await Promise.all(queries);
+    }
+
+    await connection.commit();
+    return { paymentId, invoiceNumber };
+  } catch (err) {
+    await connection.rollback();
+    throw err;
+  } finally {
+    connection.release();
   }
 };

@@ -6,7 +6,10 @@ const router = express.Router();
 // Get all installments for a given case
 router.get("/case/:caseId", installmentController.getInstallmentsByCase);
 
-// 🔴 الراوت الجديد لإنشاء خطة تقسيط
+// 👇 الراوت الجديد لجلب أقساط الاشتراك الخاصة بالمحامي
+router.get("/subscription/:userId", installmentController.getSubscriptionInstallments);
+
+// 🔴 الراوت لإنشاء خطة تقسيط قضية
 router.post("/case/:caseId/create-plan", installmentController.generateInstallments);
 
 // Pay an installment by installment id

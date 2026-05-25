@@ -10,6 +10,17 @@ export const getInstallmentsByCase = async (req, res) => {
   }
 };
 
+// 👇 دالة جديدة للتحكم في أقساط اشتراكات المحامي
+export const getSubscriptionInstallments = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const installments = await installmentService.getInstallmentsByUserId(userId);
+    res.status(200).json({ ok: true, installments });
+  } catch (err) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+};
+
 export const payInstallment = async (req, res) => {
   try {
     const { id } = req.params;
@@ -17,7 +28,7 @@ export const payInstallment = async (req, res) => {
 
     const result = await installmentService.payInstallmentById({
       installmentId: id,
-      payerClientId: clientId,
+      payerClientId: clientId, // هنا لو اشتراك هيكون الـ clientId هو المحامي نفسه
       paymentStatus: status
     });
 
