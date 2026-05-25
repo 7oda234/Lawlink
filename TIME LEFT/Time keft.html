@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>last day of DOOM</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================
+       DYNAMIC THEME SYSTEM (CSS Variables)
+       ========================================== */
+    :root {
+      /* Light Theme Defaults */
+      --bg-color: #f1f5f9;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --primary-color: #0056b3; 
+      --primary-hover: #004494;
+      --glow-ambient: rgba(0, 86, 179, 0.08);
+      --glow-active: rgba(0, 86, 179, 0.2);
+      --success-bg: #ecfdf5;
+      --success-text: #10b981;
+      --success-border: #a7f3d0;
+    }
+
+    [data-theme="dark"] {
+      /* Dark Theme Overrides */
+      --bg-color: #090e17;
+      --card-bg: #111827;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #1e293b;
+      --primary-color: #3b82f6; 
+      --primary-hover: #60a5fa;
+      --glow-ambient: rgba(59, 130, 246, 0.15);
+      --glow-active: rgba(59, 130, 246, 0.4);
+      --success-bg: rgba(16, 185, 129, 0.1);
+      --success-text: #34d399;
+      --success-border: rgba(16, 185, 129, 0.2);
+    }
+
+    /* ==========================================
+       GLOBAL STYLES & LAYOUT
+       ========================================== */
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+      transition: background-color 0.4s ease;
+    }
+
+    .widget-container {
+      position: relative;
+      background: var(--card-bg);
+      padding: 40px 50px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      border-top: 5px solid var(--primary-color);
+      /* Ambient Glow Effect */
+      box-shadow: 0 10px 40px var(--glow-ambient), 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      text-align: center;
+      width: 100%;
+      max-width: 600px;
+      transition: all 0.4s ease;
+      opacity: 0; /* Starts hidden for the entrance animation */
+    }
+
+    /* Theme Toggle Button */
+    .theme-toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: color 0.3s ease, transform 0.3s ease;
+      padding: 5px;
+    }
+
+    .theme-toggle:hover {
+      color: var(--primary-color);
+      transform: scale(1.1) rotate(15deg);
+    }
+
+    .title {
+      color: var(--text-main);
+      margin: 0 0 40px 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      transition: color 0.4s ease;
+    }
+
+    /* ==========================================
+       COUNTDOWN BLOCKS (With Hover Glows)
+       ========================================== */
+    .countdown-grid {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-bottom: 40px;
+    }
+
+    .time-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: var(--card-bg);
+      color: var(--text-main);
+      width: 100px;
+      padding: 20px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .time-block:hover {
+      border-color: var(--primary-color);
+      /* Active Highlight Glow */
+      box-shadow: 0 0 20px var(--glow-active);
+      transform: translateY(-3px);
+    }
+
+    .artifact-icon {
+      font-size: 1.4rem;
+      margin-bottom: 15px;
+      color: var(--primary-color);
+      transition: color 0.4s ease;
+    }
+
+    .time-value {
+      font-size: 2.2rem;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .time-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .tick-anim {
+      animation: subtle-pulse 0.4s ease-out;
+    }
+    @keyframes subtle-pulse {
+      0% { transform: scale(0.95); color: var(--primary-color); }
+      100% { transform: scale(1); color: var(--text-main); }
+    }
+
+    /* ==========================================
+       FORM CONTROLS
+       ========================================== */
+    .controls-wrapper {
+      border-top: 1px solid var(--border-color);
+      padding-top: 30px;
+      transition: border-color 0.4s ease;
+    }
+
+    .controls-label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+
+    .input-group {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    input[type="datetime-local"] {
+      padding: 10px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-family: inherit;
+      color: var(--text-main);
+      font-size: 0.9rem;
+      outline: none;
+      transition: all 0.2s ease;
+      background: transparent;
+    }
+
+    input[type="datetime-local"]:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px var(--glow-ambient);
+    }
+
+    input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+      filter: var(--calendar-icon-filter, none);
+      cursor: pointer;
+    }
+
+    [data-theme="dark"] input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+    }
+
+    .action-btn {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      font-family: inherit;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 10px var(--glow-ambient);
+    }
+
+    .action-btn:hover {
+      background-color: var(--primary-hover);
+      box-shadow: 0 6px 15px var(--glow-active);
+    }
+
+    .message-hidden { display: none !important; }
+    
+    .expired-message {
+      color: var(--success-text);
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 30px 0;
+      padding: 15px;
+      background: var(--success-bg);
+      border: 1px solid var(--success-border);
+      border-radius: 6px;
+    }
+
+    /* ==========================================
+       SURPRISE ENTRANCE ANIMATIONS
+       ========================================== */
+    .anim-zoom-fade { animation: zoomFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes zoomFade {
+      0% { opacity: 0; transform: scale(0.85) translateY(20px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .anim-slide-up { animation: slideUp 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+    @keyframes slideUp {
+      0% { opacity: 0; transform: translateY(50px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .anim-3d-flip { animation: flip3D 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+    @keyframes flip3D {
+      0% { opacity: 0; transform: perspective(1000px) rotateX(-20deg) scale(0.95); }
+      100% { opacity: 1; transform: perspective(1000px) rotateX(0deg) scale(1); }
+    }
+
+    /* Responsive */
+    @media (max-width: 550px) {
+      .widget-container { padding: 30px 20px; }
+      .countdown-grid { gap: 10px; flex-wrap: wrap; }
+      .time-block { width: calc(50% - 15px); padding: 15px 5px; }
+      .input-group { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="main-card" class="widget-container">
+    <button id="theme-btn" class="theme-toggle" aria-label="Toggle Dark Mode">
+      <i class="fa-solid fa-moon"></i>
+    </button>
+
+    <h2 class="title">Graduation Project Deadline</h2>
+    
+    <div id="countdown-grid" class="countdown-grid">
+      <div class="time-block">
+        <i class="fa-solid fa-scroll artifact-icon"></i>
+        <span id="days" class="time-value">00</span>
+        <span class="time-label">Days</span>
+      </div>
+      <div class="time-block">
+        <i class="fa-solid fa-graduation-cap artifact-icon"></i>
+        <span id="hours" class="time-value">00</span>
+        <span class="time-label">Hours</span>
+      </div>
+      <div class="time-block">
+        <i class="fa-solid fa-book-open artifact-icon"></i>
+        <span id="minutes" class="time-value">00</span>
+        <span class="time-label">Minutes</span>
+      </div>
+      <div class="time-block">
+        <i class="fa-solid fa-gear artifact-icon"></i>
+        <span id="seconds" class="time-value">00</span>
+        <span class="time-label">Seconds</span>
+      </div>
+    </div>
+    
+    <div id="expired-state" class="expired-message message-hidden">
+      <i class="fa-solid fa-circle-check"></i> Project Submission Time Reached
+    </div>
+
+    <div class="controls-wrapper">
+      <span class="controls-label">System Target Configuration</span>
+      <div class="input-group">
+        <input type="datetime-local" id="datetime-picker">
+        <button id="update-btn" class="action-btn">Update Timeline</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * Application Initialization & UI Handlers
+     */
+    document.addEventListener("DOMContentLoaded", () => {
+      initTheme();
+      triggerSurpriseAnimation();
+      initTimer();
+    });
+
+    // --- 1. Theme Engine ---
+    const themeBtn = document.getElementById('theme-btn');
+    const htmlElement = document.documentElement;
+
+    function initTheme() {
+      const savedTheme = localStorage.getItem('appTheme') || 'light';
+      htmlElement.setAttribute('data-theme', savedTheme);
+      updateThemeIcon(savedTheme);
+    }
+
+    themeBtn.addEventListener('click', () => {
+      const currentTheme = htmlElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      
+      htmlElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('appTheme', newTheme);
+      updateThemeIcon(newTheme);
+    });
+
+    function updateThemeIcon(theme) {
+      themeBtn.innerHTML = theme === 'light' 
+        ? '<i class="fa-solid fa-moon"></i>' 
+        : '<i class="fa-solid fa-sun"></i>';
+    }
+
+    // --- 2. Surprise Animation Engine ---
+    function triggerSurpriseAnimation() {
+      const animations = ['anim-zoom-fade', 'anim-slide-up', 'anim-3d-flip'];
+      const randomAnim = animations[Math.floor(Math.random() * animations.length)];
+      document.getElementById('main-card').classList.add(randomAnim);
+    }
+
+    // --- 3. Core Timer Logic ---
+    const DEFAULT_DEADLINE = "2026-07-01T00:00";
+    const STORAGE_KEY = "gradProjectDeadline";
+    let targetTimestamp;
+    let timerInterval;
+
+    const elements = {
+      days: document.getElementById("days"),
+      hours: document.getElementById("hours"),
+      minutes: document.getElementById("minutes"),
+      seconds: document.getElementById("seconds"),
+      grid: document.getElementById("countdown-grid"),
+      expiredMsg: document.getElementById("expired-state"),
+      picker: document.getElementById("datetime-picker"),
+      updateBtn: document.getElementById("update-btn")
+    };
+
+    function initTimer() {
+      const savedDate = localStorage.getItem(STORAGE_KEY);
+      const initialDateString = savedDate ? savedDate : DEFAULT_DEADLINE;
+      
+      targetTimestamp = new Date(initialDateString).getTime();
+      elements.picker.value = initialDateString;
+      
+      startEngine();
+    }
+
+    function updateValueWithAnimation(element, newValue) {
+      const formattedValue = String(newValue).padStart(2, '0');
+      if (element.innerText !== formattedValue) {
+        element.innerText = formattedValue;
+        
+        // Retrigger animation
+        element.classList.remove('tick-anim');
+        void element.offsetWidth; 
+        element.classList.add('tick-anim');
+      }
+    }
+
+    function calculateTime() {
+      const now = new Date().getTime();
+      const distance = targetTimestamp - now;
+
+      if (distance < 0) {
+        clearInterval(timerInterval);
+        elements.grid.classList.add("message-hidden");
+        elements.expiredMsg.classList.remove("message-hidden");
+        return;
+      }
+
+      elements.grid.classList.remove("message-hidden");
+      elements.expiredMsg.classList.add("message-hidden");
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      updateValueWithAnimation(elements.days, days);
+      updateValueWithAnimation(elements.hours, hours);
+      updateValueWithAnimation(elements.minutes, minutes);
+      updateValueWithAnimation(elements.seconds, seconds);
+    }
+
+    function startEngine() {
+      if (timerInterval) clearInterval(timerInterval);
+      calculateTime(); 
+      timerInterval = setInterval(calculateTime, 1000);
+    }
+
+    elements.updateBtn.addEventListener("click", () => {
+      const selectedValue = elements.picker.value;
+      
+      if (!selectedValue) {
+        alert("Please select a valid target timestamp.");
+        return;
+      }
+
+      localStorage.setItem(STORAGE_KEY, selectedValue);
+      targetTimestamp = new Date(selectedValue).getTime();
+      
+      const originalText = elements.updateBtn.innerText;
+      elements.updateBtn.innerText = "Timeline Saved";
+      setTimeout(() => elements.updateBtn.innerText = originalText, 1500);
+
+      startEngine();
+    });
+  </script>
+</body>
+</html>
