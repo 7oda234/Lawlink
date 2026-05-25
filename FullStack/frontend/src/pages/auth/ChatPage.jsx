@@ -101,7 +101,7 @@ const ChatPage = () => {
       if (res.data.success) {
         setMessages(res.data.data);
       }
-    } catch (err) { 
+    } catch  { 
       setMessages([]); 
     }
   };
