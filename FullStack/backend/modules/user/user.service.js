@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = "lawlink_secret_key"; 
 
-// دالة الـ runQuery
+// دالة الـ runQuery لعمل استعلامات سريعة
 const runQuery = (sql, params = []) =>
   new Promise((resolve, reject) => {
     pool.query(sql, params, (err, result) => {
@@ -13,7 +13,7 @@ const runQuery = (sql, params = []) =>
     });
   });
 
-// ✅ 1. جلب التخصصات الفريدة
+// ✅ 1. جلب التخصصات الفريدة من جدول التخصصات
 export const getLawyerSpecializationsService = async () => {
     try {
         const rows = await runQuery(`SELECT DISTINCT spec_name FROM lawyer_specializations`);
@@ -23,7 +23,7 @@ export const getLawyerSpecializationsService = async () => {
     }
 };
 
-// ✅ رفع صورة البروفايل
+// ✅ رفع وتحديث صورة البروفايل في جدول المستخدمين
 export const updateProfilePictureService = async (userId, imageUrl) => {
     try {
         await runQuery(`UPDATE users SET image_url = ? WHERE user_id = ?`, [imageUrl, userId]);
@@ -33,7 +33,7 @@ export const updateProfilePictureService = async (userId, imageUrl) => {
     }
 };
 
-// ✅ 2. البحث (Search)
+// ✅ 2. البحث الشامل عن المستخدمين والمحامين (Search)
 export const searchUsersService = async (searchTerm) => {
     const term = `%${searchTerm || ''}%`;
     const [rows] = await pool.promise().query(
@@ -54,7 +54,7 @@ export const searchUsersService = async (searchTerm) => {
     return rows;
 };
 
-// ✅ 3. تسجيل مستخدم جديد
+// ✅ 3. تسجيل مستخدم جديد (حفظ كامل لبيانات المحامي والتخصصات)
 export const registerUserService = async (userData) => {
     const connection = await pool.promise().getConnection();
     try {
@@ -69,27 +69,43 @@ export const registerUserService = async (userData) => {
         const userId = userResult.insertId;
 
         if (userData.role === 'Lawyer') {
+            // إدخال البيانات الأساسية للمحامي في جدول lawyer
             await connection.query(
-                `UPDATE lawyer SET license_number = ?, years_experience = ?, verified = ? WHERE user_id = ?`, 
-                [userData.license_number, userData.years_experience || 0, userData.verified || 0, userId]
+                `INSERT INTO lawyer (user_id, license_number, years_experience, verified) 
+                 VALUES (?, ?, ?, ?)
+                 ON DUPLICATE KEY UPDATE 
+                 license_number = VALUES(license_number),
+                 years_experience = VALUES(years_experience),
+                 verified = VALUES(verified)`, 
+                [userId, userData.license_number || null, userData.years_experience || 0, userData.verified || 0]
             );
             
-            if (userData.specializations && Array.isArray(userData.specializations)) {
+            // إدخال التخصصات القانونية المتعددة كمصفوفة بنجاح
+            if (userData.specializations && Array.isArray(userData.specializations) && userData.specializations.length > 0) {
                 const specValues = userData.specializations.map(spec => [userId, spec]);
                 await connection.query(`INSERT INTO lawyer_specializations (lawyer_id, spec_name) VALUES ?`, [specValues]);
             }
             
-            // إضافة عنوان المكتب عند التسجيل
+            // إضافة عنوان مكتب المحاماة عند التسجيل
             if (userData.office_address && userData.office_address.trim() !== "") {
                 await connection.query(
-                    `INSERT INTO lawyer_office (lawyer_id, office_address) VALUES (?, ?)`, 
+                    `INSERT INTO lawyer_office (lawyer_id, office_address) VALUES (?, ?)
+                     ON DUPLICATE KEY UPDATE office_address = VALUES(office_address)`, 
                     [userId, userData.office_address]
                 );
             }
         } else if (userData.role === 'Admin') {
-            await connection.query(`UPDATE admin SET authority_level = ? WHERE user_id = ?`, [userData.authority_level, userId]);
+            await connection.query(
+                `INSERT INTO admin (user_id, authority_level) VALUES (?, ?)
+                 ON DUPLICATE KEY UPDATE authority_level = VALUES(authority_level)`, 
+                [userId, userData.authority_level]
+            );
         } else if (userData.role === 'Client') {
-            await connection.query(`UPDATE client SET income_level = ? WHERE user_id = ?`, [userData.income_level || 0, userId]);
+            await connection.query(
+                `INSERT INTO client (user_id, income_level) VALUES (?, ?)
+                 ON DUPLICATE KEY UPDATE income_level = VALUES(income_level)`, 
+                [userId, userData.income_level || 0]
+            );
         }
 
         await connection.commit();
@@ -103,24 +119,21 @@ export const registerUserService = async (userData) => {
     }
 };
 
-// ✅ 4. التحديث الشامل (تم إضافة فحص نوع المستخدم لمنع التداخل)
+// ✅ 4. التحديث الشامل لبيانات الملف الشخصي
 export const updateUserService = async (userId, userData) => {
     const connection = await pool.promise().getConnection();
     try {
         await connection.beginTransaction();
 
-        // فحص نوع المستخدم أولاً
         const [userRows] = await connection.query(`SELECT role FROM users WHERE user_id = ?`, [userId]);
         if (userRows.length === 0) throw new Error("المستخدم غير موجود");
         const userRole = userRows[0].role;
 
-        // تحديث كلمة المرور إن وجدت
         if (userData.password && userData.password.trim() !== "") {
             const hashedPassword = await bcrypt.hash(userData.password, 10);
             await connection.query(`UPDATE users SET password = ? WHERE user_id = ?`, [hashedPassword, userId]);
         }
 
-        // تحديث البيانات الأساسية لجدول users
         await connection.query(
             `UPDATE users SET 
                 name = COALESCE(?, name), 
@@ -143,7 +156,6 @@ export const updateUserService = async (userId, userData) => {
             ]
         );
 
-        // التحديثات الخاصة بناءً على نوع المستخدم
         if (userRole === 'Lawyer') {
             await connection.query(
                 `UPDATE lawyer SET 
@@ -185,11 +197,14 @@ export const updateUserService = async (userId, userData) => {
                     );
                 }
             }
-        } else if (userRole === 'Client') {
+        } else if (userRole && userRole.toLowerCase() === 'client') {
+            // ✅ التعديل هنا: استخدام INSERT ON DUPLICATE لحل مشكلة عدم وجود سجل مسبق وتفادي القيم الفارغة
             if (userData.income_level !== undefined) {
+                const incomeValue = userData.income_level === "" ? 0 : userData.income_level;
                 await connection.query(
-                    `UPDATE client SET income_level = ? WHERE user_id = ?`,
-                    [userData.income_level, userId]
+                    `INSERT INTO client (user_id, income_level) VALUES (?, ?)
+                     ON DUPLICATE KEY UPDATE income_level = VALUES(income_level)`,
+                    [userId, incomeValue]
                 );
             }
         } else if (userRole === 'Admin') {
@@ -211,7 +226,7 @@ export const updateUserService = async (userId, userData) => {
     }
 };
 
-// ✅ 5. تسجيل الدخول
+// ✅ 5. تسجيل الدخول والتحقق من كلمة المرور الملتوية
 export const loginService = async (email, password) => {
     const [users] = await pool.promise().query(
         `SELECT * FROM users WHERE email = ? AND deleted_at IS NULL`, 
@@ -243,14 +258,15 @@ export const loginService = async (email, password) => {
     };
 };
 
-// ✅ 6. جلب بيانات البروفايل الكاملة
+// ✅ 6. جلب بيانات البروفايل الكاملة وتحويل الأسماء لـ camelCase لراحة الرياكت
 export const getUserProfileService = async (userId) => {
     const [rows] = await pool.promise().query(
         `SELECT 
             u.user_id, u.name, u.email, u.image_url, u.Phone_no1, u.Phone_no2, u.gender, u.Date_of_Birth, u.role,
             l.license_number, l.rating_avg, l.verified, l.years_experience,
+            l.years_experience AS yearsExperience,
             c.income_level,
-            lo.office_address,
+            lo.office_address, lo.office_address AS officeAddress,
             GROUP_CONCAT(ls.spec_name SEPARATOR ' و ') AS specialization 
          FROM users u
          LEFT JOIN lawyer l ON u.user_id = l.user_id
@@ -265,7 +281,7 @@ export const getUserProfileService = async (userId) => {
     return rows[0];
 };
 
-// ✅ 7. جلب كل المستخدمين
+// ✅ 7. جلب كل المستخدمين في المنصة لوحة التحكم
 export const getAllUsersService = async () => {
     const [rows] = await pool.promise().query(
         `SELECT u.user_id, u.name, u.email, u.role, u.gender, u.Phone_no1, u.Phone_no2, u.Date_of_Birth,
@@ -282,7 +298,7 @@ export const getAllUsersService = async () => {
     return rows;
 };
 
-// ✅ 8. جلب مستخدم بالإيميل
+// ✅ 8. جلب مستخدم بواسطة البريد الإلكتروني
 export const getUserByEmailService = async (email) => {
     const [rows] = await pool.promise().query(
         `SELECT u.user_id, u.name, u.email, u.role, u.gender, u.Phone_no1, u.Phone_no2, u.Date_of_Birth,
@@ -302,7 +318,7 @@ export const getUserByEmailService = async (email) => {
     return rows.length > 0 ? rows[0] : null;
 };
 
-// ✅ 9. جلب مستخدم بالـ ID
+// ✅ 9. جلب مستخدم بواسطة الـ ID الرقمي
 export const getUserByIdService = async (userId) => {
     const [rows] = await pool.promise().query(
         `SELECT u.user_id, u.name, u.email, u.role, u.gender, u.Phone_no1, u.Phone_no2, u.Date_of_Birth,
@@ -322,7 +338,7 @@ export const getUserByIdService = async (userId) => {
     return rows.length > 0 ? rows[0] : null;
 };
 
-// ✅ 10. الحذف المنطقي (Logic Delete)
+// ✅ 10. الحذف المنطقي عن طريق الوقت (Soft Delete)
 export const deleteUserService = async (userId) => {
     try {
         await runQuery(`UPDATE users SET deleted_at = NOW() WHERE user_id = ?`, [userId]); 
@@ -331,7 +347,7 @@ export const deleteUserService = async (userId) => {
     }
 };
 
-// 🚀✅ 11. جلب كل المحامين للفرونت إند مع تخصصاتهم ومكاتبهم
+// ✅ 11. جلب كل المحامين للفرونت إند مع تخصصاتهم ومكاتبهم بشكل مجمع
 export const getLawyersService = async () => {
     const query = `
       SELECT 

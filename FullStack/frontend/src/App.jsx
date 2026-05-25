@@ -72,6 +72,8 @@ const ClientPaymentsPage = React.lazy(() => import('./pages/client/ClientPayment
 const ClientInvoicePage = React.lazy(() => import('./pages/client/ClientInvoicePage'));// 🌟 إضافة جديدة للسيناريو: صفحة عرض فاتورة العميل (عرض تفاصيل الفاتورة، تنزيل الفاتورة، إلخ) - Client invoice page (view invoice details, download invoice, etc.)
 const NewCaseIntake = React.lazy(() => import('./pages/client/NewCaseIntake'));// 🌟 إضافة جديدة للسيناريو: صفحة استمارة تقديم القضية الجديدة (نموذج مفصل لجمع معلومات القضية من العميل) - New case intake form page (detailed form to collect case information from client)
 const ClientFindLawyer = React.lazy(() => import('./pages/client/ClientFindLawyer'));// 🌟 إضافة جديدة للسيناريو: صفحة البحث عن محامي من قبل العميل (نموذج بحث متقدم، عرض نتائج البحث، إلخ) - Client find lawyer page (advanced search form, display search results, etc.)
+// 🔴 التعديل هنا: إضافة استيراد صفحة المحفظة للعميل
+const ClientWalletPage = React.lazy(() => import('./pages/client/ClientWalletPage'));
 
 // استيراد صفحات المحامي - Importing lawyer pages
 // 🌟 إضافة جديدة للسيناريو: صفحة لوحة تحكم المحامي الرئيسية (عرض ملخص القضايا، الإحصائيات، إلخ)
@@ -158,6 +160,11 @@ const HelpCenterPage = React.lazy(() => import('./pages/utility/HelpCenterPage')
 const TermsPrivacyPage = React.lazy(() => import('./pages/utility/TermsPrivacyPage'));// 🌟 إضافة جديدة للسيناريو: صفحة الشروط والأحكام وسياسة الخصوصية (عرض الشروط والأحكام، سياسة الخصوصية، إلخ) - Terms and privacy page (display terms and conditions, privacy policy, etc.)
 const NotFoundPage = React.lazy(() => import('./pages/utility/NotFoundPage')); // 🌟 إضافة جديدة للسيناريو: صفحة 404 - Not found page (displayed when user navigates to a non-existent route)
 
+// ✅ ✅ إضافة استيراد صفحات الاشتراكات الجديدة هنا (بدون امتدادات وباسم الفولدر small)
+const SubscriptionPlansPage = React.lazy(() => import('./pages/Subscription/SubscriptionPlansPage.jsx.jsx'));
+const SubscriptionPaymentPage = React.lazy(() => import('./pages/Subscription/SubscriptionPaymentPage.jsx'));
+const SubscriptionInvoicePage = React.lazy(() => import('./pages/Subscription/SubscriptionInvoicePage.jsx'));
+
 // تعريف المتغيرات للانيميشن - Defining animation variants
 const pageVariants = {
   initial: { opacity: 0, y: 20, scale: 0.98 }, // بداية الانيميشن - Animation start
@@ -215,7 +222,7 @@ const routeConfig = [
   { path: '/client/payments', Component: ClientPaymentsPage }, // سجل المدفوعات
   { path: '/client/payments/:paymentId/invoice', Component: ClientInvoicePage }, // عرض الفاتورة
   { path: '/client/cases/intake', Component: NewCaseIntake }, // 🌟 سيناريو 6: صفحة استمارة تقديم القضية الجديدة (نموذج مفصل لجمع معلومات القضية من العميل) - New case intake form page (detailed form to collect case information from client)
-  // { path: '/client/wallet', Component: ClientWalletPage },
+  { path: '/client/wallet', Component: ClientWalletPage }, // 🟢 تم تفعيل المسار بمسح علامتي التعليق (//)
   { path: '/client/find-specialist', Component: ClientFindLawyer }, // 🌟 سيناريو 2
 
   // lawyer routes
@@ -287,7 +294,12 @@ const routeConfig = [
   { path: '/ai-tools/legal-chatbot', Component: LegalChatbot },
 
   // 💬 مسار الشات اللحظي الجديد (Socket.io + MongoDB)
-  { path: '/chat', Component: LiveChatPage }
+  { path: '/chat', Component: LiveChatPage },
+
+  // 🟢 🟢 مسارات أنظمة الاشتراكات والتقسيط والفواتير الجديدة
+  { path: '/subscription-plans', Component: SubscriptionPlansPage },
+  { path: '/subscription/payment/:planId', Component: SubscriptionPaymentPage },
+  { path: '/subscription/invoice/:invoiceId', Component: SubscriptionInvoicePage }
 ];
 
 // مكون الروتات - Routes component

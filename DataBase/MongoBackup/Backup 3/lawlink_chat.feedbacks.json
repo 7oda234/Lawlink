@@ -1,0 +1,56 @@
+[{
+  "_id": {
+    "$oid": "6a0e1318bbd62ce62fe15177"
+  },
+  "rating": 3,
+  "comment": "المحامي سيئ المعاملة",
+  "client_id": "14",
+  "lawyer_id": "2",
+  "case_id": "29",
+  "created_at": {
+    "$date": "2026-05-20T20:01:28.343Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a0e14c4bbd62ce62fe15178"
+  },
+  "rating": 2,
+  "comment": "المحامي سيئ",
+  "client_id": "14",
+  "lawyer_id": "2",
+  "case_id": "29",
+  "created_at": {
+    "$date": "2026-05-20T20:08:36.146Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a0e179b5f2f063ff99314fb"
+  },
+  "rating": 1,
+  "comment": "زبالة",
+  "client_id": "14",
+  "lawyer_id": "2",
+  "case_id": "29",
+  "created_at": {
+    "$date": "2026-05-20T20:20:43.611Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a0ed025b98c69755422fab3"
+  },
+  "rating": 5,
+  "comment": "المحامي ده  مية مية",
+  "client_id": "16",
+  "lawyer_id": "2",
+  "case_id": "30",
+  "created_at": {
+    "$date": "2026-05-21T09:28:05.418Z"
+  },
+  "__v": 0
+}]

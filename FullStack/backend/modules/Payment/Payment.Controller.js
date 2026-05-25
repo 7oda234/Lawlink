@@ -100,3 +100,15 @@ export const getLawyerPaymentHistory = async (req, res) => {
     return res.status(500).json({ ok: false, message: err.message });
   }
 };
+
+// 👇 الدالة الجديدة الخاصة بالعميل
+export const getClientPaymentHistory = async (req, res) => {
+  try {
+    const { clientId } = req.params;
+    const payments = await paymentsService.getClientPaymentHistory(clientId);
+    return res.status(200).json({ ok: true, payments });
+  } catch (err) {
+    console.error("🔥 Controller Error in getClientPaymentHistory:", err.message);
+    return res.status(500).json({ ok: false, message: err.message });
+  }
+};

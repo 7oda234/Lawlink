@@ -93,10 +93,11 @@ const Navbar = () => {
         {/* الجزء ده بيعرض اللينكات حسب حالة المستخدم ونوعه */}
         <div className="hidden md:flex gap-8 font-bold">
           
-          {/* الحالة 1: المحامي (Dashboard + How it Works) */}
+          {/* الحالة 1: المحامي (Dashboard + Subscription Plans + How it Works) */}
           {isLoggedIn && userData.role.toLowerCase() === 'lawyer' && (
             <>
               <Link to="/lawyer/dashboard" className="hover:text-yellow-500 transition-colors">{t('nav.dashboard', 'Dashboard')}</Link>
+              <Link to="/subscription-plans" className="hover:text-yellow-500 transition-colors">{isRTL ? 'الاشتراكات' : 'Plans'}</Link>
               <Link to="/how-it-works" className="hover:text-yellow-500 transition-colors">{t('nav.how', 'How it Works')}</Link>
             </>
           )}
@@ -110,10 +111,11 @@ const Navbar = () => {
             </>
           )}
 
-          {/* الحالة 3: الزوار (Home + Find Lawyer + How it Works) */}
+          {/* الحالة 3: الزوار (Home + Subscription Plans + Find Lawyer + How it Works) */}
           {!isLoggedIn && (
             <>
               <Link to="/" className="hover:text-yellow-500 transition-colors">{t('nav.home', 'Home')}</Link>
+              <Link to="/subscription-plans" className="hover:text-yellow-500 transition-colors">{isRTL ? 'خطط الاشتراك' : 'Subscription Plans'}</Link>
               <Link to="/find-lawyer" className="hover:text-yellow-500 transition-colors">{t('nav.findLawyer', 'Find Lawyer')}</Link>
               <Link to="/how-it-works" className="hover:text-yellow-500 transition-colors">{t('nav.how', 'How it Works')}</Link>
             </>

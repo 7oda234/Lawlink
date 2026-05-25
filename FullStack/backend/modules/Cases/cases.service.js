@@ -8,10 +8,11 @@ const runQuery = (sql, params = []) =>
     });
   });
 
-// 1️⃣ إنشاء قضية جديدة
+// 1️⃣ إنشاء قضية جديدة (تم تعديل الاستعلام لدعم الحالة وتاريخ الإنشاء بدقة)
 export const createCase = async (data) => {
-  const sql = `INSERT INTO cases (title, category, description, client_id, status) VALUES (?, ?, ?, ?, 'Pending')`;
-  const res = await runQuery(sql, [data.title, data.category, data.description, data.client_id]);
+  const statusValue = data.status || 'Pending';
+  const sql = `INSERT INTO cases (title, category, description, client_id, status, created_at) VALUES (?, ?, ?, ?, ?, NOW())`;
+  const res = await runQuery(sql, [data.title, data.category, data.description, data.client_id, statusValue]);
   return { ok: true, caseId: res.insertId };
 };
 
@@ -154,4 +155,22 @@ export const updateCaseStatus = async (caseId, status) => {
     throw new Error('القضية غير موجودة أو لم يتم تحديثها.');
   }
   return { ok: true, message: 'تم تحديث حالة القضية بنجاح.' };
+};
+
+// ==========================================
+// ➕ الدوال المضافة (التي يعتمد عليها الكنترولر)
+// ==========================================
+
+// تأكيد الدفع وتحويل القضية إلى "جارية" Ongoing
+export const confirmPayment = async (caseId) => {
+  const sql = `UPDATE cases SET status = 'Ongoing' WHERE case_id = ?`;
+  await runQuery(sql, [caseId]);
+  return { ok: true, message: "تم تأكيد الدفع وتحويل القضية إلى جارية" };
+};
+
+// المسح الآمن (Soft Delete) للقضية
+export const deleteCase = async (id) => {
+  const sql = `UPDATE cases SET deleted_at = NOW() WHERE case_id = ?`;
+  await runQuery(sql, [id]);
+  return { ok: true, message: "تم حذف القضية بنجاح" };
 };

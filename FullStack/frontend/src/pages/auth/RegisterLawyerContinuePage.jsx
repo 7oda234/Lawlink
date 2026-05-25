@@ -1,24 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/auth/AuthBase.css";
-import { FaPhone, FaIdCard, FaBriefcase, FaCalendar, FaVenusMars, FaStar, FaArrowLeft, FaImage, FaMapMarkerAlt } from 'react-icons/fa'; // 👈 تم إضافة أيقونة الموقع
+import { FaPhone, FaIdCard, FaCalendar, FaVenusMars, FaStar, FaArrowLeft, FaImage, FaMapMarkerAlt } from 'react-icons/fa';
 import { useAuth } from '../../context/useAuth';
 import AuthShell from '../../components/AuthShell';
 import logo from '../../Assets/logo/logo canvas.png';
 
 const RegisterLawyerContinuePage = () => {
   const [step, setStep] = useState(3);
+  const [dbSpecialties, setDbSpecialties] = useState([]);
+
   const [formData, setFormData] = useState({
     phone1: '', 
     phone2: '', 
     gender: '', 
     dateOfBirth: '', 
     licenseNumber: '', 
-    specialization: '',
+    specializations: [], 
     yearsExperience: '',
-    image: '',
-    officeAddress: '' // 🚀✅ تم إضافة حقل عنوان المكتب في الـ State
+    image: null, 
+    officeAddress: '' 
   });
+  
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -29,6 +32,24 @@ const RegisterLawyerContinuePage = () => {
     if (!baseData) {
       navigate('/register'); 
     }
+
+    const fetchSpecialties = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'}/users/specializations`);
+        const data = await response.json();
+        
+        if (data.success && data.specializations.length > 0) {
+          setDbSpecialties(data.specializations);
+        } else {
+          setDbSpecialties(['قانون مدني', 'قانون جنائي', 'قانون الأحوال الشخصية', 'قانون الشركات', 'قانون العمل', 'القضاء الإداري']);
+        }
+      } catch (error) {
+        console.error("Error fetching specializations:", error);
+        setDbSpecialties(['قانون مدني', 'قانون جنائي', 'قانون الأحوال الشخصية']);
+      }
+    };
+
+    fetchSpecialties();
   }, [navigate]);
 
   const handleChange = (e) => {
@@ -36,19 +57,32 @@ const RegisterLawyerContinuePage = () => {
     if (errors.general) setErrors({});
   };
 
+  const handleSpecialtyChange = (spec) => {
+    setFormData((prev) => {
+      const currentSpecs = prev.specializations;
+      if (currentSpecs.includes(spec)) {
+        return { ...prev, specializations: currentSpecs.filter(s => s !== spec) };
+      } else {
+        return { ...prev, specializations: [...currentSpecs, spec] };
+      }
+    });
+  };
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, image: reader.result });
-      };
-      reader.readAsDataURL(file);
+      setFormData({ ...formData, image: file });
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (step === 5 && formData.specializations.length === 0) {
+      setErrors({ general: 'يرجى اختيار تخصص قانوني واحد على الأقل' });
+      return;
+    }
+
     if (step < 5) {
       setStep(step + 1);
       return;
@@ -67,29 +101,37 @@ const RegisterLawyerContinuePage = () => {
         Phone_no2: formData.phone2, 
         gender: formData.gender,
         Date_of_Birth: formData.dateOfBirth,
-        
-        licenseNumber: formData.licenseNumber,
-        specialization: formData.specialization,
-        
-        license_number: formData.licenseNumber,
-        specializations: [formData.specialization],
-        
-        years_experience: parseInt(formData.yearsExperience) || 0,
-        image_url: formData.image || null,
-        office_address: formData.officeAddress // 🚀✅ إرسال عنوان المكتب للـ Backend
+        license_number: formData.licenseNumber, 
+        specializations: formData.specializations, 
+        years_experience: parseInt(formData.yearsExperience) || 0, 
+        office_address: formData.officeAddress, 
+        image_url: null 
       };
 
       const result = await register(payload);
 
       if (result.success) {
+        const generatedUserId = result.data?.userId || result.userId;
+
+        if (formData.image && formData.image instanceof File && generatedUserId) {
+          const imageFormData = new FormData();
+          imageFormData.append('profilePicture', formData.image);
+          
+          const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+          await fetch(`${apiUrl}/users/upload-profile-picture/${generatedUserId}`, {
+            method: 'POST',
+            body: imageFormData,
+          });
+        }
+
         sessionStorage.removeItem('reg_base');
         navigate('/login');
       } else {
-        setErrors({ general: `⚖️ خطأ: ${result.error || "هذا البريد الإلكتروني مسجل بالفعل. يرجى تسجيل الدخول."}` });
+        setErrors({ general: `⚖️ خطأ: ${result.error || "فشل في تسجيل المحامي"}` });
       }
       
     } catch (err) {
-      console.error("Registration API Error:", err); 
+      console.error("Registration Error:", err); 
       setErrors({ general: '🔌 عذراً، تعذر الاتصال بالسيرفر. تأكد من تشغيل الـ Backend.' });
     } finally {
       setLoading(false);
@@ -184,7 +226,6 @@ const RegisterLawyerContinuePage = () => {
                       </div>
                     </div>
                   </div>
-                  {/* 🚀✅ إضافة حقل عنوان المكتب في سطر منفصل ليعطي مساحة للكتابة */}
                   <div className="form-group mt-4">
                     <label>عنوان المكتب</label>
                     <div className="input-container">
@@ -196,30 +237,32 @@ const RegisterLawyerContinuePage = () => {
               )}
 
               {step === 5 && (
-                <div className="form-row animate-fadeIn">
-                  <div className="form-group">
+                <div className="animate-fadeIn">
+                  <div className="form-group mb-4">
                     <label>تاريخ الميلاد</label>
                     <div className="input-container">
                       <FaCalendar className="input-icon" />
                       <input type="date" name="dateOfBirth" className="law-input" value={formData.dateOfBirth} onChange={handleChange} required />
                     </div>
                   </div>
+
                   <div className="form-group">
-                    <label>التخصص القانوني</label>
-                    <div className="input-container">
-                      <FaBriefcase className="input-icon" />
-                      <select name="specialization" className="law-input" value={formData.specialization} onChange={handleChange} required>
-                        <option value="">اختر التخصص الأساسي</option>
-                        <option value="Civil Law">قانون مدني</option>
-                        <option value="Criminal Law">قانون جنائي</option>
-                        <option value="Family Law">قانون الأحوال الشخصية</option>
-                        <option value="Corporate Law">قانون الشركات</option>
-                        <option value="Intellectual Property">الملكية الفكرية</option>
-                        <option value="Labor Law">قانون العمل</option>
-                        <option value="Tax Law">قانون الضرائب</option>
-                        <option value="International Law">القانون الدولي</option>
-                        <option value="Other">أخرى</option>
-                      </select>
+                    <label>التخصص القانوني (يمكنك اختيار أكثر من تخصص)</label>
+                    <div className="input-container" style={{ padding: '15px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0', minHeight: '100px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                        {dbSpecialties.map((spec, index) => (
+                          <label key={index} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px', color: '#334155' }}>
+                            <input 
+                              type="checkbox" 
+                              value={spec} 
+                              checked={formData.specializations.includes(spec)}
+                              onChange={() => handleSpecialtyChange(spec)}
+                              style={{ width: '16px', height: '16px', accentColor: '#1e293b' }}
+                            />
+                            {spec}
+                          </label>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -23,6 +23,9 @@ const ClientEditProfilePage = () => {
   const [initialLoading, setInitialLoading] = useState(true);
   const [statusMsg, setStatusMsg] = useState({ type: '', text: '' });
 
+  // إضافة حالة جديدة لحفظ ملف الصورة الحقيقي (File Object)
+  const [selectedFile, setSelectedFile] = useState(null);
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -35,10 +38,10 @@ const ClientEditProfilePage = () => {
     image_url: ''
   });
 
-  // ✅ الكود الجديد: جلب البيانات قبل التعديل (إضافة التوكن وحماية من undefined)
   useEffect(() => {
     const fetchClientData = async () => {
-      const userId = localStorage.getItem('userId');
+      const rawUserId = localStorage.getItem('userId');
+      const userId = rawUserId ? rawUserId.split(':')[0] : null; 
       const token = localStorage.getItem('token');
 
       if (!userId || userId === 'undefined' || userId === 'null') {
@@ -62,7 +65,8 @@ const ClientEditProfilePage = () => {
             Date_of_Birth: data.Date_of_Birth ? data.Date_of_Birth.split('T')[0] : '',
             gender: data.gender || 'ذكر',
             income_level: data.income_level || '',
-            image_url: data.image_url || ''
+            // جلب مسار الصورة القديم للعرض
+            image_url: data.image_url ? `http://localhost:5000${data.image_url}` : ''
           });
         }
       } catch (err) {
@@ -82,6 +86,9 @@ const ClientEditProfilePage = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setSelectedFile(file); // حفظ الملف الحقيقي لإرساله للسيرفر لاحقاً
+      
+      // استخدام FileReader فقط لعرض الصورة للمستخدم قبل الحفظ (Preview)
       const reader = new FileReader();
       reader.onloadend = () => {
         setFormData({ ...formData, image_url: reader.result });
@@ -90,24 +97,46 @@ const ClientEditProfilePage = () => {
     }
   };
 
-  // ✅ الكود الجديد: إرسال التعديلات للسيرفر مع التوكن
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setStatusMsg({ type: '', text: '' });
 
     try {
-      const userId = localStorage.getItem('userId');
+      const rawUserId = localStorage.getItem('userId');
+      const userId = rawUserId ? rawUserId.split(':')[0] : null; 
       const token = localStorage.getItem('token');
       
-      const res = await axios.put(`http://localhost:5000/api/users/${userId}`, formData, {
+      // 1. رفع الصورة كملف حقيقي (إذا قام المستخدم باختيار صورة جديدة)
+      let finalImageUrl = formData.image_url;
+      if (selectedFile) {
+        const imageFormData = new FormData();
+        imageFormData.append('profilePicture', selectedFile); // يجب أن يطابق الاسم في الباك إند
+
+        const uploadRes = await axios.post(`http://localhost:5000/api/users/upload-profile-picture/${userId}`, imageFormData, {
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+
+        if (uploadRes.data.success) {
+          finalImageUrl = uploadRes.data.imageUrl;
+        }
+      }
+
+      // 2. إرسال باقي البيانات النصية (بدون إرسال Base64 الضخم)
+      const dataToUpdate = { ...formData };
+      delete dataToUpdate.image_url; // نحذفها حتى لا تسبب ضغطاً على السيرفر
+      
+      const res = await axios.put(`http://localhost:5000/api/users/${userId}`, dataToUpdate, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
       if (res.data.success || res.data.ok) {
         localStorage.setItem('userName', formData.name);
         localStorage.setItem('userEmail', formData.email);
-        if(formData.image_url) localStorage.setItem('userImage', formData.image_url);
+        if(finalImageUrl) localStorage.setItem('userImage', finalImageUrl);
 
         window.dispatchEvent(new Event('storage'));
 
@@ -120,7 +149,7 @@ const ClientEditProfilePage = () => {
       }
     } catch (err) {
       console.error("Update Error:", err.response?.data || err.message);
-      setStatusMsg({ type: 'error', text: isRTL ? 'فشل التحديث، تأكد من اتصالك' : 'Update failed' });
+      setStatusMsg({ type: 'error', text: isRTL ? 'فشل التحديث، يرجى المحاولة مرة أخرى' : 'Update failed' });
     } finally {
       setLoading(false);
     }
@@ -132,7 +161,7 @@ const ClientEditProfilePage = () => {
     <div className={`client-page-wrapper ${isDark ? 'dark-mode' : 'light-mode'}`} dir={isRTL ? 'rtl' : 'ltr'}>
       <main className="client-card">
         <div className="flex items-center gap-6 mb-10 border-b border-slate-500/10 pb-8">
-          <button onClick={() => navigate(-1)} className="p-2 hover:bg-yellow-500/10 rounded-full transition-all">
+          <button type="button" onClick={() => navigate(-1)} className="p-2 hover:bg-yellow-500/10 rounded-full transition-all">
              <ArrowLeft size={24} className={isRTL ? 'rotate-180' : ''} />
           </button>
           <h1 className="client-h1 !mb-0">{isRTL ? 'تعديل الملف الشخصي' : 'Edit Profile'}</h1>
@@ -151,6 +180,7 @@ const ClientEditProfilePage = () => {
           <div className="flex justify-center mb-8">
             <div className="relative group cursor-pointer" onClick={() => fileInputRef.current.click()}>
               <img 
+                // تأكد من عرض الصورة الصحيحة
                 src={formData.image_url || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'} 
                 className="w-24 h-24 rounded-3xl object-cover border-4 border-yellow-500 shadow-lg"
                 alt="Profile"
@@ -207,69 +237,3 @@ const ClientEditProfilePage = () => {
 };
 
 export default ClientEditProfilePage;
-
-/* =========================================================================
-   🗑️ الكود القديم (Old Code) للرجوع إليه
-   الدوال القديمة اللي كانت بتسبب مشاكل بسبب الـ undefined وغياب الـ Token
-   ========================================================================= */
-/*
-  // الـ useEffect القديم
-  useEffect(() => {
-    const fetchClientData = async () => {
-      try {
-        const userId = localStorage.getItem('userId');
-        const response = await axios.get(`http://localhost:5000/api/users/profile/${userId}`);
-        if (response.data.success) {
-          const data = response.data.data;
-          setFormData({
-            name: data.name || '',
-            email: data.email || '',
-            password: '', 
-            Phone_no1: data.Phone_no1 || '',
-            Phone_no2: data.Phone_no2 || '',
-            Date_of_Birth: data.Date_of_Birth ? data.Date_of_Birth.split('T')[0] : '',
-            gender: data.gender || 'ذكر',
-            income_level: data.income_level || '',
-            image_url: data.image_url || ''
-          });
-        }
-      } catch (err) {
-        console.error("Error fetching client data:", err);
-      } finally {
-        setInitialLoading(false);
-      }
-    };
-    fetchClientData();
-  }, []);
-
-  // الـ handleSubmit القديم
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setStatusMsg({ type: '', text: '' });
-
-    try {
-      const userId = localStorage.getItem('userId');
-      const res = await axios.put(`http://localhost:5000/api/users/${userId}`, formData);
-      
-      if (res.data.success) {
-        localStorage.setItem('userName', formData.name);
-        localStorage.setItem('userImage', formData.image_url);
-        localStorage.setItem('userEmail', formData.email);
-
-        window.dispatchEvent(new Event('storage'));
-
-        setStatusMsg({ 
-          type: 'success', 
-          text: isRTL ? 'تم حفظ البيانات وتحديث الملف الشخصي' : 'Profile updated successfully' 
-        });
-
-        setTimeout(() => navigate('/client/profile'), 1500);
-      }
-    } catch (err) {
-      setStatusMsg({ type: 'error', text: isRTL ? 'فشل التحديث' : 'Update failed' });
-    } finally {
-      setLoading(false);
-    }
-  };
-*/

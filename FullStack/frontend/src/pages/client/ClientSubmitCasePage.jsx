@@ -7,15 +7,21 @@ import { useTheme } from '../../context/ThemeContext';
 import "../../styles/client/ClientBase.css";
 
 const ClientSubmitCasePage = () => {
+  // جلب إعدادات اللغة والثيم من الـ Context
   const { language } = useLanguage();
   const { mode } = useTheme();
   const navigate = useNavigate();
   
+  // تحديد اتجاه الصفحة والوضع المظلم بناءً على الإعدادات
   const isDark = mode === 'dark';
   const isRTL = language === 'ar' || language === 'eg';
+  
+  // جلب ID العميل من اللوكال ستورج لربطه بالقضية
   const userId = localStorage.getItem('userId');
 
+  // نصوص الصفحة باللغتين الإنجليزية والعربية (المصرية)
   const content = {
+    // ... (النصوص كما هي في الكود السابق)
     en: {
       title: "Submit New Case",
       subtitle: "Step 1: Case Details & Documentation",
@@ -56,19 +62,27 @@ const ClientSubmitCasePage = () => {
     }
   };
 
+  // اختيار النصوص بناءً على اللغة الحالية
   const t = content[language] || content['eg'];
 
+  // حالة لتخزين نصوص الفورم (العنوان، التخصص، الوصف)
   const [formData, setFormData] = useState({
     title: '',
     category: '',
     description: '',
-    status: 'Pending'
+    status: 'Pending' // الحالة الافتراضية للقضية الجديدة
   });
 
+  // حالة لتخزين الملفات المرفوعة
   const [files, setFiles] = useState([]);
+  
+  // حالة لتخزين التخصصات المجلوبة من الباك إند
   const [specializations, setSpecializations] = useState([]);
+  
+  // حالة لمنع المستخدم من الضغط على زر الحفظ أكثر من مرة
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // دالة لجلب التخصصات من الباك إند عند تحميل الصفحة لأول مرة
   useEffect(() => {
     const fetchSpecializations = async () => {
       try {
@@ -81,71 +95,92 @@ const ClientSubmitCasePage = () => {
         }
       } catch (err) {
         console.error("Error fetching specializations:", err);
+        // تخصصات احتياطية في حال فشل الاتصال بالباك إند
         setSpecializations(['Family Law', 'Criminal Defense', 'Real Estate', 'Corporate Law', 'Labor Law']);
       }
     };
     fetchSpecializations();
   }, []);
 
+  // دالة لمعالجة اختيار الملفات (فلترة ملفات الـ PDF فقط)
   const handleFileChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
+    // تصفية الملفات للتأكد من أنها PDF فقط
     const pdfFiles = selectedFiles.filter(file => file.type === 'application/pdf');
+    
+    // تنبيه المستخدم إذا حاول رفع ملفات غير PDF
     if (pdfFiles.length !== selectedFiles.length) {
       alert(t.alertPdf);
     }
+    
+    // إضافة الملفات الجديدة للملفات السابقة
     setFiles(prev => [...prev, ...pdfFiles]);
   };
 
+  // دالة لحذف ملف معين من القائمة قبل الإرسال
   const removeFile = (indexToRemove) => {
     setFiles(files.filter((_, index) => index !== indexToRemove));
   };
 
+  // الدالة الأهم: معالجة إرسال البيانات للباك إند
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // منع المتصفح من إعادة تحميل الصفحة
+    
+    // التحقق من أن المستخدم اختار التخصص
     if (!formData.category) return alert(t.alertCategory);
-    setIsSubmitting(true);
+    
+    setIsSubmitting(true); // تشغيل تأثير التحميل على الزر
     
     try {
-      const casePayload = { ...formData, client_id: userId };
+      // 1. إنشاء كائن FormData لتغليف النصوص والملفات معاً (لأننا بنرفع ملفات)
+      const submitData = new FormData();
       
-      // 1. إنشاء القضية
-      const caseRes = await axios.post('http://localhost:5000/api/cases', casePayload);
-      
-      if (caseRes.data.ok) {
-        const newCaseId = caseRes.data.caseId;
-        
-        // 2. رفع المستندات
-        if (files.length > 0) {
-          try {
-            const fileData = new FormData();
-            // توحيد اسم الحقل ليتوافق مع Multer في الباك إند
-            files.forEach(file => fileData.append('document_file', file)); 
-            fileData.append('caseId', newCaseId);
-            fileData.append('userId', userId);
+      // إضافة النصوص (يجب أن تتطابق الأسماء هنا مع ما يتوقعه الباك إند)
+      submitData.append('title', formData.title);
+      submitData.append('category', formData.category);
+      submitData.append('description', formData.description);
+      submitData.append('status', formData.status);
+      submitData.append('client_id', userId); 
 
-            // إرسال للمسار الرئيسي بناءً على إعدادات الـ Router
-            await axios.post('http://localhost:5000/api/documents', fileData, {
-              headers: { 'Content-Type': 'multipart/form-data' }
-            });
-          } catch (uploadError) {
-            console.warn("⚠️ فشل رفع الملفات:", uploadError.message);
-          }
-        }
-        
-        alert(t.successMsg);
-        navigate(`/client/find-specialist?category=${encodeURIComponent(formData.category)}&caseId=${newCaseId}`); 
+      // 2. إضافة الملفات باسم 'documents' (يجب أن يتطابق مع upload.array('documents') في الباك إند)
+      if (files.length > 0) {
+        files.forEach(file => {
+          submitData.append('documents', file); 
+        });
       }
+      
+      // 3. إرسال البيانات باستخدام fetch (fetch يقوم بضبط الـ Headers و الـ boundary تلقائياً بشكل مثالي)
+      const response = await fetch('http://localhost:5000/api/cases', {
+        method: 'POST',
+        body: submitData
+      });
+      
+      // تحويل استجابة الباك إند إلى كائن JSON
+      const data = await response.json();
+      
+      // التحقق من نجاح الطلب
+      if (response.ok && data.ok) {
+        const newCaseId = data.caseId; // جلب ID القضية الجديدة من الباك إند
+        alert(t.successMsg);
+        // توجيه المستخدم لصفحة اختيار المحامي مع تمرير بيانات القضية في الرابط
+        navigate(`/client/find-specialist?category=${encodeURIComponent(formData.category)}&caseId=${newCaseId}`); 
+      } else {
+        // في حالة رفض الباك إند للطلب (مثلاً البيانات ناقصة)
+        alert(data.message || "حدث خطأ أثناء حفظ القضية.");
+      }
+
     } catch (err) {
-      console.error("Error:", err.response?.data || err.message);
-      alert("حدث خطأ أثناء حفظ القضية.");
+      console.error("Error Saving Case:", err);
+      alert("حدث خطأ غير متوقع، يرجى التحقق من اتصال السيرفر.");
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false); // إيقاف تأثير التحميل في كل الأحوال
     }
   };
 
   return (
     <div className={`client-page-wrapper ${isDark ? 'dark-mode' : 'light-mode'}`} dir={isRTL ? 'rtl' : 'ltr'}>
       <main className="max-w-4xl mx-auto px-6 pt-24 w-full">
+        {/* رأس الصفحة */}
         <div className="text-center mb-10 flex flex-col items-center">
           <div className="ai-icon-wrapper !w-16 !h-16">
              <Briefcase size={32} />
@@ -154,8 +189,11 @@ const ClientSubmitCasePage = () => {
           <p className="client-subtitle font-bold text-yellow-500">{t.subtitle}</p>
         </div>
         
+        {/* نموذج إدخال البيانات */}
         <div className="client-card !p-10 shadow-2xl">
           <form onSubmit={handleSubmit} className="space-y-8">
+            
+            {/* حقل عنوان القضية */}
             <div className="space-y-3">
               <label className="text-xs font-black uppercase tracking-widest opacity-60 ml-2 rtl:mr-2">{t.caseTitle}</label>
               <div className="relative">
@@ -164,6 +202,7 @@ const ClientSubmitCasePage = () => {
               </div>
             </div>
 
+            {/* حقل اختيار التخصص */}
             <div className="space-y-3">
               <label className="text-xs font-black uppercase tracking-widest opacity-60 ml-2 rtl:mr-2">{t.category}</label>
               <div className="relative">
@@ -178,6 +217,7 @@ const ClientSubmitCasePage = () => {
               </div>
             </div>
 
+            {/* حقل وصف القضية */}
             <div className="space-y-3">
               <label className="text-xs font-black uppercase tracking-widest opacity-60 ml-2 rtl:mr-2">{t.description}</label>
               <div className="relative">
@@ -186,6 +226,7 @@ const ClientSubmitCasePage = () => {
               </div>
             </div>
 
+            {/* منطقة رفع المستندات */}
             <div className="space-y-3 pt-4 border-t border-white/5">
               <label className="text-xs font-black uppercase tracking-widest opacity-60 ml-2 rtl:mr-2">{t.docsTitle}</label>
               <div className="relative">
@@ -196,6 +237,8 @@ const ClientSubmitCasePage = () => {
                   <p className="text-[10px] font-bold opacity-40 mt-1">{t.docsSize}</p>
                 </label>
               </div>
+              
+              {/* عرض الملفات المرفوعة */}
               {files.length > 0 && (
                 <div className="mt-4 space-y-2 max-h-40 overflow-y-auto no-scrollbar">
                   {files.map((file, index) => (
@@ -211,6 +254,7 @@ const ClientSubmitCasePage = () => {
               )}
             </div>
 
+            {/* أزرار الحفظ والإلغاء */}
             <div className="flex gap-4 pt-8 border-t border-white/5">
               <button type="submit" disabled={isSubmitting} className="flex-1 client-btn-primary italic !py-5 flex justify-center items-center gap-2">
                 {isSubmitting ? <div className="spinner border-t-slate-950 w-5 h-5 rounded-full animate-spin border-2 border-slate-950/20"></div> : <><Save size={20} /> {t.btnSave}</>}
@@ -219,6 +263,8 @@ const ClientSubmitCasePage = () => {
             </div>
           </form>
         </div>
+        
+        {/* ملاحظة الأمان */}
         <div className="mt-8 client-banner !justify-center !border-dashed">
           <ShieldCheck className="text-yellow-500 shrink-0" size={18} />
           <p className="client-banner-text !text-xs text-center">{t.securityNote}</p>

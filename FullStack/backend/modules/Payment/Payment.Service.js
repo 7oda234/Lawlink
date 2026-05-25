@@ -90,3 +90,22 @@ export const getLawyerPaymentHistory = async (lawyerId) => {
     throw err;
   }
 };
+
+// 👇 الدالة الجديدة الخاصة بالعميل
+export const getClientPaymentHistory = async (clientId) => {
+  try {
+    const sql = `
+      SELECT p.payment_id, p.amount, p.created_at, p.status, 
+             u.name as lawyer_name, c.title as case_title, 'expense' as type
+      FROM payment p
+      JOIN cases c ON p.case_id = c.case_id
+      JOIN users u ON c.lawyer_id = u.user_id 
+      WHERE p.client_id = ?
+      ORDER BY p.created_at DESC
+    `;
+    return await runQuery(sql, [clientId]);
+  } catch (err) {
+    console.error("🔥 SQL Database Error in getClientPaymentHistory:", err.sqlMessage || err.message);
+    throw err;
+  }
+};

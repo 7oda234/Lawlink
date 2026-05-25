@@ -5,7 +5,7 @@ import { emitToAdminMonitoring, emitToCaseRoom } from '../../Sockets/adminMonito
 // - checks inactive cases
 // - overdue hearing alerts
 // - risk detection based on overdue + escalations + activity
-//
+
 // NOTE:
 // - Messages/hearings/documents are partially stored in MongoDB via existing chat/message modules.
 // - This engine focuses on MariaDB-driven case/alert/escalation/status sources.

@@ -13,7 +13,8 @@ import {
   Clock,
   Sparkles,
   FileText,
-  MapPin
+  MapPin,
+  Wallet // 👈 تم إضافة أيقونة المحفظة
 } from 'lucide-react';
 import { useLanguage } from '../../context/useLanguage';
 import { useTheme } from '../../context/ThemeContextHook';
@@ -118,7 +119,7 @@ const ClientDashboardPage = () => {
           <div className="ai-icon-wrapper !mb-0 !w-14 !h-14"><Gavel /></div>
         </div>
 
-        {/* Stats Grid - Updated to lg:grid-cols-3 */}
+        {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {stats.map((stat, index) => (
             <div key={index} className="client-card !p-6 flex items-center gap-4 hover:border-yellow-500/50 transition-all cursor-default shadow-xl shadow-black/20">
@@ -137,7 +138,8 @@ const ClientDashboardPage = () => {
         <div className="mb-12">
             <h2 className="client-label !mb-6 opacity-40 italic !text-xs uppercase tracking-widest">{isRTL ? 'إجراءات سريعة' : 'Quick Actions'}</h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+            {/* 💡 تم تعديل الـ Grid ليكون xl:grid-cols-3 عشان الكروت الـ 6 يترتبوا 3 و 3 بشكل متناسق */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
                 
                 <Link to="/client/cases/new" className="group relative flex items-center justify-between p-6 bg-yellow-500 rounded-3xl transition-all hover:scale-[1.02] hover:shadow-2xl shadow-yellow-500/20">
                   <div className="flex items-center gap-4">
@@ -177,8 +179,8 @@ const ClientDashboardPage = () => {
                             <Calendar size={24} className="text-yellow-500" />
                         </div>
                         <div>
-                            <p className="text-white font-black italic text-lg leading-tight tracking-wide">Book Meeting</p>
-                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">Meet a Specialist</p>
+                            <p className="text-white font-black italic text-lg leading-tight tracking-wide">{isRTL ? 'تحديد موعد' : 'Book Meeting'}</p>
+                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">{isRTL ? 'مقابلة مختص' : 'Meet a Specialist'}</p>
                         </div>
                     </div>
                     <ChevronRight size={20} className="text-slate-600 group-hover:text-yellow-500 group-hover:translate-x-1 transition-all" />
@@ -208,14 +210,29 @@ const ClientDashboardPage = () => {
                         </div>
                         <div>
                             <p className="text-white font-black italic text-lg leading-tight">{isRTL ? 'الذكاء الاصطناعي' : 'AI Tools'}</p>
-                            <p className="text-indigo-100/50 text-[10px] font-bold uppercase">{isRTL ? 'تحليل الذكي' : 'Smart Draft'}</p>
+                            <p className="text-indigo-100/50 text-[10px] font-bold uppercase">{isRTL ? 'تحليل ذكي' : 'Smart Draft'}</p>
                         </div>
                     </div>
                     <ChevronRight size={20} className="text-white/30 group-hover:translate-x-1 transition-transform" />
                 </Link>
 
+                {/* 💳 كارت المحفظة الجديد */}
+                <Link to="/client/wallet" className="group relative flex items-center justify-between p-6 bg-slate-900 border border-white/5 rounded-3xl transition-all hover:scale-[1.02] hover:border-blue-500/50 shadow-xl">
+                    <div className="flex items-center gap-4">
+                        <div className="w-14 h-14 rounded-2xl bg-slate-950 flex items-center justify-center border border-white/10 group-hover:border-blue-500/30 transition-colors">
+                            <Wallet size={24} className="text-blue-500" />
+                        </div>
+                        <div>
+                            <p className="text-white font-black italic text-lg leading-tight tracking-wide">{isRTL ? 'المحفظة المالية' : 'My Wallet'}</p>
+                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">{isRTL ? 'الرصيد والمدفوعات' : 'Balance & Payments'}</p>
+                        </div>
+                    </div>
+                    <ChevronRight size={20} className="text-slate-600 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" />
+                </Link>
+
             </div>
         </div>
+        
 
         {/* Case Management Section */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-16">

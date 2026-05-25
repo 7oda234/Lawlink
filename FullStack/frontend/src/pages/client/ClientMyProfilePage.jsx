@@ -21,13 +21,13 @@ const ClientMyProfilePage = () => {
     income: '0'
   });
 
-  // ✅ الكود الجديد: جلب البيانات مع الحماية من الـ undefined وإرسال التوكن
   useEffect(() => {
     const fetchProfile = async () => {
-      const userId = localStorage.getItem('userId');
+      // ✅ تنظيف الـ ID كما فعلنا في صفحة التعديل لضمان عدم حدوث مشاكل
+      const rawUserId = localStorage.getItem('userId');
+      const userId = rawUserId ? rawUserId.split(':')[0] : null;
       const token = localStorage.getItem('token');
 
-      // حماية: لو مفيش ID، نوقف العملية عشان السيرفر ميضربش Error 500
       if (!userId || userId === 'undefined' || userId === 'null') {
         console.warn("⚠️ لا يوجد بيانات تسجيل دخول، يرجى تسجيل الدخول أولاً.");
         return; 
@@ -40,10 +40,19 @@ const ClientMyProfilePage = () => {
 
         if (response.data.success || response.data.ok) {
           const data = response.data.data || response.data.user || response.data;
+          
+          // ✅ معالجة مسار الصورة لضمان ظهورها بشكل سليم من السيرفر
+          let finalImageUrl = '';
+          if (data.image_url) {
+            finalImageUrl = data.image_url.startsWith('http') 
+              ? data.image_url 
+              : `http://localhost:5000${data.image_url}`;
+          }
+
           setProfileData({
             name: data.name || '',
             email: data.email || '',
-            image_url: data.image_url || '',
+            image_url: finalImageUrl,
             phone: data.Phone_no1 || '',
             income: data.income_level || '0'
           });
@@ -101,31 +110,3 @@ const ClientMyProfilePage = () => {
 };
 
 export default ClientMyProfilePage;
-
-/* =========================================================================
-   🗑️ الكود القديم (Old Code) للرجوع إليه وقت الحاجة
-   الـ useEffect القديم اللي كان بيبعت الطلب بـ undefined ومفيهوش Token
-   ========================================================================= */
-/*
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const userId = localStorage.getItem('userId');
-        const response = await axios.get(`http://localhost:5000/api/users/profile/${userId}`);
-        if (response.data.success) {
-          const data = response.data.data;
-          setProfileData({
-            name: data.name || '',
-            email: data.email || '',
-            image_url: data.image_url || '',
-            phone: data.Phone_no1 || '',
-            income: data.income_level || '0'
-          });
-        }
-      } catch (err) {
-        console.error("Error loading client profile:", err);
-      }
-    };
-    fetchProfile();
-  }, []);
-*/

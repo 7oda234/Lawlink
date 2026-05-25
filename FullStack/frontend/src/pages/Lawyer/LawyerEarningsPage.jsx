@@ -78,9 +78,7 @@ const LawyerEarningsPage = () => {
                 {walletBalance} <span className="text-2xl text-green-300">EGP</span>
               </h2>
             </div>
-            <button className="px-8 py-4 bg-white text-emerald-900 rounded-full font-black uppercase tracking-wider hover:bg-green-50 transition-colors shadow-lg">
-              {isRTL ? 'سحب الرصيد' : 'Withdraw Funds'}
-            </button>
+           
           </div>
         </div>
 
