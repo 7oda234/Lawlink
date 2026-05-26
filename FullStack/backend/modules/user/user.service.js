@@ -40,21 +40,23 @@ export const searchUsersService = async (searchTerm) => {
         `SELECT 
             u.user_id, u.name, u.email, u.role, u.gender, u.image_url, 
             l.rating_avg, l.verified, l.years_experience,
+            a.authority_level,
             lo.office_address,
             GROUP_CONCAT(ls.spec_name) AS all_specializations 
          FROM users u
          LEFT JOIN lawyer l ON u.user_id = l.user_id
+         LEFT JOIN admin a ON u.user_id = a.user_id
          LEFT JOIN lawyer_office lo ON u.user_id = lo.lawyer_id
          LEFT JOIN lawyer_specializations ls ON u.user_id = ls.lawyer_id
          WHERE (u.name LIKE ? OR u.email LIKE ? OR u.Phone_no1 LIKE ?) 
          AND u.deleted_at IS NULL
-         GROUP BY u.user_id, lo.office_address`, 
+         GROUP BY u.user_id, lo.office_address, a.authority_level`, 
         [term, term, term]
     );
     return rows;
 };
 
-// ✅ 3. تسجيل مستخدم جديد (حفظ كامل لبيانات المحامي والتخصصات)
+// ✅ 3. تسجيل مستخدم جديد (حفظ كامل لبيانات المحامي والتخصصات وصلاحيات الأدمن)
 export const registerUserService = async (userData) => {
     const connection = await pool.promise().getConnection();
     try {
@@ -69,7 +71,6 @@ export const registerUserService = async (userData) => {
         const userId = userResult.insertId;
 
         if (userData.role === 'Lawyer') {
-            // إدخال البيانات الأساسية للمحامي في جدول lawyer
             await connection.query(
                 `INSERT INTO lawyer (user_id, license_number, years_experience, verified) 
                  VALUES (?, ?, ?, ?)
@@ -80,13 +81,11 @@ export const registerUserService = async (userData) => {
                 [userId, userData.license_number || null, userData.years_experience || 0, userData.verified || 0]
             );
             
-            // إدخال التخصصات القانونية المتعددة كمصفوفة بنجاح
             if (userData.specializations && Array.isArray(userData.specializations) && userData.specializations.length > 0) {
                 const specValues = userData.specializations.map(spec => [userId, spec]);
                 await connection.query(`INSERT INTO lawyer_specializations (lawyer_id, spec_name) VALUES ?`, [specValues]);
             }
             
-            // إضافة عنوان مكتب المحاماة عند التسجيل
             if (userData.office_address && userData.office_address.trim() !== "") {
                 await connection.query(
                     `INSERT INTO lawyer_office (lawyer_id, office_address) VALUES (?, ?)
@@ -95,10 +94,11 @@ export const registerUserService = async (userData) => {
                 );
             }
         } else if (userData.role === 'Admin') {
+            // ✅ تم معالجة الـ authority_level هنا مع إعطائه قيمة افتراضية لتفادي أخطاء الـ Database
             await connection.query(
                 `INSERT INTO admin (user_id, authority_level) VALUES (?, ?)
                  ON DUPLICATE KEY UPDATE authority_level = VALUES(authority_level)`, 
-                [userId, userData.authority_level]
+                [userId, userData.authority_level || 'Admin']
             );
         } else if (userData.role === 'Client') {
             await connection.query(
@@ -198,7 +198,6 @@ export const updateUserService = async (userId, userData) => {
                 }
             }
         } else if (userRole && userRole.toLowerCase() === 'client') {
-            // ✅ التعديل هنا: استخدام INSERT ON DUPLICATE لحل مشكلة عدم وجود سجل مسبق وتفادي القيم الفارغة
             if (userData.income_level !== undefined) {
                 const incomeValue = userData.income_level === "" ? 0 : userData.income_level;
                 await connection.query(
@@ -209,9 +208,11 @@ export const updateUserService = async (userId, userData) => {
             }
         } else if (userRole === 'Admin') {
              if (userData.authority_level !== undefined) {
+                // ✅ استخدام INSERT ON DUPLICATE يضمن إضافة السجل في حال لم يكن موجوداً من البداية
                 await connection.query(
-                    `UPDATE admin SET authority_level = ? WHERE user_id = ?`,
-                    [userData.authority_level, userId]
+                    `INSERT INTO admin (user_id, authority_level) VALUES (?, ?)
+                     ON DUPLICATE KEY UPDATE authority_level = VALUES(authority_level)`,
+                    [userId, userData.authority_level]
                 );
             }
         }
@@ -228,8 +229,12 @@ export const updateUserService = async (userId, userData) => {
 
 // ✅ 5. تسجيل الدخول والتحقق من كلمة المرور الملتوية
 export const loginService = async (email, password) => {
+    // ✅ تم إضافة الـ LEFT JOIN لجلب الـ authority_level في عملية تسجيل الدخول
     const [users] = await pool.promise().query(
-        `SELECT * FROM users WHERE email = ? AND deleted_at IS NULL`, 
+        `SELECT u.*, a.authority_level 
+         FROM users u 
+         LEFT JOIN admin a ON u.user_id = a.user_id 
+         WHERE u.email = ? AND u.deleted_at IS NULL`, 
         [email]
     );
 
@@ -240,8 +245,9 @@ export const loginService = async (email, password) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) throw new Error("كلمة المرور غير صحيحة.");
     
+    // ✅ وضع الـ authority_level في التوكن لو أردت استخدامه في طبقة الـ Middleware لاحقاً
     const token = jwt.sign(
-        { userId: user.user_id, role: user.role }, 
+        { userId: user.user_id, role: user.role, authority_level: user.authority_level }, 
         JWT_SECRET, 
         { expiresIn: '1d' }
     );
@@ -253,7 +259,8 @@ export const loginService = async (email, password) => {
             name: user.name, 
             role: user.role, 
             email: user.email, 
-            image_url: user.image_url 
+            image_url: user.image_url,
+            authority_level: user.authority_level || null
         } 
     };
 };
@@ -266,15 +273,17 @@ export const getUserProfileService = async (userId) => {
             l.license_number, l.rating_avg, l.verified, l.years_experience,
             l.years_experience AS yearsExperience,
             c.income_level,
+            a.authority_level, 
             lo.office_address, lo.office_address AS officeAddress,
             GROUP_CONCAT(ls.spec_name SEPARATOR ' و ') AS specialization 
          FROM users u
          LEFT JOIN lawyer l ON u.user_id = l.user_id
          LEFT JOIN client c ON u.user_id = c.user_id
+         LEFT JOIN admin a ON u.user_id = a.user_id 
          LEFT JOIN lawyer_specializations ls ON u.user_id = ls.lawyer_id
          LEFT JOIN lawyer_office lo ON u.user_id = lo.lawyer_id
          WHERE u.user_id = ?
-         GROUP BY u.user_id, lo.office_address`, 
+         GROUP BY u.user_id, lo.office_address, a.authority_level`, 
         [userId]
     );
     if (rows.length === 0) throw new Error("المستخدم غير موجود");
@@ -312,7 +321,7 @@ export const getUserByEmailService = async (email) => {
          LEFT JOIN lawyer_office lo ON u.user_id = lo.lawyer_id
          LEFT JOIN lawyer_specializations ls ON u.user_id = ls.lawyer_id
          WHERE u.email = ? AND u.deleted_at IS NULL
-         GROUP BY u.user_id, lo.office_address
+         GROUP BY u.user_id, lo.office_address, a.authority_level
          LIMIT 1`, [email]
     );
     return rows.length > 0 ? rows[0] : null;
@@ -332,7 +341,7 @@ export const getUserByIdService = async (userId) => {
          LEFT JOIN lawyer_office lo ON u.user_id = lo.lawyer_id
          LEFT JOIN lawyer_specializations ls ON u.user_id = ls.lawyer_id
          WHERE u.user_id = ? AND u.deleted_at IS NULL
-         GROUP BY u.user_id, lo.office_address
+         GROUP BY u.user_id, lo.office_address, a.authority_level
          LIMIT 1`, [userId]
     );
     return rows.length > 0 ? rows[0] : null;
