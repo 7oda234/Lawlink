@@ -70,7 +70,7 @@ const ClientNotificationsPage = React.lazy(() => import('./pages/client/ClientNo
 const ClientPaymentPage = React.lazy(() => import('./pages/client/ClientPaymentPage'));// 🌟 إضافة جديدة للسيناريو: صفحة دفع العميل (إجراء الدفع، عرض خيارات الدفع، إلخ) - Client payment page (make payment, view payment options, etc.)
 const ClientPaymentsPage = React.lazy(() => import('./pages/client/ClientPaymentsPage'));// 🌟 إضافة جديدة للسيناريو: صفحة سجل مدفوعات العميل (عرض جميع المدفوعات، حالة كل دفعة، إلخ) - Client payment history page (view all payments, status of each payment, etc.)
 const ClientInvoicePage = React.lazy(() => import('./pages/client/ClientInvoicePage'));// 🌟 إضافة جديدة للسيناريو: صفحة عرض فاتورة العميل (عرض تفاصيل الفاتورة، تنزيل الفاتورة، إلخ) - Client invoice page (view invoice details, download invoice, etc.)
-const NewCaseIntake = React.lazy(() => import('./pages/client/NewCaseIntake'));// 🌟 إضافة جديدة للسيناريو: صفحة استمارة تقديم القضية الجديدة (نموذج مفصل لجمع معلومات القضية من العميل) - New case intake form page (detailed form to collect case information from client)
+const NewCaseIntake = React.lazy(() => import('./pages/client/NewCaseIntake.jsx'));// 🌟 إضافة جديدة للسيناريو: صفحة استمارة تقديم القضية الجديدة (نموذج مفصل لجمع معلومات القضية من العميل) - New case intake form page (detailed form to collect case information from client)
 const ClientFindLawyer = React.lazy(() => import('./pages/client/ClientFindLawyer'));// 🌟 إضافة جديدة للسيناريو: صفحة البحث عن محامي من قبل العميل (نموذج بحث متقدم، عرض نتائج البحث، إلخ) - Client find lawyer page (advanced search form, display search results, etc.)
 // 🔴 التعديل هنا: إضافة استيراد صفحة المحفظة للعميل
 const ClientWalletPage = React.lazy(() => import('./pages/client/ClientWalletPage'));
@@ -139,7 +139,7 @@ const CaseStatusTrackingPage = React.lazy(() => import('./pages/case/CaseStatusT
 
 // استيراد صفحات التواصل - Importing communication pages
 const MessagesInboxPage = React.lazy(() => import('./pages/communication/MessagesInboxPage')); // 🌟 إضافة جديدة للسيناريو: صفحة صندوق الوارد للرسائل (عرض جميع الرسائل الواردة، مع إمكانية الرد، إلخ) - Messages inbox page (view all incoming messages, with option to reply, etc.)
-const ChatPage = React.lazy(() => import('./pages/communication/ChatPage'));// 🌟 إضافة جديدة للسيناريو: صفحة الشات (تواصل مباشر بين العميل والمحامي، عرض الرسائل، إلخ) - Chat page (direct communication between client and lawyer, view messages, etc.)
+const ChatPage = React.lazy(() => import('./pages/auth/ChatPage.jsx'));// 🌟 إضافة جديدة للسيناريو: صفحة الشات (تواصل مباشر بين العميل والمحامي، عرض الرسائل، إلخ) - Chat page (direct communication between client and lawyer, view messages, etc.)
 const SendMessagePage = React.lazy(() => import('./pages/communication/SendMessagePage'));// 🌟 إضافة جديدة للسيناريو: صفحة إرسال رسالة جديدة (نموذج لإرسال رسالة جديدة، اختيار المستلم، إلخ) - Send message page (form to send new message, select recipient, etc.)
 const NotificationsCenterPage = React.lazy(() => import('./pages/communication/NotificationsCenterPage'));// 🌟 إضافة جديدة للسيناريو: صفحة مركز الإشعارات (عرض جميع الإشعارات، إدارة الإشعارات، إلخ) - Notifications center page (view all notifications, manage notifications, etc.)
 
