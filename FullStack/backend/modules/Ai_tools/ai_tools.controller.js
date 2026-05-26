@@ -1,129 +1,114 @@
-import axios from 'axios';
-import fs from 'fs';
-import { promises as fsPromises } from 'fs';
-import FormData from 'form-data';
+import fs from 'fs'; // بنستورد مكتبة fs عشان نتعامل مع الملفات
+import { promises as fsPromises } from 'fs'; // بنستورد نسخة الـ promises عشان نستخدم async/await مع الملفات
+import FormData from 'form-data'; // بنستورد مكتبة FormData عشان نجهز الملفات كأننا بنرفعها من المتصفح
+import { fetchAiResponse, uploadFileToAi } from './ai_tools.service.js'; // بنستورد دوال التواصل مع البايثون
 
-// بنجيب عنوان سيرفر البايثون من الـ Environment Variables أو نستخدم المحلي بورت 8000
-const PYTHON_AI_SERVICE_URL = process.env.PYTHON_AI_SERVICE_URL || 'http://localhost:8000';
-
-// دالة (Helper) عشان نرجع رسالة الخطأ بشكل نضيف للـ Frontend
-const buildErrorPayload = (error) => {
-    if (error.response) return error.response.data; // لو الخطأ جاي من سيرفر البايثون نفسه
-    return { message: error.message }; // لو الخطأ في السيرفر بتاعنا (الـ Node)
+// دالة ذكية عشان تطلع الإيرور الحقيقي اللي جاي من سيرفر البايثون بدل رسالة 500 المبهمة
+const getErrorMessage = (error) => {
+    try {
+        // بنحاول نحول رسالة الإيرور لـ JSON عشان الفاست آي بي آي بيبعتها كده
+        const parsed = JSON.parse(error.message); 
+        // بنرجع تفاصيل الخطأ (detail) لو موجودة، أو الرسالة العادية
+        return parsed.detail || parsed.message || error.message;
+    } catch {
+        // لو مقدرناش نحولها، بنرجع الرسالة الأصلية أو رسالة عامة
+        return error.message || 'Internal Server Error';
+    }
 };
 
-/** * 1. البحث القانوني الذكي (RAG)
- * بياخد السؤال وبيرجع إجابة بناءً على الداتا اللي في الـ ChromaDB
- */
+// مسار البحث القانوني
 export const conductResearch = async (req, res) => {
     try {
-        const { query } = req.body;
-        // بنعمل Post Request لسيرفر البايثون
-        const response = await axios.post(`${PYTHON_AI_SERVICE_URL}/api/ai/research`, { query });
-        return res.status(200).json({ success: true, data: response.data });
+        // بنبعت الداتا لسيرفر البايثون ونستنى الرد
+        const data = await fetchAiResponse('/api/ai/research', req.body);
+        // لو كله تمام بنرجع حالة 200 والداتا
+        return res.status(200).json({ success: true, data });
     } catch (error) {
-        res.status(500).json({ success: false, error: buildErrorPayload(error) });
+        // هنا التعديل المهم: بنرجع الإيرور الحقيقي في حقل message عشان الريأكت يعرضه
+        res.status(500).json({ success: false, message: getErrorMessage(error) });
     }
 };
 
-/** * 2. مراجعة العقود (PDF Review)
- * بياخد ملف PDF، بيبعته للبايثون، وبيرجع تحليل للمخاطر والالتزامات
- */
+// مسار مراجعة العقود
 export const contractReview = async (req, res) => {
-    const filePath = req.file?.path; // بنجيب مسار الملف اللي الـ Middleware رفعه
+    // بنجيب مسار الملف اللي اترفع
+    const filePath = req.file?.path;
     try {
+        // لو مفيش ملف بنرجع إيرور 400
         if (!req.file || !filePath) {
-            return res.status(400).json({ success: false, message: 'file is required for contract review.' });
+            return res.status(400).json({ success: false, message: 'file is required.' });
         }
-
-        // بنقرأ الملف من الهارد عشان نبعته للبايثون
+        // بنقرأ الملف من الهارد ونحطه في الميموري
         const fileBuffer = await fsPromises.readFile(filePath);
-
-        // بنجهز الـ FormData كأننا بنرفع ملف من Browser
+        // بنعمل فورم داتا جديدة
         const formData = new FormData();
+        // بنحط الملف جوه الفورم داتا
         formData.append('file', fileBuffer, req.file.originalname);
-
-        // مهم: بعض بايثون/fastapi endpoints بتبقى حساسة لمسار الراوت + المفتاح (file)
-        const response = await axios.post(
-            `${PYTHON_AI_SERVICE_URL}/api/ai/contract-review`,
-            formData,
-            {
-                headers: formData.getHeaders(),
-                timeout: 60000,
-            }
-        );
-
-        return res.status(200).json({ success: true, data: response.data });
-
+        
+        // بنبعت الملف للبايثون
+        const data = await uploadFileToAi('/api/ai/contract-review', formData, formData.getHeaders());
+        // بنرجع النتيجة
+        return res.status(200).json({ success: true, data });
     } catch (error) {
-        console.error('Contract Review Error:', error.message);
-        // حتى لو حصل غلط، بنحاول نمسح الملف عشان النظافة
-        if (filePath) {
-            try { await fsPromises.unlink(filePath); } catch (e) { console.error('Unlink Error:', e.message); }
-        }
-        res.status(500).json({ success: false, error: buildErrorPayload(error) });
+        // لو حصل مشكلة بنحاول نمسح الملف من الهارد عشان منسيبش زبالة
+        if (filePath) { try { await fsPromises.unlink(filePath); } catch (e) {} }
+        // بنرجع الإيرور الحقيقي للفرونت إند
+        res.status(500).json({ success: false, message: getErrorMessage(error) });
     }
 };
 
-
-/** * 3. الشات القانوني السريع
- * استفسارات عامة في القانون المصري
- */
+// مسار الشات القانوني
 export const handleLegalChat = async (req, res) => {
     try {
-        const { message } = req.body;
-        // بنبعت السؤال للبايثون على الـ endpoint بتاع الشات
-        const response = await axios.post(`${PYTHON_AI_SERVICE_URL}/api/ai/chat`, { query: message });
-        return res.status(200).json({ success: true, data: response.data });
+        // بنبعت رسالة اليوزر للبايثون
+        const data = await fetchAiResponse('/api/ai/chat', { query: req.body.message });
+        // بنرجع الرد
+        return res.status(200).json({ success: true, data });
     } catch (error) {
-        res.status(500).json({ success: false, error: buildErrorPayload(error) });
+        // بنرجع الإيرور الحقيقي للفرونت إند
+        res.status(500).json({ success: false, message: getErrorMessage(error) });
     }
 };
 
-/** * 4. توقع نتيجة القضية (Predict Outcome)
- * بياخد وقائع القضية وبيرجع نسبة النجاح المتوقعة
- */
+// مسار توقع الأحكام
 export const predictOutcome = async (req, res) => {
     try {
-        // بنبعت الـ facts والـ jurisdiction من الـ req.body مباشرة
-        const response = await axios.post(`${PYTHON_AI_SERVICE_URL}/api/ai/predict`, req.body);
-        return res.status(200).json({ success: true, data: response.data });
+        // بنبعت وقائع القضية للبايثون
+        const data = await fetchAiResponse('/api/ai/predict', req.body);
+        // بنرجع النتيجة
+        return res.status(200).json({ success: true, data });
     } catch (error) {
-        res.status(500).json({ success: false, error: buildErrorPayload(error) });
+        // بنرجع الإيرور الحقيقي للفرونت إند
+        res.status(500).json({ success: false, message: getErrorMessage(error) });
     }
 };
 
-/** * 5. كتابة مسودات العقود (Drafting)
- * بياخد نوع العقد والأطراف والشروط وبيولد نص قانوني احترافي
- */
+// مسار صياغة العقود
 export const draftDocument = async (req, res) => {
     try {
-        // بيبعت الـ documentType والـ parties والـ keyTerms
-        const response = await axios.post(`${PYTHON_AI_SERVICE_URL}/api/ai/draft`, req.body);
-        return res.status(200).json({ success: true, data: response.data });
+        // بنبعت بيانات العقد للبايثون
+        const data = await fetchAiResponse('/api/ai/draft', req.body);
+        // بنرجع المسودة
+        return res.status(200).json({ success: true, data });
     } catch (error) {
-        res.status(500).json({ success: false, error: buildErrorPayload(error) });
+        // بنرجع الإيرور الحقيقي للفرونت إند عشان يظهر في المربع الأحمر
+        res.status(500).json({ success: false, message: getErrorMessage(error) });
     }
 };
 
-/** * 6. شات خدمة العملاء (Customer Support AI)
- * ده اللي عملناه مخصوص عشان يساعد المستخدمين في استخدام تطبيق LawLink نفسه
- */
+// مسار خدمة العملاء
 export const handleCustomerServiceChat = async (req, res) => {
     try {
-        const { message } = req.body;
-
-        if (!message) {
+        // بنتأكد إن اليوزر باعت رسالة
+        if (!req.body.message) {
             return res.status(400).json({ success: false, message: 'لازم تكتب رسالة عشان نرد عليك يا بطل.' });
         }
-
-        // بنبعت السؤال لسيرفر البايثون على المسار الجديد بتاع الدعم الفني
-        const response = await axios.post(`${PYTHON_AI_SERVICE_URL}/api/ai/customer-support`, { 
-            query: message 
-        });
-
-        return res.status(200).json({ success: true, data: response.data });
+        // بنبعت الرسالة للبايثون
+        const data = await fetchAiResponse('/api/ai/customer-support', { query: req.body.message });
+        // بنرجع الرد
+        return res.status(200).json({ success: true, data });
     } catch (error) {
-        res.status(500).json({ success: false, error: buildErrorPayload(error) });
+        // بنرجع الإيرور الحقيقي للفرونت إند
+        res.status(500).json({ success: false, message: getErrorMessage(error) });
     }
 };

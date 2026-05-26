@@ -152,7 +152,7 @@ const CaseOutcomePredictor = React.lazy(() => import('./pages/AiTools/CaseOutcom
 const LegalChatbot = React.lazy(() => import('./pages/AiTools/LegalChatbot')); // 🌟 إضافة جديدة للسيناريو: صفحة أداة الشات بوت القانونية (شات بوت مدعوم بالذكاء الاصطناعي للإجابة على الأسئلة القانونية الشائعة، تقديم إرشادات قانونية، إلخ) - Legal chatbot page (AI-powered chatbot to answer common legal questions, provide legal guidance, etc.)
 
 // 💬 استيراد صفحة الشات اللحظي الجديدة (المربوطة بـ Socket.io و MongoDB)
-const LiveChatPage = React.lazy(() => import('./pages/auth/ChatPage.jsx')); // 🌟 إضافة جديدة للسيناريو: صفحة الشات اللحظي (تواصل مباشر بين العميل والمحامي، مع تخزين الرسائل في MongoDB وعرضها في الوقت الحقيقي باستخدام Socket.io) - Live chat page (real-time communication between client and lawyer, with messages stored in MongoDB and displayed in real-time using Socket.io)
+const LiveChatPage = React.lazy(() => import('./pages/communication/ChatPage.jsx')); // 🌟 إضافة جديدة للسيناريو: صفحة الشات اللحظي (تواصل مباشر بين العميل والمحامي، مع تخزين الرسائل في MongoDB وعرضها في الوقت الحقيقي باستخدام Socket.io) - Live chat page (real-time communication between client and lawyer, with messages stored in MongoDB and displayed in real-time using Socket.io)
 
 // استيراد صفحات الأدوات - Importing utility pages
 const SettingsPage = React.lazy(() => import('./pages/utility/SettingsPage')); // 🌟 إضافة جديدة للسيناريو: صفحة الإعدادات (إعدادات الحساب، إعدادات الإشعارات، إلخ) - Settings page (account settings, notification settings, etc.)
