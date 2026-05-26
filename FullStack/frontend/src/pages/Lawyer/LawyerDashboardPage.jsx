@@ -91,7 +91,7 @@ const LawyerDashboardPage = () => {
     <div className={`min-h-screen p-4 md:p-8 pt-24 ${isDark ? 'bg-[#0a0c10] text-white' : 'bg-slate-50 text-slate-900'}`} dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-7xl mx-auto space-y-10">
         
-        {/* 🚀✅ Stats: 3 كروت في الصف مع مسافات مريحة وإظهار العنوان بالكامل */}
+        {/* 🚀✅ Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {[
             { label: isRTL ? 'القضايا' : 'ACTIVE CASES', value: cases.length, icon: Briefcase, color: 'text-blue-500' },
@@ -137,11 +137,6 @@ const LawyerDashboardPage = () => {
               <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">{isRTL ? 'تحكم بالمواعيد' : 'SCHEDULE CONTROL'}</p>
           </Link>
 
-          <Link to="/lawyer/calendar" className="group p-8 bg-slate-900 border border-white/5 rounded-[2rem] transition-all hover:scale-[1.03] hover:border-purple-500/50 flex flex-col justify-center min-h-[160px]">
-            <Clock size={32} className="text-purple-500 mb-4 group-hover:-rotate-12 transition-transform" />
-            <h3 className="text-white font-black italic text-lg uppercase leading-tight">{isRTL ? 'الجدول' : 'Agenda'}</h3>
-            <p className="text-white/30 text-[10px] font-bold uppercase mt-1">{isRTL ? 'متابعة الوقت' : 'Time Tracking'}</p>
-          </Link>
 
           <Link to="/lawyer/court-sessions" className="group p-8 bg-slate-900 border border-white/5 rounded-[2rem] transition-all hover:scale-[1.03] hover:border-cyan-500/50 shadow-xl shadow-cyan-500/5 flex flex-col justify-center min-h-[160px]">
               <Gavel size={32} className="text-cyan-500 mb-4 group-hover:-rotate-12 transition-transform" />
@@ -167,8 +162,7 @@ const LawyerDashboardPage = () => {
         </div>
 
         {/* Sections */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-          
+        <div className="grid grid-cols-1 gap-10">
           <div className="bg-slate-900/40 rounded-[3rem] p-10 border border-white/5">
             <h3 className="text-xl font-black italic mb-8 uppercase flex items-center gap-2">
               <Calendar className="text-blue-500" size={20} />
@@ -203,49 +197,14 @@ const LawyerDashboardPage = () => {
               )) : <p className="text-center opacity-20 py-10 uppercase italic font-black">Agenda is Clear</p>}
             </div>
           </div>
-
-          <div className="bg-slate-900/40 rounded-[3rem] p-10 border border-white/5">
-            <h3 className="text-xl font-black italic mb-8 uppercase flex items-center gap-2">
-              <MessageSquare className="text-emerald-500" size={20} />
-              {isRTL ? 'الدردشة الحية' : 'Live Client Feed'}
-            </h3>
-            <div className="space-y-4">
-              {cases.slice(0, 4).map((msg) => (
-                <div key={msg.case_id} className="flex items-center justify-between p-5 rounded-[2rem] bg-white/5 hover:bg-white/[0.08] transition-all group">
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-full bg-emerald-500/10 overflow-hidden flex items-center justify-center border border-white/5 shadow-inner">
-                        <img 
-                          src={formatImg(msg.client_image)} 
-                          alt={msg.client_name}
-                          className="w-full h-full object-cover"
-                          onError={(e) => { e.target.src = 'https://cdn-icons-png.flaticon.com/512/149/149071.png' }}
-                        />
-                    </div>
-                    <div>
-                      <h4 className="font-black italic text-sm text-white">{msg.client_name}</h4>
-                      <p className="text-[10px] font-bold text-emerald-500/60 uppercase mt-0.5">ID: #{msg.case_id}</p>
-                    </div>
-                  </div>
-                  <Link 
-                    to="/chat" 
-                    className="w-12 h-12 rounded-2xl bg-emerald-500 text-slate-950 flex items-center justify-center hover:scale-110 transition-transform shadow-lg shadow-emerald-500/20"
-                  >
-                    <MessageSquare size={20} fill="currentColor" />
-                  </Link>
-                </div>
-              ))}
-            </div>
-          </div>
-
         </div>
 
-        {/* القطعة الجديدة (Why Choose Us) */}
+        {/* Why Choose Us */}
         <section className="pt-10">
           <h2 className={`text-4xl font-black mb-12 ${isDark ? 'text-white' : 'text-slate-900'}`}>
             {t ? t('page.home.whyTitle') : (isRTL ? 'لماذا تختارنا؟' : 'Why Choose Us?')}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Card 1 */}
             <div className={`p-8 rounded-3xl border ${isDark ? 'bg-slate-900 border-white/5' : 'bg-white border-gray-100 shadow-xl'}`}>
               <ShieldCheck className="text-yellow-500 mb-6" size={40} />
               <h3 className="text-2xl font-bold mb-4">
@@ -255,7 +214,6 @@ const LawyerDashboardPage = () => {
                 {t ? t('page.home.benefitVerifiedCopy') : (isRTL ? 'جميع المحامين يخضعون لعملية تحقق صارمة.' : 'All our lawyers undergo a strict verification process.')}
               </p>
             </div>
-            {/* Card 2 */}
             <div className={`p-8 rounded-3xl border ${isDark ? 'bg-slate-900 border-white/5' : 'bg-white border-gray-100 shadow-xl'}`}>
               <Zap className="text-yellow-500 mb-6" size={40} />
               <h3 className="text-2xl font-bold mb-4">
@@ -265,7 +223,6 @@ const LawyerDashboardPage = () => {
                 {t ? t('page.home.benefitEasyCopy') : (isRTL ? 'احجز استشاراتك وأدر قضاياك بسلاسة.' : 'Book consultations and manage cases seamlessly.')}
               </p>
             </div>
-            {/* Card 3 */}
             <div className={`p-8 rounded-3xl border ${isDark ? 'bg-slate-900 border-white/5' : 'bg-white border-gray-100 shadow-xl'}`}>
               <CircleDollarSign className="text-yellow-500 mb-6" size={40} />
               <h3 className="text-2xl font-bold mb-4">
