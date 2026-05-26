@@ -139,7 +139,7 @@ const CaseStatusTrackingPage = React.lazy(() => import('./pages/case/CaseStatusT
 
 // استيراد صفحات التواصل - Importing communication pages
 const MessagesInboxPage = React.lazy(() => import('./pages/communication/MessagesInboxPage')); // 🌟 إضافة جديدة للسيناريو: صفحة صندوق الوارد للرسائل (عرض جميع الرسائل الواردة، مع إمكانية الرد، إلخ) - Messages inbox page (view all incoming messages, with option to reply, etc.)
-const ChatPage = React.lazy(() => import('./pages/auth/ChatPage.jsx'));// 🌟 إضافة جديدة للسيناريو: صفحة الشات (تواصل مباشر بين العميل والمحامي، عرض الرسائل، إلخ) - Chat page (direct communication between client and lawyer, view messages, etc.)
+const ChatPage = React.lazy(() => import('./pages/communication/ChatPage.jsx'));// 🌟 إضافة جديدة للسيناريو: صفحة الشات (تواصل مباشر بين العميل والمحامي، عرض الرسائل، إلخ) - Chat page (direct communication between client and lawyer, view messages, etc.)
 const SendMessagePage = React.lazy(() => import('./pages/communication/SendMessagePage'));// 🌟 إضافة جديدة للسيناريو: صفحة إرسال رسالة جديدة (نموذج لإرسال رسالة جديدة، اختيار المستلم، إلخ) - Send message page (form to send new message, select recipient, etc.)
 const NotificationsCenterPage = React.lazy(() => import('./pages/communication/NotificationsCenterPage'));// 🌟 إضافة جديدة للسيناريو: صفحة مركز الإشعارات (عرض جميع الإشعارات، إدارة الإشعارات، إلخ) - Notifications center page (view all notifications, manage notifications, etc.)
 

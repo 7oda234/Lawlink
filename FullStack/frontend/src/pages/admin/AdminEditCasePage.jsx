@@ -4,27 +4,38 @@ import axios from 'axios';
 import {
   Loader2,
   AlertCircle,
-  Save
+  Save,
+  Lock
 } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import { useLanguage } from '../../context/LanguageContextObject';
+// 🛡️ بنستورد المصادقة عشان نحدد الصلاحيات
+import { useAuth } from '../../context/useAuth';
 
 const AdminEditCasePage = () => {
+  // 🚀 استخدمنا الـ t هنا في العنوان تحت عشان الإيرور بتاعك يختفي
   const { t } = useLanguage();
   const { caseId } = useParams();
   const navigate = useNavigate();
+
+  // 🛡️ بنجيب الصلاحيات وبنحدد إذا كان من حقه يعدل ولا لأ (مستوى 2 وطالع)
+  const { authUser } = useAuth();
+  const myLevel = parseInt(authUser?.authority_level || 1, 10);
+  const canEdit = myLevel >= 2;
 
   const [caseData, setCaseData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState({ type: '', message: '' });
 
+  // جلب بيانات القضية
   useEffect(() => {
     const fetchCase = async () => {
       setLoading(true);
       try {
         const response = await axios.get(`/api/cases/${caseId}`);
-        setCaseData(response.data.data);
-      } catch (error) {
+        setCaseData(response.data.data || response.data);
+      } catch {
+        // 🚀 شيلنا كلمة (error) من الـ catch عشان الإيرور بتاع ESLint اللي في الصورة التانية يختفي
         setStatus({ type: 'error', message: 'فشل في تحميل بيانات القضية.' });
       } finally {
         setLoading(false);
@@ -34,15 +45,23 @@ const AdminEditCasePage = () => {
     fetchCase();
   }, [caseId]);
 
+  // تحديث القيم جوه الفورم
   const handleChange = (e) => {
     const { name, value } = e.target;
     setCaseData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // رفع الداتا للباك إند
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setStatus({ type: 'loading', message: 'جاري حفظ التعديلات...' });
+    
+    // 🛡️ حماية عشان لو حاول يعدل وهو معندوش صلاحية
+    if (!canEdit) {
+      setStatus({ type: 'error', message: 'يا باشا انت ملكش صلاحية تعدل القضايا.' });
+      return;
+    }
 
+    setStatus({ type: 'loading', message: 'بنحفظ التعديلات...' });
     try {
       await axios.patch(`/api/cases/${caseId}`, {
         title: caseData.title,
@@ -54,16 +73,21 @@ const AdminEditCasePage = () => {
         deadline: caseData.deadline,
         urgency: caseData.urgency
       });
-      setStatus({ type: 'success', message: 'تم تحديث بيانات القضية بنجاح.' });
+      setStatus({ type: 'success', message: 'عاش! تم تحديث القضية بنجاح.' });
       setTimeout(() => setStatus({ type: '', message: '' }), 3500);
-    } catch (error) {
-      setStatus({ type: 'error', message: 'فشل حفظ التعديلات. حاول مرة أخرى.' });
+    } catch {
+      // 🚀 شيلنا (error) من هنا كمان عشان نفس السبب
+      setStatus({ type: 'error', message: 'الباك إند رفض التعديل، جرب تاني.' });
     }
   };
 
   return (
-    <AdminLayout title="تعديل قضية" description="قم بتحديث بيانات القضية، الحالة، أو ربطها بعميل/محامي مختلف.">
+    <AdminLayout 
+      title={t('admin.sidebar.editCase', 'تعديل قضية')} 
+      description="قم بتحديث بيانات القضية، الحالة، أو ربطها بعميل/محامي مختلف."
+    >
       <div className="max-w-4xl mx-auto mt-6">
+        
         {loading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((item) => (
@@ -76,13 +100,24 @@ const AdminEditCasePage = () => {
             <p className="mt-4 text-sm text-red-700">تعذر العثور على بيانات القضية المطلوبة.</p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-6 bg-white p-8 rounded-3xl border border-default shadow-sm">
+          <form onSubmit={handleSubmit} className="space-y-6 bg-white p-8 rounded-3xl border border-default shadow-sm relative">
+            
+            {/* 🛡️ لو ملوش صلاحية، بنحط طبقة شفافة فوق الفورم عشان منعه يكتب فيها */}
+            {!canEdit && (
+              <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] z-10 flex flex-col items-center justify-center rounded-3xl">
+                <Lock size={48} className="text-red-500 mb-4" />
+                <h3 className="text-xl font-bold text-gray-800">صلاحية غير كافية</h3>
+                <p className="text-gray-600 font-medium">مستواك الحالي (Level {myLevel}) لا يسمح بتعديل القضايا.</p>
+              </div>
+            )}
+
+            {/* رسايل الخطأ والنجاح */}
             {status.message && (
               <div className={`p-4 rounded-lg flex items-center gap-3 border ${
                 status.type === 'success' ? 'bg-green-50 border-green-200 text-green-700' :
                 status.type === 'error' ? 'bg-red-50 border-red-200 text-red-700' : 'bg-blue-50 border-blue-200 text-blue-700'
               }`}>
-                <AlertCircle size={18} />
+                {status.type === 'loading' ? <Loader2 className="animate-spin" size={18} /> : <AlertCircle size={18} />}
                 <span className="text-sm font-semibold">{status.message}</span>
               </div>
             )}
@@ -129,9 +164,9 @@ const AdminEditCasePage = () => {
                   onChange={handleChange}
                   className="w-full px-4 py-3 bg-page border border-default rounded-xl"
                 >
-                  <option value="Pending">Pending</option>
-                  <option value="Ongoing">Ongoing</option>
-                  <option value="Closed">Closed</option>
+                  <option value="Pending">Pending (انتظار)</option>
+                  <option value="Ongoing">Ongoing (شغالة)</option>
+                  <option value="Closed">Closed (مقفولة)</option>
                   <option value="Awaiting_Payment">Awaiting_Payment</option>
                   <option value="Awaiting_Client_Approval">Awaiting_Client_Approval</option>
                 </select>
@@ -150,7 +185,7 @@ const AdminEditCasePage = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-sm font-bold">معرف العميل</label>
+                <label className="text-sm font-bold">معرف العميل (Client ID)</label>
                 <input
                   name="client_id"
                   type="number"
@@ -160,7 +195,7 @@ const AdminEditCasePage = () => {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-bold">معرف المحامي</label>
+                <label className="text-sm font-bold">معرف المحامي (Lawyer ID)</label>
                 <input
                   name="lawyer_id"
                   type="number"
@@ -203,8 +238,10 @@ const AdminEditCasePage = () => {
               >
                 العودة إلى القضايا
               </button>
+              {/* 🛡️ بنعطل زرار الحفظ كمان لو ملوش صلاحية */}
               <button
                 type="submit"
+                disabled={!canEdit || status.type === 'loading'}
                 className="btn btn-primary px-8 py-3 rounded-xl flex items-center gap-2"
               >
                 <Save className="w-5 h-5" /> حفظ التغيرات
