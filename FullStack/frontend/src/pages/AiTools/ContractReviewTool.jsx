@@ -1,25 +1,15 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import dataService from '../../services/DataService';
+import React, { useState } from 'react'; // بنستورد ريأكت والـ hooks الأساسية
+import { Link } from 'react-router-dom'; // بنستورد Link عشان التنقل السريع بين الصفحات
+import dataService from '../../services/DataService'; // بنستورد السيرفيس اللي بتكلم الباك إند
 import { 
-  FileText, 
-  Sparkles, 
-  Cpu, 
-  ShieldAlert, 
-  ChevronRight, 
-  ChevronLeft, 
-  ArrowLeft,
-  Terminal,
-  Activity,
-  UploadCloud,
-  FileCheck2,
-  ShieldCheck
-} from 'lucide-react';
-import { useLanguage } from '../../context/useLanguage';
-import { useTheme } from '../../context/ThemeContext';
+  FileText, Sparkles, Cpu, ShieldAlert, ChevronRight, ChevronLeft, 
+  ArrowLeft, Terminal, Activity, UploadCloud, FileCheck2, ShieldCheck
+} from 'lucide-react'; // بنستورد الأيقونات
+import { useLanguage } from '../../context/useLanguage'; // بنستورد لغة السيستم
+import { useTheme } from '../../context/ThemeContext'; // بنستورد الثيم (Dark/Light)
 
 const ContractReviewTool = () => {
-  // ✅ الربط الكامل والمباشر مع الـ Navbar لتوحيد اللغة
+  // بنربط الأداة بلغة وثيم السيستم
   const { language, toggleLanguage } = useLanguage();
   const { mode } = useTheme();
   
@@ -27,11 +17,13 @@ const ContractReviewTool = () => {
   const isDark = mode === 'dark';
   const currentLang = isRTL ? 'ar' : 'en';
 
+  // الـ States اللي هتشيل الملف، التحليل، حالة اللودينج، والأخطاء
   const [file, setFile] = useState(null);
   const [analysis, setAnalysis] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // قاموس النصوص باللغتين
   const content = {
     en: {
       title: 'AI Contract Review & Audit',
@@ -61,8 +53,11 @@ const ContractReviewTool = () => {
   
   const t = content[currentLang];
 
+  // 🚀 الدالة المسؤولة عن رفع الملف وجلب التحليل
   const handleReview = async (e) => {
     e.preventDefault();
+    
+    // لو اليوزر داس رفع من غير ما يختار ملف، بنرميله إيرور
     if (!file) {
       setError(t.errorFile);
       return;
@@ -72,16 +67,28 @@ const ContractReviewTool = () => {
     setError('');
     setAnalysis(null);
 
+    // بنجهز الملف في FormData عشان يتبعت للسيرفر كملف مش كنص
     const formData = new FormData();
-    formData.append('contract', file);
+    // 🎯 التعديل المهم: سمينا الحقل 'file' عشان הـ Multer في Node.js مستنيه بالاسم ده
+    formData.append('file', file);
 
     try {
       const response = await dataService.aiTools.contractReview(formData);
-      const payload = response.data?.data || response.data;
-      if (response.data?.success && payload?.analysis) {
-        setAnalysis(payload.analysis);
+      
+      // 🚀 الاستخراج الذكي: بندور على نتيجة التحليل في كل المستويات المحتملة
+      const finalAnalysis = 
+        response?.data?.data?.analysis || 
+        response?.data?.analysis || 
+        response?.analysis || 
+        response?.data?.data?.data?.analysis;
+
+      // لو التحليل رجع سليم، بنعرضه فوراً
+      if (finalAnalysis) {
+        setAnalysis(finalAnalysis);
       } else {
-        throw new Error(response.data?.message || t.errorMsg);
+        // لو مفيش تحليل، بنطبع الريسبونس في الكونسول ونرمي إيرور
+        console.error("Server Response Payload:", response);
+        throw new Error("تم استلام رد من السيرفر ولكن لم يتم العثور على التحليل. يرجى مراجعة الـ Console.");
       }
     } catch (err) {
       setError(err.response?.data?.message || err.message || t.errorMsg);
@@ -94,7 +101,7 @@ const ContractReviewTool = () => {
     <div className={`min-h-screen p-4 md:p-8 pt-24 transition-colors duration-300 ${isDark ? 'bg-[#06080c] text-white' : 'bg-slate-50 text-slate-900'}`} dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-4xl mx-auto space-y-8">
         
-        {/* 🧭 Top Navigation & Language Link */}
+        {/* 🧭 الهيدر وزرار تغيير اللغة */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest opacity-50">
             <Link to="/lawyer/dashboard" className="hover:text-yellow-500 transition-colors">Dashboard</Link>
@@ -114,13 +121,12 @@ const ContractReviewTool = () => {
           </button>
         </div>
 
-        {/* 🧠 Audit Core Panel */}
+        {/* 🧠 الكارت الأساسي للتدقيق */}
         <div className="bg-slate-900/30 backdrop-blur-md border border-white/5 rounded-[2.5rem] p-6 md:p-10 shadow-2xl space-y-8 relative overflow-hidden">
           <div className="absolute top-0 right-0 p-8 opacity-[0.01] pointer-events-none">
             <FileText size={200} />
           </div>
 
-          {/* Header */}
           <div className="flex items-start gap-4 pb-6 border-b border-white/5">
             <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0 shadow-lg shadow-emerald-500/5">
               <Cpu size={26} className="animate-pulse" />
@@ -131,7 +137,7 @@ const ContractReviewTool = () => {
             </div>
           </div>
 
-          {/* Audit Action Upload Form */}
+          {/* فورمة رفع الملف */}
           <form onSubmit={handleReview} className="space-y-6">
             <div className="space-y-3">
               <label className="block text-xs font-black uppercase tracking-widest text-slate-400">
@@ -161,7 +167,6 @@ const ContractReviewTool = () => {
               </div>
             </div>
 
-            {/* Submit Audit Trigger */}
             <button
               type="submit"
               disabled={isLoading || !file}
@@ -175,7 +180,6 @@ const ContractReviewTool = () => {
             </button>
           </form>
 
-          {/* Error Terminal Banner */}
           {error && (
             <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center gap-3 text-xs font-bold animate-pulse">
               <ShieldAlert className="shrink-0" />
@@ -183,7 +187,7 @@ const ContractReviewTool = () => {
             </div>
           )}
 
-          {/* 📊 Premium Analysis Report Interface */}
+          {/* 📊 منطقة عرض التقرير والتحليل */}
           {analysis && (
             <div className="mt-8 border-t border-white/5 pt-8 space-y-4 animate-fadeIn">
               <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
@@ -200,7 +204,6 @@ const ContractReviewTool = () => {
           )}
         </div>
 
-        {/* Secure Footer Controls */}
         <div className="flex items-center justify-between p-5 rounded-2xl bg-slate-900/10 border border-dashed border-white/5">
           <p className="text-[10px] font-bold opacity-30 uppercase tracking-wider">
              LawLink Matrix Core • Enterprise Document Encryption Shield

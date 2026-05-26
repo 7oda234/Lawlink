@@ -20,7 +20,6 @@ import { useLanguage } from '../../context/useLanguage';
 import { useTheme } from '../../context/ThemeContext';
 
 const ResearchTool = () => {
-  // ✅ ربط لغة الأداة بلغة الـ Navbar والسيستم الموحدة
   const { language, toggleLanguage } = useLanguage();
   const { mode } = useTheme();
   
@@ -80,11 +79,20 @@ const ResearchTool = () => {
 
     try {
       const response = await dataService.aiTools.research({ query, jurisdiction: 'Egypt' });
-      const payload = response.data?.data || response.data;
-      if (response.data?.success && payload) {
-        setResult(payload);
+      
+      // 🚀 التعديل السحري: استخراج الإجابة من أي مستوى جوه الـ Response اللي راجع من البايثون
+      const finalAnswer = 
+        response?.data?.data?.answer || 
+        response?.data?.answer || 
+        response?.answer || 
+        response?.data?.data?.data?.answer;
+
+      // لو لقينا الإجابة بنعرضها فوراً من غير ما نسأل عن الـ success
+      if (finalAnswer) {
+        setResult({ answer: finalAnswer });
       } else {
-        throw new Error(response.data?.message || t.errorMsg);
+        console.error("Server Response Payload:", response);
+        throw new Error("تم استلام رد من السيرفر ولكن لم يتم العثور على الإجابة. يرجى مراجعة الـ Console.");
       }
     } catch (err) {
       setError(err.response?.data?.message || err.message || t.errorMsg);
@@ -104,7 +112,6 @@ const ResearchTool = () => {
     <div className={`min-h-screen p-4 md:p-8 pt-24 transition-colors duration-300 ${isDark ? 'bg-[#06080c] text-white' : 'bg-slate-50 text-slate-900'}`} dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-4xl mx-auto space-y-8">
         
-        {/* 🧭 Top Breadcrumbs & Unified Language Sync */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest opacity-50">
             <Link to="/lawyer/dashboard" className="hover:text-yellow-500 transition-colors">Dashboard</Link>
@@ -124,13 +131,11 @@ const ResearchTool = () => {
           </button>
         </div>
 
-        {/* 🧠 Core Research Intelligence Panel */}
         <div className="bg-slate-900/30 backdrop-blur-md border border-white/5 rounded-[2.5rem] p-6 md:p-10 shadow-2xl space-y-8 relative overflow-hidden">
           <div className="absolute top-0 right-0 p-8 opacity-[0.01] pointer-events-none">
             <BookOpen size={200} />
           </div>
 
-          {/* Header */}
           <div className="flex items-start gap-4 pb-6 border-b border-white/5">
             <div className="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0 shadow-lg shadow-blue-500/5">
               <Scale size={26} className="animate-pulse" />
@@ -141,7 +146,6 @@ const ResearchTool = () => {
             </div>
           </div>
 
-          {/* Form Processing Input Area */}
           <form onSubmit={handleSearch} className="space-y-4">
             <label className="block text-xs font-black uppercase tracking-widest text-slate-400">
               {t.questionLabel}
@@ -173,7 +177,6 @@ const ResearchTool = () => {
             </div>
           </form>
 
-          {/* Error Terminal Block */}
           {error && (
             <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center gap-3 text-xs font-bold animate-pulse">
               <ShieldAlert className="shrink-0" />
@@ -181,7 +184,6 @@ const ResearchTool = () => {
             </div>
           )}
 
-          {/* 🔍 Empty Staged Screen */}
           {!result && !isLoading && !error && (
             <div className="text-center py-12 border border-dashed border-white/5 rounded-[2rem] bg-slate-950/20">
               <BookOpen size={40} className="mx-auto text-slate-600 mb-3 opacity-30" />
@@ -190,7 +192,6 @@ const ResearchTool = () => {
             </div>
           )}
 
-          {/* 📄 Results Showcase Render Box */}
           {result && (
             <div className="mt-8 border-t border-white/5 pt-8 space-y-4 animate-fadeIn">
               <div className="flex items-center justify-between">
@@ -199,7 +200,6 @@ const ResearchTool = () => {
                   {t.resultTitle}
                 </h3>
                 
-                {/* Copied Interactive Trigger Button */}
                 <button 
                   type="button"
                   onClick={handleCopy}
@@ -214,7 +214,6 @@ const ResearchTool = () => {
                 </button>
               </div>
               
-              {/* Report Dashboard Screen */}
               <div 
                 className="p-6 rounded-[2rem] bg-slate-950 border border-white/5 text-slate-200 font-sans text-xs md:text-sm leading-loose whitespace-pre-wrap max-h-[450px] overflow-y-auto shadow-inner border-l-blue-500/30 border-l-4" 
                 dir="auto"
@@ -222,7 +221,6 @@ const ResearchTool = () => {
                 {result.answer}
               </div>
 
-              {/* Disclaimer Meta Element */}
               <div className="p-4 rounded-xl bg-slate-950 border border-white/5 text-[10px] font-bold opacity-30 uppercase tracking-wide">
                  {t.disclaimer}
               </div>
@@ -230,7 +228,6 @@ const ResearchTool = () => {
           )}
         </div>
 
-        {/* Secure Footer Controls */}
         <div className="flex items-center justify-between p-5 rounded-2xl bg-slate-900/10 border border-dashed border-white/5">
           <p className="text-[10px] font-bold opacity-30 uppercase tracking-wider">
              LawLink Matrix Core • Deep Jurisprudence Retrieval Hub
