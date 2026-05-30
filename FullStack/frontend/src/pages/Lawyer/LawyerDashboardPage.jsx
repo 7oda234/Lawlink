@@ -6,7 +6,7 @@ import {
   Clock, TrendingUp, FileText, Bell, CheckCircle, 
   Plus, ChevronRight, Star, Gavel, Sparkles,
   ShieldCheck, Zap, CircleDollarSign, 
-  MapPin, Wallet
+  MapPin, Wallet, CreditCard
 } from 'lucide-react';
 import { useLanguage } from '../../context/useLanguage';
 import { useTheme } from '../../context/ThemeContext';
@@ -159,6 +159,17 @@ const LawyerDashboardPage = () => {
               {isRTL ? 'الأرباح والسجل' : 'Earnings & History'}
             </p>
           </Link>
+
+          {/* 💳 كارت إكمال سداد الأقساط الجديد
+          <Link to="/lawyer/subscription" className="group p-8 bg-slate-900 border border-white/5 rounded-[2rem] transition-all hover:scale-[1.03] hover:border-pink-500/50 shadow-xl shadow-pink-500/5 flex flex-col justify-center min-h-[160px]">
+            <CreditCard size={32} className="text-pink-500 mb-4 group-hover:-rotate-3 transition-transform" />
+            <h3 className="text-white font-black italic text-lg uppercase leading-tight tracking-wide">
+              {isRTL ? 'الاشتراك والأقساط' : 'Subscription'}
+            </h3>
+            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">
+              {isRTL ? 'استكمال دفع الأقساط الباقية' : 'Pay Installments'}
+            </p>
+          </Link> */}
         </div>
 
         {/* Sections */}

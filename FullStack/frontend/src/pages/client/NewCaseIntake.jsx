@@ -13,7 +13,6 @@ const AIClassifier = () => {
   const [description, setDescription] = useState("");
   const [detectedCategory, setDetectedCategory] = useState(null);
   const [categoryKey, setCategoryKey] = useState(""); 
-  const [caseId, setCaseId] = useState(null); 
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   
   const isDark = mode === 'dark';
@@ -118,12 +117,12 @@ const AIClassifier = () => {
       const scienceRegex = /علوم|فضاء|كيمياء|فيزياء|بيئة|زراعة|طبيعة|مناخ|علم|نبات|حيوان|تحليل كيميائي|science|physics|chemistry|biology|space|environment|nature/;
 
       // 2. الكلمات المفتاحية القانونية
-      const criminalRegex = /police|stole|theft|jail|crime|drugs|fraud|prison|arrest|scam|shassih|شرطة|سرقة|محضر|حبس|جريمة|مخدرات|نصب|قتل|ضرب|تحرش|بلطجة|قسم|نيابة|تزوير|تلاعب|شاسيه|مخالفة/;
+      const criminalRegex = /police|stole|theft|jail|crime|drugs|fraud|prison|arrest|scam|shassih|شرطة|سرقة|محضر|حبس|جريمة|mخدرات|نصب|قتل|ضرب|تحرش|بلطجة|قسم|نيابة|تزوير|تلاعب|شاسيه|مخالفة/;
       const civilRegex = /sale|buy|contract|car|vehicle|dealer|agreement|شراء|بيع|عقد|عقد بيع|عقد ابتدائي|سيارة|عربية|معيوبة|عيوب|البائع|مشتري|شركة شحن|تاجر|فحص/;
-      const laborRegex = /boss|fired|salary|employment|job|promotion|manager|مديري|رفدني|مرتب|شغل|وظيفة|مكتب العمل|تأمينات|استقالة|مستحقات|خصم|طرد|فصل|تعسفي|جزاءات|ساعات العمل/;
+      const laborRegex = /boss|fired|salary|employment|job|promotion|manager|مديري|رفدني|مرتب|شغل|وظيفة|مكتب العمل|تأمينات|استقالة|mستحقات|خصم|طرد|فصل|تعسفي|جزاءات|ساعات العمل/;
       const familyRegex = /divorce|wife|husband|kids|children|marriage|inheritance|alimony|custody|court|طلاق|زوجتي|زوجي|نفقة|اطفال|خلع|محكمة|رؤية|حضانة|ميراث|ورث|قسيمة|جواز|نسب|ولاية/;
       const injuryRegex = /accident|hurt|damage|insurance|compensation|حادث|تعويض|إصابة|خبطة|تقرير طبي|تأمين بدني|ضرر جسدي|كسر|جرح/;
-      const realestateRegex = /rent|house|apartment|landlord|flat|tenant|land|building|ایجار|شقة|بيت|مالك|عقار|ارض|مبنى|عمارة|مستأجر/;
+      const realestateRegex = /rent|house|apartment|landlord|flat|tenant|land|building|ایجار|شقة|بيت|مالك|عقار|ارض|مبنى|عمارة|mستأجر/;
 
       // 3. فحص الشروط لتحديد الـ Key والـ Result
       if (medicalRegex.test(input)) {
@@ -161,19 +160,21 @@ const AIClassifier = () => {
         key = "realestate";
       }
 
-      // توليد رقم قضية/طلب عشوائي للمحاكاة
-      const mockCaseId = Math.floor(Math.random() * 1000) + 1; 
-
       setDetectedCategory(result);
       setCategoryKey(key);
-      setCaseId(mockCaseId);
       setIsAnalyzing(false);
     }, 2000);
   };
 
   const handleNavigation = () => {
     const urlCategory = arabicUrlCategories[categoryKey] || "عام";
-    navigate(`/client/find-specialist?category=${urlCategory}&caseId=${caseId}`);
+    // نمرر البيانات الحقيقية في الـ state بدلاً من رقم قضية عشوائي وهمي
+    navigate(`/client/find-specialist?category=${urlCategory}`, {
+      state: {
+        description: description,
+        title: `طلب استشارة ذكاء اصطناعي - ${urlCategory}`
+      }
+    });
   };
 
   return (

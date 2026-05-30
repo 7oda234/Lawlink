@@ -71,7 +71,7 @@ const LawyerOffersPage = () => {
 
         {loading ? (
           <div className="flex justify-center py-20 opacity-30 animate-spin"><Briefcase size={40} /></div>
-        ) : offers.length > 0 ? (
+                ) : offers.length > 0 ? (
           <div className="grid gap-6">
             {offers.map(offer => (
               <div key={offer.case_id} 
@@ -84,7 +84,15 @@ const LawyerOffersPage = () => {
                   </div>
                   <div className="min-w-0 flex-1 text-right">
                     <h3 className="text-xl font-black italic truncate">{offer.title}</h3>
-                    <span className="text-[10px] font-black px-2 py-1 bg-yellow-500/10 text-yellow-500 rounded-lg uppercase inline-block mt-1">
+                    
+                    {/* 🚀 إظهار ما كتبه العميل للـ AI أمام المحامي */}
+                    {offer.description && (
+                      <p className="text-sm text-gray-400 mt-2 line-clamp-3 leading-relaxed">
+                        {offer.description}
+                      </p>
+                    )}
+
+                    <span className="text-[10px] font-black px-2 py-1 bg-yellow-500/10 text-yellow-500 rounded-lg uppercase inline-block mt-2">
                       {offer.category}
                     </span>
                   </div>

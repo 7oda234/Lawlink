@@ -102,20 +102,21 @@ const Navbar = () => {
             </>
           )}
 
-          {/* الحالة 2: العميل (Dashboard + Find Lawyer + How it Works) */}
+          {/* الحالة 2: العميل (Dashboard + Find Lawyer + Client Subscription + How it Works) */}
           {isLoggedIn && userData.role.toLowerCase() === 'client' && (
             <>
               <Link to="/client/dashboard" className="hover:text-yellow-500 transition-colors">{t('nav.dashboard', 'Dashboard')}</Link>
               <Link to="/find-lawyer" className="hover:text-yellow-500 transition-colors">{t('nav.findLawyer', 'Find Lawyer')}</Link>
+              {/* 🚀 التعديل هنا: إضافة زر باقات العملاء */}
+              <Link to="/client/subscription-plans" className="hover:text-yellow-500 transition-colors">{isRTL ? 'باقات العملاء' : 'Client Plans'}</Link>
               <Link to="/how-it-works" className="hover:text-yellow-500 transition-colors">{t('nav.how', 'How it Works')}</Link>
             </>
           )}
 
-          {/* الحالة 3: الزوار (Home + Subscription Plans + Find Lawyer + How it Works) */}
+          {/* الحالة 3: الزوار (Home + Find Lawyer + How it Works) */}
           {!isLoggedIn && (
             <>
               <Link to="/" className="hover:text-yellow-500 transition-colors">{t('nav.home', 'Home')}</Link>
-              {/*<Link to="/subscription-plans" className="hover:text-yellow-500 transition-colors">{isRTL ? 'خطط الاشتراك' : 'Subscription Plans'}</Link>*/}
               <Link to="/find-lawyer" className="hover:text-yellow-500 transition-colors">{t('nav.findLawyer', 'Find Lawyer')}</Link>
               <Link to="/how-it-works" className="hover:text-yellow-500 transition-colors">{t('nav.how', 'How it Works')}</Link>
             </>

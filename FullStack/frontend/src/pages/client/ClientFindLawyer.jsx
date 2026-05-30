@@ -16,7 +16,7 @@ const ClientFindLawyer = () => {
   
   const queryParams = new URLSearchParams(location.search);
   const category = queryParams.get('category');
-  const caseId = queryParams.get('caseId');
+  const [caseIdState, setCaseIdState] = useState(queryParams.get('caseId'));
 
   useEffect(() => {
     const fetchLawyers = async () => {
@@ -48,11 +48,45 @@ const ClientFindLawyer = () => {
   }, [category]);
 
   const handleSendOffer = async (lawyerId) => {
-    if (!caseId) return alert("لا يوجد رقم قضية لإرسال العرض!");
-    
     try {
+      let currentCaseId = caseIdState;
+
+      // 🚀 إذا لم تكن القضية منشأة ومعنا الشرح المكتوب للـ AI، نقوم بإنشائها أولاً في الداتا بيز
+      if (!currentCaseId && location.state?.description) {
+        const clientId = localStorage.getItem('userId');
+        if (!clientId) {
+          alert("يجب تسجيل الدخول أولاً لإرسال العرض!");
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append('title', location.state.title || `استشارة - ${category}`);
+        formData.append('category', category || 'عام');
+        formData.append('description', location.state.description);
+        formData.append('client_id', clientId);
+        formData.append('status', 'Pending');
+
+        // إرسال طلب إنشاء القضية الفعلي إلى الـ Backend
+        const createRes = await axios.post('http://localhost:5000/api/cases', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+
+        if (createRes.data.ok) {
+          currentCaseId = createRes.data.caseId;
+          setCaseIdState(currentCaseId); // حفظ الـ ID الجديد في الـ State
+        } else {
+          alert("حدث خطأ أثناء تسجيل بيانات القضية.");
+          return;
+        }
+      }
+
+      if (!currentCaseId) {
+        alert("لا يوجد رقم قضية أو تفاصيل لإرسال العرض!");
+        return;
+      }
+      
       const res = await axios.post(`http://localhost:5000/api/cases/send-offer`, {
-        caseId: caseId,
+        caseId: currentCaseId,
         lawyerId: lawyerId
       });
       if (res.data.ok || res.status === 200) {

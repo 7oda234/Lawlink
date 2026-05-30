@@ -19,7 +19,13 @@ export const createCase = async (data) => {
 // 2️⃣ إرسال عرض لمحامي محدد
 export const sendOffer = async (caseId, lawyerId) => {
   const sql = `UPDATE cases SET lawyer_id = ?, status = 'Pending' WHERE case_id = ?`;
-  await runQuery(sql, [parseInt(lawyerId), parseInt(caseId)]);
+  const res = await runQuery(sql, [parseInt(lawyerId), parseInt(caseId)]);
+  
+  // 🚀 صمام أمان: التحقق من وجود القضية فعلياً قبل إرسال العرض والإشعارات
+  if (res.affectedRows === 0) {
+    throw new Error("فشل إرسال العرض. القضية غير موجودة في قاعدة البيانات.");
+  }
+  
   return { ok: true, message: "تم إرسال القضية للمحامي بنجاح" };
 };
 

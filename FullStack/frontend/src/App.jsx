@@ -108,6 +108,8 @@ const LawyerPaymentTrackingPage = React.lazy(() => import('./pages/Lawyer/Lawyer
 const LawyerNotificationsPage = React.lazy(() => import('./pages/Lawyer/LawyerNotificationsPage'));
 // ⚖️ استيراد صفحة جلسات المحكمة الجديدة
 const CourtSessionsPage = React.lazy(() => import('./pages/Lawyer/CourtSessionsPage'));
+// 💳 إضافة استيراد صفحة إكمال الأقساط للمحامي
+//const LawyerSubscriptionPage = React.lazy(() => import('./pages/Lawyer/LawyerSubscriptionPage'));
 
 // استيراد صفحات الإدارة - Importing admin pages
 const AdminDashboardPage = React.lazy(() => import('./pages/admin/AdminDashboardPage')); // 🌟 إضافة جديدة للسيناريو: صفحة لوحة تحكم الإدارة الرئيسية (عرض ملخص النظام، الإحصائيات، إلخ) - Admin dashboard page (system overview, stats, etc.)
@@ -164,6 +166,11 @@ const NotFoundPage = React.lazy(() => import('./pages/utility/NotFoundPage')); /
 const SubscriptionPlansPage = React.lazy(() => import('./pages/Subscription/SubscriptionPlansPage.jsx.jsx'));
 const SubscriptionPaymentPage = React.lazy(() => import('./pages/Subscription/SubscriptionPaymentPage.jsx'));
 const SubscriptionInvoicePage = React.lazy(() => import('./pages/Subscription/SubscriptionInvoicePage.jsx'));
+
+// 🟢 🟢 استيراد صفحات باقات واشتراكات العملاء (تم تعديل المسار هنا ليتوافق مع الصورة)
+const ClientSubscriptionPlansPage = React.lazy(() => import('./pages/Subscription/ClientSubscriptionPlansPage.jsx'));
+const ClientSubscriptionPaymentPage = React.lazy(() => import('./pages/Subscription/ClientSubscriptionPaymentPage.jsx'));
+const ClientSubscriptionInvoicePage = React.lazy(() => import('./pages/Subscription/ClientSubscriptionInvoicePage.jsx'));
 
 // تعريف المتغيرات للانيميشن - Defining animation variants
 const pageVariants = {
@@ -224,6 +231,10 @@ const routeConfig = [
   { path: '/client/cases/intake', Component: NewCaseIntake }, // 🌟 سيناريو 6: صفحة استمارة تقديم القضية الجديدة (نموذج مفصل لجمع معلومات القضية من العميل) - New case intake form page (detailed form to collect case information from client)
   { path: '/client/wallet', Component: ClientWalletPage }, // 🟢 تم تفعيل المسار بمسح علامتي التعليق (//)
   { path: '/client/find-specialist', Component: ClientFindLawyer }, // 🌟 سيناريو 2
+  // 🚀 مسارات اشتراكات العملاء
+  { path: '/client/subscription-plans', Component: ClientSubscriptionPlansPage },
+  { path: '/client/subscription/payment/:planId', Component: ClientSubscriptionPaymentPage },
+  { path: '/client/subscription/invoice/:invoiceId', Component: ClientSubscriptionInvoicePage },
 
   // lawyer routes
   { path: '/lawyer/dashboard', Component: LawyerDashboard },
@@ -242,6 +253,7 @@ const routeConfig = [
   { path: '/lawyer/payments', Component: LawyerPaymentTrackingPage }, // ✅ مسار المدفوعات للمحامي
   { path: '/lawyer/notifications', Component: LawyerNotificationsPage }, // ✅ مسار إشعارات المحامي
   { path: '/lawyer/court-sessions', Component: CourtSessionsPage }, // ⚖️ مسار جلسات المحكمة الجديد
+  //{ path: '/lawyer/subscription', Component: LawyerSubscriptionPage }, // 💳 مسار صفحة أقساط المحامي المضاف حديثاً
   
   // admin routes
   { path: '/admin/dashboard', Component: AdminDashboardPage },
@@ -345,7 +357,7 @@ const AppContent = () => {
     <div className={`min-h-screen ${mode === 'dark' ? 'bg-slate-950 text-white' : 'bg-gray-50 text-slate-900'}`}>
       {!isAdminRoute && <Navbar />} {/* إخفاء الـ Navbar في صفحات الإدارة - Hide Navbar on admin pages */}
       <main className={`max-w-7xl mx-auto px-4 ${isAdminRoute ? 'pt-0' : 'pt-24'} min-h-screen`}>
-        <React.Suspense fallback={<div className="text-center py-20 italic font-black uppercase tracking-widest animate-pulse">Loading LawLink Archive...</div>}>
+        <React.Suspense fallback={<div className="text-center py-20 italic font-black uppercase tracking-widest animate-pulse">Loading Archive...</div>}>
           <AppRoutes /> 
         </React.Suspense>
       </main>
