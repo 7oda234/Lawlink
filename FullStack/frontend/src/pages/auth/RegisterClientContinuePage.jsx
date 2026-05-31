@@ -13,9 +13,11 @@ const RegisterClientContinuePage = () => {
     phone2: '',
     dateOfBirth: '', 
     gender: '', 
-    income: '',
-    image: '' // إضافة حقل الصورة
+    income: '' // تم إزالة حقل image من هنا لأنه سيتم تخزينه كملف منفصل
   });
+  
+  // حالة جديدة لحفظ ملف الصورة الفعلي بدلاً من Base64
+  const [imageFile, setImageFile] = useState(null); 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -34,15 +36,11 @@ const RegisterClientContinuePage = () => {
     if (errors.general) setErrors({});
   };
 
-  // دالة لتحويل الصورة إلى Base64 لتخزينها في قاعدة البيانات
+  // دالة لحفظ الصورة كملف بدلاً من تحويلها إلى Base64
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, image: reader.result });
-      };
-      reader.readAsDataURL(file);
+      setImageFile(file); // حفظ الملف الفعلي
     }
   };
 
@@ -57,6 +55,7 @@ const RegisterClientContinuePage = () => {
     const baseData = JSON.parse(sessionStorage.getItem('reg_base'));
     
     try {
+      // الخطوة الأولى: تسجيل بيانات المستخدم النصية (بدون الصورة)
       const result = await register({
         name: baseData.fullName,
         email: baseData.email,
@@ -66,11 +65,24 @@ const RegisterClientContinuePage = () => {
         Phone_no2: formData.phone2,
         gender: formData.gender,
         Date_of_Birth: formData.dateOfBirth,
-        income_level: parseFloat(formData.income) || 0,
-        image_url: formData.image || null // إرسال الصورة
+        income_level: parseFloat(formData.income) || 0
       });
 
       if (result.success) {
+        const newUserId = result.data.userId; 
+
+        // الخطوة الثانية: إذا قام المستخدم باختيار صورة، نقوم برفعها باستخدام مسار الرفع المخصص
+        if (imageFile && newUserId) {
+          const uploadData = new FormData();
+          uploadData.append('profilePicture', imageFile); // يجب أن يطابق الاسم في uploadSingle
+
+          await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'}/users/upload-profile-picture/${newUserId}`, {
+            method: 'POST',
+            body: uploadData, 
+            // المتصفح سيقوم بوضع الـ Content-Type تلقائياً كـ multipart/form-data
+          });
+        }
+
         sessionStorage.removeItem('reg_base'); 
         navigate('/login');
       } else {
