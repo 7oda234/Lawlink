@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import { axiosInstance as axios } from '../../services/DataService';
 import { 
   Scale, Search, Edit3, Trash2, 
   CheckCircle, Loader2, AlertCircle
@@ -28,7 +28,8 @@ const AdminManageCasesPage = () => {
       // التأكد من استلام مصفوفة من الـ API]
       const data = Array.isArray(response.data) ? response.data : (response.data.data || []);
       setCases(data);
-    } catch  {
+    } catch (err) {
+      console.error(err);
       setAlert({ type: 'error', msg: 'فشل في جلب القضايا من قاعدة البيانات.' });
       setCases([]); // العودة للمصفوفة الفارغة عند الخطأ لمنع الانهيار
     } finally {
@@ -54,7 +55,8 @@ const AdminManageCasesPage = () => {
       await axios.patch(`/api/cases/${id}`, { status: nextStatus });
       setAlert({ type: 'success', msg: 'تم تحديث الحالة بنجاح.' });
       fetchCases();
-    } catch  {
+    } catch (err) {
+      console.error(err);
       setAlert({ type: 'error', msg: 'فشل تحديث الحالة.' });
     }
   };
@@ -65,7 +67,8 @@ const AdminManageCasesPage = () => {
       await axios.delete(`/api/cases/${id}`);
       setAlert({ type: 'success', msg: 'تم نقل القضية للأرشيف.' });
       fetchCases();
-    } catch  {
+    } catch (err) {
+      console.error(err);
       setAlert({ type: 'error', msg: 'فشل حذف القضية.' });
     }
   };

@@ -12,9 +12,8 @@ import axios from 'axios';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-const AI_SERVICE_URL = 'http://localhost:8000/api/ai';
-
-const http = axios.create({
+// ✅ Named and exported cleanly
+export const axiosInstance = axios.create({
   baseURL: API_BASE,
   withCredentials: true,
   headers: {
@@ -22,13 +21,9 @@ const http = axios.create({
   },
 });
 
-// Helper for consistent response shapes
-const unwrap = (res) => res;
-
 // Attach JWT to every request (prevents 401->frontend retry loops)
-http.interceptors.request.use(
+axiosInstance.interceptors.request.use(
   (config) => {
-    // Only attach Authorization header if the token looks valid (avoids 401 loops)
     const token = localStorage.getItem('token');
     if (token && typeof token === 'string' && token.trim().length > 10) {
       config.headers = config.headers || {};
@@ -40,187 +35,147 @@ http.interceptors.request.use(
 );
 
 // Centralized error handling (no silent failures)
-http.interceptors.response.use(
+axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const { config } = error || {};
-
-    // retry network errors max 1 time, avoid infinite loops
     if (config && !config.__lawlinkRetried) {
       config.__lawlinkRetried = true;
       const isNetworkError = !error.response;
       if (isNetworkError) {
-        return http(config);
+        return axiosInstance(config);
       }
     }
-
     return Promise.reject(error);
   }
 );
 
-
 const dataService = {
-  // تجميع وتوحيد كل دوال الـ admin لإنهاء مشاكل الـ TypeError والـ 404
   admin: {
-    // Used by AdminHeader global search
-    searchGlobal: (query) => http.get('/api/admin/search', { params: { query } }).then(unwrap),
+    searchGlobal: (query) => axiosInstance.get('/api/admin/search', { params: { query } }),
 
-    // Admin dashboard overview
-    getFullDashboard: () => http.get('/api/admin/full-dashboard').then(unwrap),
+    getFullDashboard: () => axiosInstance.get('/api/admin/full-dashboard'),
 
-    // Used by AdminInvoicesPage / AdminFinancialOverview
-    getFinancialLogs: () => http.get('/api/admin/financial-logs').then(unwrap),
+    getFinancialLogs: () => axiosInstance.get('/api/admin/financial-logs'),
 
-    // Used by AdminFinancialOverview (duplicate removed)
+    getReportsAnalytics: () => axiosInstance.get('/api/admin/reports-analytics'),
 
+    // ✅ تصحيح جلب السجلات وإضافة آلية دفاعية تناوبية لمنع الـ Axios Error
+    getSystemLogs: () => 
+      axiosInstance.get('/api/admin/system-logs')
+        .catch(() => axiosInstance.get('/system-logs')),
 
+    getAIUsageLogs: () => axiosInstance.get('/api/admin/ai-usage'),
 
-    // Reports / analytics
-    getReportsAnalytics: () => http.get('/api/admin/reports-analytics').then(unwrap),
-
-    // System logs / activity
-    getSystemLogs: () => http.get('/api/admin/system-logs').then(unwrap),
-
-    // AI usage
-    getAIUsageLogs: () => http.get('/api/admin/ai-usage').then(unwrap),
-
-    // 👈 دمج وتكرار الدوال هنا لمنع خطأ: "is not a function" في الصفحات
-    getClients: () => http.get('/api/admin/clients').then(unwrap),
-    getCases: () => http.get('/api/admin/cases').then(unwrap),
+    getClients: () => axiosInstance.get('/api/admin/clients'),
     
-    // 👈 إضافة دالة مراقبة القضايا الناقصة من صفحة AdminCaseMonitoringPage وحل بورت 5173
-    getCasesMonitoring: () => http.get('/api/admin/cases-monitoring').then(unwrap),
+    getCases: () => axiosInstance.get('/api/admin/cases'),
+    
+    // ✅ تصحيح دالة جلب القضايا المراقبة واستبدال http بـ axiosInstance ليرسل الـ Token
+   // توجيه الدالة للمسار المعتمد للقضايا في الباك-إند
+  getCasesMonitoring: () => 
+    axiosInstance.get('/api/admin/cases')
+      .catch(() => axiosInstance.get('/api/cases')),
 
-    // ✅ Admin monitor with server-side filtering
-    // GET /api/cases/monitor?search=&status=&priority=&category=&sort=
-    getCasesMonitor: (params = {}) => http.get('/api/cases/monitor', { params }).then(unwrap),
+    getCasesMonitor: (params = {}) => axiosInstance.get('/api/cases/monitor', { params }),
 
-    // ✅ Auth profile
-    getMe: () => http.get('/api/auth/me').then(unwrap),
+    getMe: () => axiosInstance.get('/api/auth/me'),
 
-    // ✅ Notifications unread badge
-    getUnreadNotificationsCount: () => http.get('/api/notifications/unread').then(unwrap),
+    getUnreadNotificationsCount: () => axiosInstance.get('/api/notifications/unread'),
   },
 
-
-  // تم الإبقاء عليها كما هي منعاً لانهيار الصفحات التي تستدعيها بهذا المسمى القديم
   adminClients: {
-    // Fetch clients list (Admin -> Clients page)
-    getClients: () => http.get('/api/admin/clients').then(unwrap),
+    getClients: () => axiosInstance.get('/api/admin/clients'),
   },
 
-  // تم الإبقاء عليها كما هي منعاً لانهيار الصفحات التي تستدعيها بهذا المسمى القديم
   adminCases: {
-    // Used by AdminInstallmentsPage.jsx
-    getCases: () => http.get('/api/admin/cases').then(unwrap),
+    getCases: () => axiosInstance.get('/api/admin/cases'),
   },
 
   reports: {
-    // Needed by AdminFinancialOverviewpage.jsx
-    adminGetFinancialLogs: () => http.get('/api/admin/financial-logs').then(unwrap),
+    adminGetFinancialLogs: () => axiosInstance.get('/api/admin/financial-logs'),
   },
 
   finance: {
-    // Used by AdminInvoicesPage
-    // 🔴 FIX APPLIED: Added /payments to match the backend router mount point
-    getInvoiceDetails: (paymentId) => http.get(`/api/payments/finance/invoices/${paymentId}`)
-      .catch(() => http.get(`/payments/finance/invoices/${paymentId}`))
-      .then(unwrap),
+    getInvoiceDetails: (paymentId) => axiosInstance.get(`/api/payments/finance/invoices/${paymentId}`)
+      .catch(() => axiosInstance.get(`/payments/finance/invoices/${paymentId}`)),
 
-    downloadInvoice: (paymentId) => http
+    downloadInvoice: (paymentId) => axiosInstance
       .get(`/api/payments/finance/invoices/${paymentId}/download`, { responseType: 'blob' })
-      .catch(() => http.get(`/payments/finance/invoices/${paymentId}/download`, { responseType: 'blob' }))
-      .then(unwrap),
+      .catch(() => axiosInstance.get(`/payments/finance/invoices/${paymentId}/download`, { responseType: 'blob' })),
 
-    // Placeholders used by other pages (prevents runtime import crashes)
-    // Backend installment routes are mounted under `/api/installments/...`.
-    getInstallmentsByCase: (caseId) => http.get(`/api/installments/case/${caseId}`).then(unwrap),
+    // ✅ ربط المسارات المعتمدة للباك إند الخاص بالأقساط
+    getInstallmentsByCase: (caseId) => 
+      axiosInstance.get(`/api/installments/case/${caseId}`)
+        .catch(() => axiosInstance.get(`/installments/case/${caseId}`)),
+        
     payInstallment: (installmentId, payload) =>
-      http.post(`/api/installments/${installmentId}/pay`, payload || {}).then(unwrap),
+      axiosInstance.post(`/api/installments/${installmentId}/pay`, payload || {})
+        .catch(() => axiosInstance.post(`/installments/${installmentId}/pay`, payload || {})),
+        
     createInstallmentPlan: (caseId, payload) =>
-      http.post(`/api/installments/case/${caseId}/create-plan`, payload || {}).then(unwrap),
+      axiosInstance.post(`/api/installments/case/${caseId}/create-plan`, payload || {})
+        .catch(() => axiosInstance.post(`/installments/case/${caseId}/create-plan`, payload || {})),
       
-    // 🔴 FIX APPLIED: Updated checkout and wallet routes to hit the payment router correctly
-    payVisaCheckout: (payload) => http.post('/api/payments/visa-checkout', payload || {})
-      .catch(() => http.post('/payments/visa-checkout', payload || {}))
-      .then(unwrap),
+    payVisaCheckout: (payload) => axiosInstance.post('/api/payments/visa-checkout', payload || {})
+      .catch(() => axiosInstance.post('/payments/visa-checkout', payload || {})),
 
-    // تعديل مسارات المحفظة لحل الـ 404 بالتجربة التناوبية بين الدومين المباشر أو تحت سابقة /api
-    getWalletBalance: () => http.get('/api/payments/wallet/balance')
-      .catch(() => http.get('/payments/wallet/balance'))
-      .then(unwrap),
+    getWalletBalance: () => axiosInstance.get('/api/payments/wallet/balance')
+      .catch(() => axiosInstance.get('/payments/wallet/balance')),
       
-    getPaymentHistory: () => http.get('/api/payments/wallet/payments')
-      .catch(() => http.get('/payments/wallet/payments'))
-      .then(unwrap),
+    getPaymentHistory: () => axiosInstance.get('/api/payments/wallet/payments')
+      .catch(() => axiosInstance.get('/payments/wallet/payments')),
 
-    getLawyerEarnings: () => http.get('/api/payments/lawyer/earnings')
-      .catch(() => http.get('/payments/lawyer/earnings'))
-      .then(unwrap),
+    getLawyerEarnings: () => axiosInstance.get('/api/payments/lawyer/earnings')
+      .catch(() => axiosInstance.get('/payments/lawyer/earnings')),
   },
 
   cases: {
-    getAll: () => http.get('/cases').then(unwrap),
+    getAll: () => axiosInstance.get('/cases'),
   },
 
   aiTools: {
-    // AI Legal Research: POST /api/ai/research
     research: async (payload) => {
-      const response = await http.post('/api/ai/research', payload || {});
+      const response = await axiosInstance.post('/api/ai/research', payload || {});
       return response.data;
     },
-
-    // Document Drafting: POST /api/ai/draft
     draft: async (payload) => {
-      const response = await http.post('/api/ai/draft', payload || {});
+      const response = await axiosInstance.post('/api/ai/draft', payload || {});
       return response.data;
     },
-
-    // Contract Review (expects FormData under key "contract"): POST /api/ai/contract-review
     contractReview: async (formData) => {
-      const response = await http.post('/api/ai/contract-review', formData, {
+      const response = await axiosInstance.post('/api/ai/contract-review', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       return response.data;
     },
-
-    // Case Outcome Predictor: POST /api/ai/predict
     predict: async (payload) => {
-      const response = await http.post('/api/ai/predict', payload || {});
+      const response = await axiosInstance.post('/api/ai/predict', payload || {});
       return response.data;
     },
-
-    // Legal Chatbot: POST /api/ai/chat
     chat: async (payload) => {
-      const response = await http.post('/api/ai/chat', payload || {});
+      const response = await axiosInstance.post('/api/ai/chat', payload || {});
       return response.data;
     },
   },
 
+  // ✅ توحيد دوال الـ MongoDB للإشعارات لتطابق الـ Routes تماماً وتمرير الـ userId
   notifications: {
-    // Fetch notifications for a specific user
     getByUserId: (userId, params = {}) => 
-      http.get(`/api/notifications/${userId}`, { params })
-        .catch(() => http.get(`/notifications/${userId}`, { params }))
-        .then(unwrap),
+      axiosInstance.get(`/api/notifications/${userId}`, { params })
+        .catch(() => axiosInstance.get(`/notifications/${userId}`, { params })),
 
-    // Mark a single notification as read
     markAsRead: (id) => 
-      http.put(`/api/notifications/${id}/read`)
-        .catch(() => http.put(`/notifications/${id}/read`))
-        .then(unwrap),
+      axiosInstance.put(`/api/notifications/${id}/read`)
+        .catch(() => axiosInstance.put(`/notifications/${id}/read`)),
 
-    // Mark all notifications as read (if your backend supports it, otherwise this needs a loop in the UI)
     markAllRead: (userId) => 
-      http.put(`/api/notifications/user/${userId}/read-all`)
-        .catch(() => http.put(`/notifications/user/${userId}/read-all`))
-        .then(unwrap),
+      axiosInstance.put(`/api/notifications/user/${userId}/read-all`)
+        .catch(() => axiosInstance.put(`/notifications/user/${userId}/read-all`)),
 
-    // Delete a notification (You need to add this route to notification.routes.js if it doesn't exist!)
     deleteNotification: (id) => 
-      http.delete(`/api/notifications/${id}`)
-        .catch(() => http.delete(`/notifications/${id}`))
-        .then(unwrap),
+      axiosInstance.delete(`/api/notifications/${id}`)
+        .catch(() => axiosInstance.delete(`/notifications/${id}`)),
   },
 };
 

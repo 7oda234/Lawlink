@@ -1,7 +1,7 @@
 // بنستورد مكتبة رياكت والهوكس اللي هنحتاجها عشان الصفحة تشتغل
 import React, { useState, useEffect, useCallback } from 'react';
 // بنستورد أكسيوس عشان نكلم الـ API بتاعنا ونجيب الداتا
-import axios from 'axios';
+import { axiosInstance as axios } from '../../services/DataService';
 // بنستورد الأيقونات اللي هنزين بيها الصفحة
 import { 
   Users, Search, Mail, Phone, 
@@ -52,7 +52,8 @@ const AdminManageUsersPage = () => {
       const data = Array.isArray(response.data) ? response.data : [];
       // بنرمي الداتا في الـ State
       setUsers(data);
-    } catch  {
+    } catch (err) {
+      console.error(err);
       // لو الباك إند زعل ومرجعش داتا، بنطلع الإيرور ده
       setError(t('common.error_loading') || 'حصلت مشكلة واحنا بنجيب الداتا يا هندسة.');
       // بنصفر القائمة
@@ -88,7 +89,8 @@ const AdminManageUsersPage = () => {
       await axios.delete(`/api/users/${userId}`);
       // لو نجح، بنجيب الداتا من تاني عشان الجدول يتحدث لوحده
       fetchUsers(); 
-    } catch  {
+    } catch (err) {
+      console.error(err);
       // لو الريكويست ضرب
       alert("حصل إيرور واحنا بنحذف الحساب.");
     }

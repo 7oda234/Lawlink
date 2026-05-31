@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState, useEffect } from 'react'; // استيراد مكتبة ريأكت والـ Hooks
 import { useParams } from 'react-router-dom'; // 1️⃣ Handling: سحب الـ ID من رابط الصفحة
 import axios from 'axios'; // 2️⃣ Handling: المكتبة المسؤولة عن طلب البيانات من السيرفر

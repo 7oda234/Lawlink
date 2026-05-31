@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { axiosInstance as axios } from '../../services/DataService';
 import {
   Loader2,
   AlertCircle,
@@ -34,8 +34,8 @@ const AdminEditCasePage = () => {
       try {
         const response = await axios.get(`/api/cases/${caseId}`);
         setCaseData(response.data.data || response.data);
-      } catch {
-        // 🚀 شيلنا كلمة (error) من الـ catch عشان الإيرور بتاع ESLint اللي في الصورة التانية يختفي
+      } catch (err) {
+        console.error(err);
         setStatus({ type: 'error', message: 'فشل في تحميل بيانات القضية.' });
       } finally {
         setLoading(false);
@@ -75,8 +75,8 @@ const AdminEditCasePage = () => {
       });
       setStatus({ type: 'success', message: 'عاش! تم تحديث القضية بنجاح.' });
       setTimeout(() => setStatus({ type: '', message: '' }), 3500);
-    } catch {
-      // 🚀 شيلنا (error) من هنا كمان عشان نفس السبب
+    } catch (err) {
+      console.error(err);
       setStatus({ type: 'error', message: 'الباك إند رفض التعديل، جرب تاني.' });
     }
   };

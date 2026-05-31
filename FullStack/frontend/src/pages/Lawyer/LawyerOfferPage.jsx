@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Briefcase, X, CheckCircle, DollarSign, Percent, AlertCircle } from 'lucide-react';

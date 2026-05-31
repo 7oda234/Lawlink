@@ -1,9 +1,8 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { axiosInstance as axios } from '../../services/DataService';
 import { 
-  User, Search, Save, Briefcase, Award, CreditCard, ShieldCheck, Loader2, CheckCircle2 
+  User, Search, Save, ShieldCheck, Loader2, CheckCircle2 
 } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import { useAuth } from '../../context/useAuth';
@@ -27,7 +26,7 @@ const AdminEditUserPage = () => {
   const [formData, setFormData] = useState({});
 
   // دالة بتتشيك على الصلاحيات قبل ما تعرض الفورم
-  const checkAccessAndSetData = (data) => {
+  const checkAccessAndSetData = useCallback((data) => {
     // بنعرف الهدف مستواه إيه
     const targetLevel = data.role === 'Admin' ? parseInt(data.authority_level || 1, 10) : 0;
     const isMe = data.user_id === myUserId;
@@ -45,23 +44,25 @@ const AdminEditUserPage = () => {
     setFormData(data);
     setIsEditing(true);
     setStatus({ type: '', message: '' });
-  };
+  }, [myLevel, myUserId]);
 
   // جلب البيانات بالـ ID (لو دخل من جدول المستخدمين)
-  const fetchUserById = async (id) => {
+  const fetchUserById = useCallback(async (id) => {
     setStatus({ type: 'loading', message: 'بنجيب البيانات من الداتا بيز...' });
     try {
       const response = await axios.get(`/api/users/${id}`);
       checkAccessAndSetData(response.data);
-    } catch {
+    } catch (err) {
+      console.error(err);
       setStatus({ type: 'error', message: 'اليوزر ده مش موجود عندنا.' });
     }
-  };
+  }, [checkAccessAndSetData]);
 
   // بننفذ الجلب أول ما الصفحة تفتح وفيها ID
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (userId) fetchUserById(userId);
-  }, [userId]);
+  }, [userId, fetchUserById]);
 
   // دالة البحث بالإيميل
   const handleSearch = async (e) => {
@@ -70,7 +71,8 @@ const AdminEditUserPage = () => {
     try {
       const response = await axios.get(`/api/users/edit-details?email=${searchEmail}`);
       checkAccessAndSetData(response.data);
-    } catch {
+    } catch (err) {
+      console.error(err);
       setStatus({ type: 'error', message: 'مفيش حد بالإيميل ده.' });
       setIsEditing(false);
     }
@@ -87,7 +89,8 @@ const AdminEditUserPage = () => {
       setStatus({ type: 'success', message: 'عاش! التعديلات اتحفظت.' });
       // بنرجعه لصفحة المستخدمين بعد ثانيتين
       setTimeout(() => navigate('/admin/users'), 2000);
-    } catch {
+    } catch (err) {
+      console.error(err);
       setStatus({ type: 'error', message: 'الباك إند زرجن، حاول تاني.' });
     }
   };

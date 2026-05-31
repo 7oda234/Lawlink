@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
-import { UserCheck, Search, Briefcase, Award, ShieldCheck, ShieldAlert, Star, Lock } from 'lucide-react';
+import { axiosInstance as axios } from '../../services/DataService';
+import { Search, Briefcase, Award, ShieldCheck, ShieldAlert, Star, Lock } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import { useLanguage } from '../../context/LanguageContextObject';
 // 🛡️ استيراد الصلاحيات
@@ -26,8 +26,8 @@ const AdminManageLawyersPage = () => {
     try {
       const response = await axios.get('/api/admin/lawyers'); 
       setLawyers(Array.isArray(response.data) ? response.data : []);
-    } catch  {
-      console.error('فشل تحميل قائمة المحامين');
+    } catch (err) {
+      console.error('فشل تحميل قائمة المحامين', err);
       setLawyers([]);
     } finally {
       setLoading(false);
@@ -49,7 +49,8 @@ const AdminManageLawyersPage = () => {
         verified: currentStatus === 1 ? 0 : 1 
       });
       fetchLawyers(); 
-    } catch  {
+    } catch (err) {
+      console.error(err);
       alert("فشل تحديث حالة الاعتماد، الباك إند زرجن.");
     }
   };

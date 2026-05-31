@@ -1,24 +1,16 @@
-// بنستورد الحاجات الأساسية من رياكت
 import React, { useEffect, useMemo, useState } from 'react';
-// الهيكل الأساسي بتاع لوحة الإدارة
 import AdminLayout from '../../components/AdminLayout';
-// ملف السيرفيس اللي بيكلم الباك إند
 import dataService from '../../services/DataService';
-// سياق اللغة للترجمة
 import { useLanguage } from '../../context/LanguageContextObject';
-// شوية أيقونات روشة تظبط شكل الصفحة (وضيفنا القفل للصلاحيات)
-import { Loader2, Plus, Search, Settings2, Lock } from 'lucide-react';
-// 🛡️ سياق المصادقة عشان نراقب رتبة المدير الحالي
+import { Loader2, Plus, Search, Lock } from 'lucide-react';
 import { useAuth } from '../../context/useAuth';
 
-// دالة صغيرة عشان تظبط شكل الفلوس وتكتب جنبها EGP
 const formatMoney = (amount, currency = 'EGP') => {
   const n = Number(amount);
   if (Number.isNaN(n)) return `0 ${currency}`;
   return `${n.toFixed(2)} ${currency}`;
 };
 
-// كومبوننت صغير بيرسم "بادج" لحالة القسط (مدفوع ولا لسه)
 const StatusPill = ({ status }) => {
   const s = String(status || '').toLowerCase();
   const isPaid = s === 'paid' || s === 'completed' || s === 'success';
@@ -40,14 +32,22 @@ const StatusPill = ({ status }) => {
 
 const AdminInstallmentsPage = () => {
   const { t } = useLanguage();
-  
-  // 🛡️ بنسحب بيانات المدير، وبنحدد مستواه
   const { authUser } = useAuth();
-  const myLevel = parseInt(authUser?.authority_level || 1, 10);
-  // 🛡️ الصلاحية: لازم يكون مستوى 4 (مدير عمليات) أو أعلى عشان يلعب في الفلوس
+  
+  const myLevel = useMemo(() => {
+    const levelMap = {
+      'SuperAdmin': 5,
+      'Level 4': 4,
+      'Level 3': 3,
+      'Level 2': 2,
+      'Level 1': 1
+    };
+    const rawLevel = authUser?.authority_level || localStorage.getItem('authorityLevel');
+    return levelMap[rawLevel] ?? parseInt(rawLevel || 1, 10);
+  }, [authUser]);
+
   const canManageFinance = myLevel >= 4;
 
-  // حالات (States) عشان نشيل فيها القضايا والأقساط
   const [cases, setCases] = useState([]);
   const [loading, setLoading] = useState(true);
   const [caseId, setCaseId] = useState('');
@@ -58,7 +58,6 @@ const AdminInstallmentsPage = () => {
   const [payingId, setPayingId] = useState(null);
   const [error, setError] = useState('');
 
-  // بنفلتر الأقساط بناءً على البحث اللي بيكتبه المدير
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return installments;
@@ -72,15 +71,24 @@ const AdminInstallmentsPage = () => {
       );
     });
   }, [installments, query]);
-
-  // بنجيب كل القضايا عشان نحطها في الدروب داون (Select)
-  const fetchCases = async () => {
-    const res = await dataService.admin.getCases();
-    const rows = res?.data || res || [];
-    setCases(Array.isArray(rows) ? rows : rows?.cases || []);
+const fetchCases = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      // ✅ استخدمنا الدالة المعتمدة اللي بتنادي على /api/admin/cases
+      const res = await dataService.admin.getCases();
+      
+      const rows = res?.data?.data || res?.data?.cases || res?.data || (Array.isArray(res) ? res : []);
+      setCases(Array.isArray(rows) ? rows : []);
+    } catch (e) {
+      console.error("Failed to load cases telemetry for dropdown selection:", e);
+      setError('تعذر جلب قضايا المنصة لتوليد خطة الأقساط حالياً.');
+      setCases([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // بنجيب الأقساط بتاعت القضية اللي المدير اختارها
   const fetchInstallments = async (selectedCaseId) => {
     if (!selectedCaseId) {
       setInstallments([]);
@@ -90,48 +98,37 @@ const AdminInstallmentsPage = () => {
     setError('');
     try {
       const res = await dataService.finance.getInstallmentsByCase(selectedCaseId);
-      const rows = res?.data?.installments ?? res?.data ?? [];
-      setInstallments(Array.isArray(rows) ? rows : rows?.installments || []);
-    } catch  {
-      setError('فشلنا في تحميل بيانات الأقساط.');
+      const rows = res?.data?.installments ?? res?.data?.data ?? res?.data ?? [];
+      setInstallments(Array.isArray(rows) ? rows : []);
+    } catch (err) {
+      console.error("Failed to load installments:", err);
+      setError('فشلنا في تحميل بيانات الأقساط الخاصة بهذه القضية.');
       setInstallments([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // أول ما الصفحة تفتح، بنجيب القضايا
   useEffect(() => {
-    const boot = async () => {
-      try {
-        await fetchCases();
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
-    };
-    boot();
+    fetchCases();
   }, []);
 
-  // لما يغير القضية المحددة، نجيب أقساطها
   useEffect(() => {
     if (caseId) fetchInstallments(caseId);
+    else setInstallments([]);
   }, [caseId]);
 
-  // دالة إنشاء خطة التقسيط
   const createPlan = async () => {
-    // 🛡️ حماية إضافية لو حد لعب في الـ UI
     if (!canManageFinance) {
       setError("عفواً، ليس لديك صلاحية مستوى 4 لإنشاء خطط تقسيط.");
       return;
     }
-
     if (!caseId) return;
+
     const totalAmount = Number(plan.totalAmount);
     const months = Number(plan.months);
     if (!totalAmount || totalAmount <= 0 || !months || months <= 0) {
-      setError('دخل مبلغ وشهور صح يا هندسة.');
+      setError('يرجى إدخال مبلغ وعدد شهور صحيح.');
       return;
     }
 
@@ -139,23 +136,21 @@ const AdminInstallmentsPage = () => {
     setError('');
     try {
       await dataService.finance.createInstallmentPlan(caseId, { totalAmount, months });
-      await fetchInstallments(caseId); // بنحدث الجدول
-      setPlan({ totalAmount: '', months: '' }); // بنفضي الفورم
-    } catch  {
+      await fetchInstallments(caseId); 
+      setPlan({ totalAmount: '', months: '' }); 
+    } catch (err) {
+      console.error(err);
       setError('حصلت مشكلة واحنا بنعمل خطة التقسيط.');
     } finally {
       setCreatingPlan(false);
     }
   };
 
-  // دالة دفع القسط
   const payInstallment = async (id) => {
-    // 🛡️ حماية الدفع
     if (!canManageFinance) {
       setError("عفواً، الدفع يحتاج لصلاحية مدير عمليات.");
       return;
     }
-
     if (!id) return;
     setPayingId(id);
     setError('');
@@ -167,7 +162,6 @@ const AdminInstallmentsPage = () => {
 
       await dataService.finance.payInstallment(id, payload);
 
-      // بنحدث حالة القسط في الواجهة من غير ما نعمل ريلود
       setInstallments((current) =>
         current.map((item) =>
           (item.installment_id || item.id) === id
@@ -175,7 +169,8 @@ const AdminInstallmentsPage = () => {
             : item
         )
       );
-    } catch  {
+    } catch (err) {
+      console.error(err);
       setError('عملية الدفع مفلحتش للأسف.');
     } finally {
       setPayingId(null);
@@ -187,97 +182,99 @@ const AdminInstallmentsPage = () => {
       title={t('admin.sidebar.installments', 'التقسيط')}
       description="إدارة خطط التقسيط وتحصيل الدفعات المالية (لصلاحيات مستوى 4 فما فوق)."
     >
-      <div className="space-y-6">
-        
-        {/* فورم إنشاء خطة تقسيط جديدة */}
-        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+      <div className="space-y-6 w-full max-w-none">
+        <div className="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-6 bg-[#161922] p-6 rounded-2xl border border-white/5 shadow-xl">
           <div className="flex-1">
-            <label className="text-slate-300 text-sm font-bold">اختر القضية</label>
+            <label className="text-slate-300 text-base font-black">اختر القضية المراقبة للمستند المالي</label>
             <select
               value={caseId}
               onChange={(e) => setCaseId(e.target.value)}
-              className="mt-2 w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-4 text-sm text-white"
+              className="mt-3 w-full bg-[#0f111a] border border-white/10 rounded-xl py-3.5 px-4 text-base font-bold text-white focus:border-yellow-500 outline-none h-[54px]"
             >
-              <option value="">-- اختار القضية من هنا --</option>
-              {cases.map((c) => (
-                <option key={c.case_id || c.id} value={c.case_id || c.id}>
-                  {c.title || `Case ${c.case_id || c.id}`}
-                </option>
-              ))}
+              <option value="">-- اختر القضية (رقم القضية - عنوان القضية - اسم العميل) --</option>
+              {cases.map((c) => {
+                const currentCaseId = c.case_id || c.id;
+                const currentTitle = c.title || c.case_title || 'بدون عنوان';
+                const currentClientName = c.client_name || c.clientName || 'غير معروف';
+                
+                return (
+                  <option key={currentCaseId} value={currentCaseId} className="text-white bg-[#161922]">
+                    {`رقم: ${currentCaseId} ⚖️ القضية: ${currentTitle} 👤 العميل: ${currentClientName}`}
+                  </option>
+                );
+              })}
             </select>
           </div>
 
-          <div className="w-full lg:w-[420px]">
-            <label className="text-slate-300 text-sm font-bold">إنشاء خطة تقسيط جديدة</label>
-            <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="w-full xl:w-[500px] space-y-2">
+            <label className="text-slate-300 text-base font-black">إنشاء خطة تقسيط جديدة</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <input
                 value={plan.totalAmount}
                 onChange={(e) => setPlan((p) => ({ ...p, totalAmount: e.target.value }))}
                 type="number"
-                placeholder="إجمالي المبلغ"
-                disabled={!canManageFinance} // بنقفلها لو ملوش صلاحية
-                className="bg-white/5 border border-white/10 rounded-xl py-2.5 px-4 text-sm text-white disabled:opacity-50"
+                placeholder="إجمالي المبلغ بالجنيه"
+                disabled={!canManageFinance}
+                className="bg-[#0f111a] border border-white/10 rounded-xl py-3 px-4 text-sm text-white disabled:opacity-50 h-[54px]"
               />
               <input
                 value={plan.months}
                 onChange={(e) => setPlan((p) => ({ ...p, months: e.target.value }))}
                 type="number"
-                placeholder="عدد الشهور"
+                placeholder="عدد الأقساط (الشهور)"
                 disabled={!canManageFinance}
-                className="bg-white/5 border border-white/10 rounded-xl py-2.5 px-4 text-sm text-white disabled:opacity-50"
+                className="bg-[#0f111a] border border-white/10 rounded-xl py-3 px-4 text-sm text-white disabled:opacity-50 h-[54px]"
               />
             </div>
             
-            {/* 🛡️ زرار الإنشاء بيظهر لو ليه صلاحية، ولو ملوش بنطلعله زرار مقفول */}
             {canManageFinance ? (
               <button
                 type="button"
                 onClick={createPlan}
                 disabled={creatingPlan || !caseId}
-                className="mt-3 w-full px-4 py-2 rounded-xl bg-yellow-500/15 border border-yellow-500/25 hover:bg-yellow-500/20 transition text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full h-[50px] rounded-xl bg-yellow-500 text-slate-950 hover:bg-yellow-400 transition font-black text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
               >
-                <Plus size={16} />
-                {creatingPlan ? 'جاري الإنشاء...' : 'توليد خطة الأقساط'}
+                <Plus size={18} />
+                {creatingPlan ? 'جاري إنشاء خطة الدفع...' : 'توليد خطة الأقساط'}
               </button>
             ) : (
-              <div className="mt-3 w-full px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-bold flex items-center justify-center gap-2">
-                <Lock size={16} /> لا تملك صلاحية لإنشاء أقساط
+              <div className="w-full h-[50px] rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-black flex items-center justify-center gap-2">
+                <Lock size={16} /> لا تملك صلاحية لإنشاء أقساط (مستوى 4 مطلوب)
               </div>
             )}
           </div>
         </div>
 
-        {error && <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-200">{error}</div>}
+        {error && <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 font-bold text-sm">{error}</div>}
 
-        {/* جدول عرض الأقساط */}
-        <div className="bg-[#161922] border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
-          <div className="p-5 border-b border-white/5 flex items-center justify-between gap-3">
+        <div className="bg-[#161922] border border-white/5 rounded-2xl overflow-hidden shadow-2xl w-full">
+          <div className="p-6 border-b border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
-              <p className="text-slate-300 font-bold">الأقساط المسجلة</p>
-              <p className="text-slate-500 text-xs">بنعرض {filtered.length} قسط</p>
+              <p className="text-white text-lg font-black">جدولة الأقساط المسجلة</p>
+              <p className="text-slate-400 text-xs mt-1">بنعرض {filtered.length} قسط حالي للقضية</p>
             </div>
-            <div className="relative w-72 max-w-full">
+            <div className="relative w-full sm:w-80">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="ابحث بالحالة أو المبلغ..."
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-9 pr-3 text-sm text-white placeholder:text-slate-500"
+                className="w-full bg-[#0f111a] border border-white/10 rounded-xl py-2.5 pl-9 pr-4 text-sm text-white placeholder:text-slate-500 outline-none focus:border-yellow-500 transition"
               />
             </div>
           </div>
 
-          {loading ? (
-            <div className="p-10 flex items-center justify-center"><Loader2 className="animate-spin text-yellow-500" /></div>
+          {loading && caseId ? (
+            <div className="p-16 flex items-center justify-center"><Loader2 className="animate-spin text-yellow-500 w-8 h-8" /></div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-white/5 text-slate-200 uppercase text-[10px] font-black tracking-widest">
+            <div className="overflow-x-auto w-full">
+              <table className="w-full text-right text-sm">
+                <thead className="bg-white/5 text-slate-300 uppercase text-xs font-black tracking-wider">
                   <tr>
-                    <th className="px-5 py-4">تاريخ الاستحقاق</th>
-                    <th className="px-5 py-4">المبلغ</th>
-                    <th className="px-5 py-4">الحالة</th>
-                    <th className="px-5 py-4">الإجراء</th>
+                    <th className="px-6 py-4 text-right">تاريخ الاستحقاق</th>
+                    <th className="px-6 py-4 text-right">المبلغ المطلوب</th>
+                    <th className="px-6 py-4 text-right">الحالة الجارية</th>
+                    <th className="px-6 py-4 text-center">الإجراء الإداري</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
@@ -287,25 +284,24 @@ const AdminInstallmentsPage = () => {
                     const recordId = it.installment_id || it.id;
 
                     return (
-                      <tr key={recordId} className="hover:bg-white/[0.03] transition-colors">
-                        <td className="px-5 py-4 text-slate-300">{due ? new Date(due).toLocaleDateString() : '-'}</td>
-                        <td className="px-5 py-4 font-semibold text-white">{formatMoney(it.amount || it.value || 0, it.currency || 'EGP')}</td>
-                        <td className="px-5 py-4"><StatusPill status={it.status || (isPaid ? 'Paid' : 'Pending')} /></td>
-                        <td className="px-5 py-4">
+                      <tr key={recordId} className="hover:bg-white/[0.02] transition-colors">
+                        <td className="px-6 py-4 text-slate-300 font-bold">{due ? new Date(due).toLocaleDateString('ar-EG') : '-'}</td>
+                        <td className="px-6 py-4 font-black text-white text-base">{formatMoney(it.amount || it.value || 0, it.currency || 'EGP')}</td>
+                        <td className="px-6 py-4"><StatusPill status={it.status || (isPaid ? 'Paid' : 'Pending')} /></td>
+                        <td className="px-6 py-4 text-center">
                           {isPaid ? (
-                            <span className="text-slate-500 text-xs font-bold">تم الدفع ✔️</span>
+                            <span className="text-emerald-400 text-sm font-black">تم السداد والتسوية بنجاح ✔️</span>
                           ) : canManageFinance ? (
-                            // 🛡️ زرار الدفع بيظهر بس للمديرين الكبار
                             <button
                               type="button"
                               disabled={payingId === recordId}
                               onClick={() => payInstallment(recordId)}
-                              className="px-4 py-2 rounded-xl bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold transition disabled:opacity-50"
+                              className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-black transition disabled:opacity-50 shadow-md shadow-blue-600/10"
                             >
-                              {payingId === recordId ? 'بنحمل...' : 'دفع القسط'}
+                              {payingId === recordId ? 'جاري السداد...' : 'تأكيد تحصيل القسط'}
                             </button>
                           ) : (
-                            <span className="text-xs text-red-400">مقفول 🔒</span>
+                            <span className="text-xs text-red-400 font-bold">مغلق 🔒 (مستوى 4 مطلوب)</span>
                           )}
                         </td>
                       </tr>
@@ -313,8 +309,8 @@ const AdminInstallmentsPage = () => {
                   })}
                   {!filtered.length && (
                     <tr>
-                      <td colSpan={4} className="px-5 py-10 text-center text-slate-500">
-                        مفيش أقساط للقضية دي يا هندسة.
+                      <td colSpan={4} className="px-6 py-12 text-center text-slate-500 font-bold text-base">
+                        {caseId ? "مفيش أقساط مسجلة للقضية دي يا هندسة." : "يرجى اختيار قضية من الأعلى أولاً لعرض الأقساط."}
                       </td>
                     </tr>
                   )}

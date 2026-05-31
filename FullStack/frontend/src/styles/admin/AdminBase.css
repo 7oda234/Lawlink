@@ -182,7 +182,12 @@ html[dir="ltr"] { direction: ltr; text-align: left; }
 .bg-surface { background-color: var(--surface-bg-solid); }
 .border-default { border-color: var(--surface-border); }
 
-.page-container { max-width: 1280px; margin: 0 auto; padding: 2rem 1rem; }
+.page-container { 
+  max-width: none; /* 🚀 Force layout container to use 100% of screen real estate */
+  width: 100%; 
+  margin: 0 auto; 
+  padding: 2rem 1rem; 
+}
 
 /* Admin Cards */
 .card {
@@ -278,4 +283,21 @@ select, .admin-input {
   animation: shimmer 2.5s infinite;
   background: linear-gradient(90deg, var(--card-bg) 0%, var(--hover-bg) 50%, var(--card-bg) 100%);
   background-size: 1000px 100%;
+}
+
+/* Find this block and update the structural layout settings */
+html[dir="rtl"] { 
+  direction: rtl; 
+  text-align: right; 
+}
+
+html[dir="ltr"] { 
+  direction: ltr; 
+  text-align: left; 
+}
+
+/* Ensure global tables don't compress on extra-wide windows */
+.overflow-x-auto {
+  width: 100%;
+  min-width: 100%;
 }

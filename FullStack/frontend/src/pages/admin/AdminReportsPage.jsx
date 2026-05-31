@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import dataService from '../../services/DataService';
 import { 
-  BarChart3, PieChart, TrendingUp, Download, 
-  Calendar, FileText, Wallet, Scale, Loader2, AlertCircle 
+  BarChart3, PieChart, TrendingUp, Wallet, Scale, Loader2 
 } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import { useLanguage } from '../../context/LanguageContextObject';

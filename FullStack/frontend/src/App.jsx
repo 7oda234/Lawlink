@@ -130,6 +130,7 @@ const AdminAiUsagePage = React.lazy(() => import('./pages/admin/AdminAiUsagePage
 const AdminFinancialOverview = React.lazy(() => import('./pages/admin/AdminFinancialOverviewPage'));// 🌟 إضافة جديدة للسيناريو: صفحة النظرة المالية للإدارة (عرض إحصائيات مالية، تقارير مالية، إلخ) - Admin financial overview page (view financial stats, financial reports, etc.)
 const AdminInvoicesPage = React.lazy(() => import('./pages/admin/AdminInvoicesPage'));// 🌟 إضافة جديدة للسيناريو: صفحة إدارة الفواتير (عرض جميع الفواتير، البحث في الفواتير، إلخ) - Admin invoices management page (view all invoices, search invoices, etc.)
 const AdminInstallmentsPage = React.lazy(() => import('./pages/admin/AdminInstallmentsPage'));// 🌟 إضافة جديدة للسيناريو: صفحة إدارة الأقساط (عرض جميع الأقساط، البحث في الأقساط، إلخ) - Admin installments management page (view all installments, search installments, etc.)
+const AdminProfilePage = React.lazy(() => import('./pages/admin/AdminProfilePage')); // 🌟 إضافة جديدة للسيناريو: صفحة الملف الشخصي لمدير النظام
 
 // استيراد صفحات القضايا - Importing case pages
 const CaseAllPage = React.lazy(() => import('./pages/case/CaseAllPage'));// 🌟 إضافة جديدة للسيناريو: صفحة عرض جميع القضايا (عرض قائمة بجميع القضايا، مع إمكانية البحث والتصفية) - Case all page (list of all cases, with search and filter options)
@@ -275,6 +276,7 @@ const routeConfig = [
   { path: '/admin/financial-overview', Component: AdminFinancialOverview },
   { path: '/admin/invoices', Component: AdminInvoicesPage },
   { path: '/admin/installments', Component: AdminInstallmentsPage },
+  { path: '/admin/profile', Component: AdminProfilePage },
 
   // case routes
   { path: '/cases', Component: CaseAllPage },

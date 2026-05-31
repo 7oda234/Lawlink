@@ -1,13 +1,11 @@
-/* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
-import axios from 'axios';
-import { Search, Trash2, User, AlertTriangle, Loader2, CheckCircle, Lock } from 'lucide-react';
+import { axiosInstance as axios } from '../../services/DataService';
+import { Search, Trash2, User, AlertTriangle, CheckCircle, Lock } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout'; 
 import { useAuth } from '../../context/useAuth';
 
 const AdminDeleteUserPage = () => {
     const { authUser } = useAuth();
-    // بنسحب بيانات المدير اللي ماسك الماوس دلوقتي
     const myLevel = parseInt(authUser?.authority_level || 1, 10);
     const myUserId = authUser?.user_id || authUser?.id;
 
@@ -16,12 +14,11 @@ const AdminDeleteUserPage = () => {
     const [status, setStatus] = useState({ type: '', message: '' });
     const [isConfirming, setIsConfirming] = useState(false);
 
-    // دالة البحث في الباك إند
     const handleSearch = async (e) => {
         e.preventDefault();
         setStatus({ type: 'loading', message: 'بندور عليه...' });
         setUserData(null);
-        setIsConfirming(false); // بنرجع زرار التأكيد لوضعه الأصلي
+        setIsConfirming(false);
         
         try {
             const response = await axios.get(`/api/users/search?email=${searchEmail}`);
@@ -29,12 +26,12 @@ const AdminDeleteUserPage = () => {
                 setUserData(response.data);
                 setStatus({ type: '', message: '' });
             }
-        } catch (err) {
+        } catch (err) { 
+            console.error(err);
             setStatus({ type: 'error', message: 'مفيش أكونت مربوط بالإيميل ده عندنا.' });
         }
     };
 
-    // دالة الحذف النهائية
     const handleDelete = async () => {
         setStatus({ type: 'loading', message: 'بنعطل الحساب وبنرميه في الأرشيف...' });
         try {
@@ -43,85 +40,100 @@ const AdminDeleteUserPage = () => {
             setUserData(null);
             setSearchEmail('');
             setIsConfirming(false);
-        } catch {
+        } catch (err) {
+            console.error(err);
             setStatus({ type: 'error', message: 'عملية المسح فشلت، جرب تاني.' });
         }
     };
 
-    // 🛡️ فحص الصلاحية للحذف (عشان لو بحث عن أدمن أعلى منه ميمسحوش)
     const targetLevel = userData?.role === 'Admin' ? parseInt(userData.authority_level || 1, 10) : 0;
     const canDelete = myLevel === 5 || myLevel > targetLevel;
     const isMe = userData?.user_id === myUserId;
 
     return (
-        <AdminLayout title="حذف مستخدم" description="البحث عن حساب لإزالته نهائياً.">
-            <div className="max-w-4xl mx-auto mt-6 space-y-6">
+        <AdminLayout title="حذف مستخدم" description="البحث عن حساب لإزالته نهائياً وتصفية بياناته من السجلات النشطة.">
+            {/* 🚀 تم تفجير العرض لملء كامل الشاشة العريضة بدلاً من التقوقع في المنتصف */}
+            <div className="w-full max-w-none mt-6 space-y-8 pb-12">
                 
-                {/* بوكس البحث */}
-                <div className="card bg-white p-8 border shadow-sm rounded-2xl">
+                {/* بوكس البحث المحسن */}
+                <div className="card bg-[#161922] p-8 border border-white/5 shadow-2xl rounded-[24px]">
                     <form onSubmit={handleSearch} className="space-y-4">
-                        <label className="block text-sm font-bold text-secondary">البريد الإلكتروني</label>
-                        <div className="flex gap-3">
+                        <label className="block text-base font-black text-gray-300">البريد الإلكتروني الخاص بالمستهدف</label>
+                        <div className="flex flex-col sm:flex-row gap-4">
                             <div className="relative flex-1">
-                                <Search className="absolute right-3 top-2.5 text-muted w-5 h-5" />
+                                <Search className="absolute right-4 top-3.5 text-gray-500 w-5 h-5" />
                                 <input 
-                                    type="email" value={searchEmail} onChange={(e) => setSearchEmail(e.target.value)}
-                                    className="w-full pr-10 pl-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-error" required dir="ltr"
+                                    type="email" 
+                                    value={searchEmail} 
+                                    onChange={(e) => setSearchEmail(e.target.value)}
+                                    placeholder="enter.target.email@lawlink.com"
+                                    className="w-full pr-12 pl-4 py-3.5 bg-[#0f111a] border border-white/10 rounded-xl focus:ring-4 focus:ring-red-500/20 focus:border-red-500 outline-none text-white font-bold transition-all text-left h-[54px]" 
+                                    required 
+                                    dir="ltr"
                                 />
                             </div>
-                            <button type="submit" className="btn btn-primary px-6">هات الزبون</button>
+                            <button type="submit" className="bg-red-600 hover:bg-red-700 text-white font-black px-8 rounded-xl text-base transition duration-200 shadow-lg shadow-red-600/10 h-[54px]">
+                                هات الزبون
+                            </button>
                         </div>
                     </form>
                 </div>
 
-                {/* بوكس الرسايل */}
+                {/* بوكس التنبيهات والرسائل الإدارية */}
                 {status.message && (
-                    <div className={`p-4 rounded-lg flex items-center gap-3 border ${status.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
-                        {status.type === 'success' ? <CheckCircle className="w-5 h-5" /> : <AlertTriangle className="w-5 h-5" />}
-                        <span className="text-sm font-medium">{status.message}</span>
+                    <div className={`p-5 rounded-2xl flex items-center gap-3 border text-base font-bold ${
+                        status.type === 'success' ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'bg-red-500/10 border-red-500/20 text-red-400'
+                    }`}>
+                        {status.type === 'success' ? <CheckCircle className="w-6 h-6" /> : <AlertTriangle className="w-6 h-6" />}
+                        <span>{status.message}</span>
                     </div>
                 )}
 
-                {/* لو لقينا الراجل بنعرض كرنييه ببياناته */}
+                {/* كارت عرض بيانات المستخدم المستهدف */}
                 {userData && (
-                    <div className="card bg-white border border-red-100 shadow-lg rounded-2xl overflow-hidden">
-                        <div className="bg-red-50 px-8 py-4 flex justify-between items-center">
-                            <h3 className="text-red-700 font-bold flex items-center gap-2"><User size={20} /> تفاصيل الحساب</h3>
-                            <span className="badge badge-info uppercase">{userData.role}</span>
+                    <div className="card bg-[#161922] border border-red-500/20 shadow-2xl rounded-[32px] overflow-hidden">
+                        <div className="bg-red-500/10 border-b border-white/5 px-8 py-5 flex justify-between items-center">
+                            <h3 className="text-red-400 font-black text-lg flex items-center gap-3">
+                                <User size={22} /> تفاصيل ومعلومات الحساب المخزن
+                            </h3>
+                            <span className="px-3 py-1 text-xs font-black uppercase tracking-widest rounded-full bg-white/5 border border-white/10 text-gray-300">
+                                {userData.role}
+                            </span>
                         </div>
                         
-                        <div className="p-8 grid grid-cols-2 gap-6">
-                            <div>
-                                <p className="text-xs text-muted font-bold">الاسم</p>
-                                <p className="text-secondary font-semibold">{userData.name}</p>
+                        <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8 text-right">
+                            <div className="bg-[#0f111a] p-5 rounded-2xl border border-white/5">
+                                <p className="text-xs text-gray-500 font-black uppercase tracking-wider mb-1">الاسم بالكامل</p>
+                                <p className="text-white text-lg font-black">{userData.name}</p>
                             </div>
-                            <div>
-                                <p className="text-xs text-muted font-bold">الرتبة والمستوى</p>
-                                <p className="text-secondary font-semibold">{userData.role} {userData.role === 'Admin' && `(Level ${targetLevel})`}</p>
+                            <div className="bg-[#0f111a] p-5 rounded-2xl border border-white/5">
+                                <p className="text-xs text-gray-500 font-black uppercase tracking-wider mb-1">الرتبة والمستوى الإداري</p>
+                                <p className="text-yellow-500 text-lg font-black">
+                                    {userData.role} {userData.role === 'Admin' && `(Level ${targetLevel})`}
+                                </p>
                             </div>
                         </div>
 
-                        {/* لوحة التحكم في الحذف تحت الكارنيه */}
-                        <div className="px-8 py-6 bg-gray-50 border-t flex justify-end gap-3">
-                            {/* لو بحث عن نفسه */}
+                        {/* قسم اتخاذ القرار والتحقق الهيراركي الصارم */}
+                        <div className="px-8 py-6 bg-[#0f111a] border-t border-white/5 flex justify-end items-center gap-4">
                             {isMe ? (
-                                <span className="text-sm font-bold text-gray-500">مش هينفع تحذف نفسك من هنا يا ريس.</span>
+                                <span className="text-base font-black text-gray-500">مش هينفع تحذف نفسك من هنا يا ريس.</span>
                             ) : !canDelete ? (
-                                /* 🛡️ لو بحث عن مدير مستواه أعلى أو زيه */
-                                <div className="flex items-center gap-2 text-red-500 font-bold">
-                                    <Lock size={18} /> لا تملك صلاحية حذف الحساب ده، ده باشا كبير.
+                                <div className="flex items-center gap-3 text-red-400 font-black text-base bg-red-500/5 px-5 py-3 rounded-xl border border-red-500/10">
+                                    <Lock size={20} /> لا تملك صلاحية حذف الحساب ده، ده باشا كبير في السيستم.
                                 </div>
                             ) : !isConfirming ? (
-                                /* لو كل حاجة تمام، يظهر زرار الحذف الأول */
-                                <button onClick={() => setIsConfirming(true)} className="btn bg-red-600 text-white px-8 py-2.5 flex items-center gap-2">
-                                    <Trash2 size={16} /> حذف الحساب
+                                <button 
+                                    onClick={() => setIsConfirming(true)} 
+                                    className="bg-red-600 hover:bg-red-700 text-white font-black text-base px-10 py-3.5 rounded-xl shadow-lg shadow-red-600/10 flex items-center gap-2 transition duration-200"
+                                >
+                                    <Trash2 size={18} /> حذف الحساب من المنصة
                                 </button>
                             ) : (
-                                /* لو داس حذف، بنأكد عليه عشان منندمش */
-                                <div className="flex items-center gap-4">
-                                    <span className="text-sm font-bold text-red-600">متأكد مية المية؟</span>
-                                    <button onClick={handleDelete} className="btn bg-red-700 text-white px-4 py-1.5">أيوة، طيره</button>
-                                    <button onClick={() => setIsConfirming(false)} className="btn btn-ghost px-4 py-1.5">إلغاء</button>
+                                <div className="flex items-center gap-4 animate-in slide-in-from-bottom-2 duration-200">
+                                    <span className="text-base font-black text-red-400 animate-pulse">⚠️ هل أنت متأكد بنسبة 100%؟ لا يمكن التراجع!</span>
+                                    <button onClick={handleDelete} className="bg-red-700 hover:bg-red-800 text-white font-black px-6 py-2 rounded-xl text-sm transition">أيوة، طيره</button>
+                                    <button onClick={() => setIsConfirming(false)} className="border border-white/10 text-gray-300 hover:bg-white/5 font-black px-6 py-2 rounded-xl text-sm transition">إلغاء</button>
                                 </div>
                             )}
                         </div>
