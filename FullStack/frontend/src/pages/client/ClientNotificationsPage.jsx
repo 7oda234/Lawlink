@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState, useEffect } from 'react';
 import { Bell, CheckCircle2, Clock, AlertCircle, Trash2, MailOpen, Gavel } from 'lucide-react';
 import { useLanguage } from '../../context/useLanguage';

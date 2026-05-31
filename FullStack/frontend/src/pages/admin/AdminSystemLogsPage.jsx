@@ -16,7 +16,6 @@ import AdminLayout from '../../components/AdminLayout';
 import { useLanguage } from '../../context/LanguageContextObject';
 import dataService from '../../services/DataService';
 
-
 const formatDateTime = (value) => {
   if (!value) return '-';
   const d = new Date(value);
@@ -45,20 +44,24 @@ const AdminSystemLogsPage = () => {
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
-  const [expanded, setExpanded] = useState({}); // { [log_id]: true }
+  const [expanded, setExpanded] = useState({}); 
   const [lastUpdatedAt, setLastUpdatedAt] = useState(null);
+  const [fetchError, setFetchError] = useState('');
 
   const fetchLogs = useCallback(async () => {
     setLoading(true);
+    setFetchError('');
     try {
       const response = await dataService.admin.getSystemLogs();
-      const data = Array.isArray(response?.data) ? response.data : [];
-      setLogs(data);
+      // ✅ استخراج دفاعي دقيق ومتوافق مع بنيتي الاستجابة المباشرة أو المغلفة بالـ data
+      const rawData = response?.data?.data || response?.data || response || [];
+      setLogs(Array.isArray(rawData) ? rawData : []);
       setLastUpdatedAt(new Date());
       setPage(1);
       setExpanded({});
     } catch (err) {
       console.error('Error fetching logs:', err);
+      setFetchError('فشل اتصال الخادم بجلب سجلات المراقبة الجارية.');
       setLogs([]);
       setLastUpdatedAt(null);
     } finally {
@@ -137,7 +140,6 @@ const AdminSystemLogsPage = () => {
       description="مراقبة كافة التحركات والعمليات التي تمت على المنصة لضمان الأمان والشفافية."
     >
       <div className="space-y-6 mt-6">
-        {/* Summary */}
         <div className="flex flex-col md:flex-row gap-3 items-start md:items-center justify-between bg-white p-4 rounded-xl border border-default shadow-sm">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-surface border border-default">
@@ -151,7 +153,6 @@ const AdminSystemLogsPage = () => {
               </div>
             </div>
           </div>
-
           <div className="flex gap-2 items-center">
             <div className="flex items-center gap-2 text-sm text-muted">
               <Filter size={16} />
@@ -160,7 +161,6 @@ const AdminSystemLogsPage = () => {
           </div>
         </div>
 
-        {/* Search / Filters */}
         <div className="flex flex-col lg:flex-row gap-4 bg-white p-4 rounded-xl border border-default shadow-sm">
           <div className="relative flex-1">
             <Search className="absolute right-3 top-2.5 text-muted w-5 h-5" />
@@ -230,7 +230,6 @@ const AdminSystemLogsPage = () => {
             >
               مسح الفلاتر
             </button>
-
             <button
               onClick={fetchLogs}
               className="btn btn-ghost border flex items-center gap-2"
@@ -243,11 +242,16 @@ const AdminSystemLogsPage = () => {
           </div>
         </div>
 
-        {/* Logs */}
+        {fetchError && (
+          <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-bold">
+            {fetchError}
+          </div>
+        )}
+
         {loading ? (
           <div className="space-y-3">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="shimmer h-12 rounded-lg bg-surface" />
+              <div key={i} className="shimmer h-12 rounded-lg bg-surface animate-pulse" />
             ))}
           </div>
         ) : (
@@ -257,7 +261,6 @@ const AdminSystemLogsPage = () => {
               <span className="uppercase tracking-widest text-gray-500 font-bold">System Audit Trail</span>
             </div>
 
-            {/* Table header */}
             <div className="hidden md:grid grid-cols-12 gap-2 text-xs text-gray-500 px-2 py-2">
               <div className="col-span-2">Time</div>
               <div className="col-span-1">Type</div>
@@ -281,38 +284,29 @@ const AdminSystemLogsPage = () => {
                         <div className="text-xs">{createdAtText}</div>
                         {log?.log_id ? <div className="text-[11px] opacity-60">ID: {log?.log_id}</div> : null}
                       </div>
-
                       <div className="md:col-span-1">
-                        <span
-                          className={`inline-flex items-center px-2 py-1 rounded-lg text-[11px] border ${typeBadgeClass(type)}`}
-                        >
+                        <span className={`inline-flex items-center px-2 py-1 rounded-lg text-[11px] border ${typeBadgeClass(type)}`}>
                           {type || '—'}
                         </span>
                       </div>
-
                       <div className="md:col-span-2 text-white flex items-center gap-2">
                         <User size={14} className="text-gray-600" />
                         <span className="text-sm">{log?.user_name || 'System'}</span>
                       </div>
-
                       <div className="md:col-span-5 text-gray-300">
                         <div className="text-sm line-clamp-2">{summary}</div>
                         {log?.ip_address || log?.ip ? (
                           <div className="text-[11px] opacity-70 mt-1">IP: {log.ip_address || log.ip}</div>
                         ) : null}
                       </div>
-
                       <div className="md:col-span-2 md:text-right flex md:justify-end items-center gap-2">
                         <button
                           type="button"
                           onClick={() => setExpanded((prev) => ({ ...prev, [logId]: !isExpanded }))}
-                          className="btn btn-ghost border flex items-center gap-2 text-xs text-gray-300"
+                          className="btn border border-gray-700 bg-gray-900 text-xs text-gray-300 px-3 py-1 rounded-lg hover:bg-gray-800"
                         >
-                          <Eye size={14} /> {isExpanded ? 'Hide' : 'View'}
+                          <Eye size={14} className="inline mr-1" /> {isExpanded ? 'Hide' : 'View'}
                         </button>
-                        <div className="text-gray-600">
-                          <AlertCircle size={14} className="opacity-60" />
-                        </div>
                       </div>
                     </div>
 
@@ -334,7 +328,6 @@ const AdminSystemLogsPage = () => {
                                   </div>
                                 ))}
                             </div>
-
                             {log?.action_details ? (
                               <div className="mt-3">
                                 <div className="text-xs text-gray-400 mb-2">action_details</div>
@@ -345,44 +338,18 @@ const AdminSystemLogsPage = () => {
                             ) : null}
                           </div>
 
-                          <div className="lg:w-[360px]">
+                          <div className="lg:w-[360px] space-y-2">
                             <div className="text-xs text-gray-400 mb-2">Actions</div>
-                            <div className="space-y-2">
-                              <button
-                                type="button"
-                                className="btn btn-ghost border w-full flex items-center justify-center gap-2 text-xs text-gray-200"
-                                onClick={async () => {
-                                  const text = JSON.stringify(log, null, 2);
-                                  try {
-                                    await navigator.clipboard.writeText(text);
-                                  } catch (e) {
-                                    console.warn('Clipboard copy failed', e);
-                                  }
-                                }}
-                              >
-                                <Copy size={14} /> Copy raw JSON
-                              </button>
-
-                              {log?.log_id ? (
-                                <button
-                                  type="button"
-                                  className="btn btn-ghost border w-full flex items-center justify-center gap-2 text-xs text-gray-200"
-                                  onClick={async () => {
-                                    try {
-                                      await navigator.clipboard.writeText(String(log.log_id));
-                                    } catch (e) {
-                                      console.warn('Clipboard copy failed', e);
-                                    }
-                                  }}
-                                >
-                                  <Copy size={14} /> Copy log id
-                                </button>
-                              ) : null}
-
-                              <div className="text-[11px] text-gray-600 leading-relaxed border border-gray-800/70 rounded-lg p-2 bg-gray-950">
-                                عرض التفاصيل بالكامل من سجل الـ activity_log. عند وجود حقول إضافية (مثل IP أو target_user_id) ستظهر هنا تلقائيًا.
-                              </div>
-                            </div>
+                            <button
+                              type="button"
+                              className="w-full flex items-center justify-center gap-2 text-xs border border-gray-700 bg-gray-900 text-gray-200 py-2 rounded-lg hover:bg-gray-800"
+                              onClick={async () => {
+                                const text = JSON.stringify(log, null, 2);
+                                try { await navigator.clipboard.writeText(text); } catch (e) {}
+                              }}
+                            >
+                              <Copy size={14} /> Copy raw JSON
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -402,11 +369,8 @@ const AdminSystemLogsPage = () => {
             {/* Pagination */}
             <div className="mt-4 flex flex-col md:flex-row gap-3 items-center justify-between">
               <div className="text-sm text-gray-500">
-                Showing{' '}
-                {filteredLogs.length === 0 ? 0 : (page - 1) * pageSize + 1} -{' '}
-                {Math.min(page * pageSize, filteredLogs.length)} of {filteredLogs.length}
+                Showing {filteredLogs.length === 0 ? 0 : (page - 1) * pageSize + 1} - {Math.min(page * pageSize, filteredLogs.length)} of {filteredLogs.length}
               </div>
-
               <div className="flex items-center gap-2">
                 <select
                   className="px-3 py-2 bg-gray-950 border border-gray-800/70 rounded-lg text-sm text-gray-200"
@@ -420,23 +384,20 @@ const AdminSystemLogsPage = () => {
                   <option value={25}>25 / page</option>
                   <option value={50}>50 / page</option>
                 </select>
-
                 <button
                   type="button"
-                  className="btn btn-ghost border text-gray-200"
+                  className="px-3 py-1 border border-gray-700 rounded-lg text-gray-200 disabled:opacity-40"
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page <= 1}
                 >
                   Prev
                 </button>
-
                 <div className="text-sm text-gray-500" dir="ltr">
                   Page {page} / {totalPages}
                 </div>
-
                 <button
                   type="button"
-                  className="btn btn-ghost border text-gray-200"
+                  className="px-3 py-1 border border-gray-700 rounded-lg text-gray-200 disabled:opacity-40"
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page >= totalPages}
                 >
@@ -452,4 +413,3 @@ const AdminSystemLogsPage = () => {
 };
 
 export default AdminSystemLogsPage;
-

@@ -1,22 +1,30 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Cpu, Clock, Search, ArrowUpRight, User, Zap } from 'lucide-react';
+import { Cpu, Clock, Search, ArrowUpRight, User, Zap, Lock } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import dataService from '../../services/DataService';
 import { useLanguage } from '../../context/LanguageContextObject';
+import { useAuth } from '../../context/useAuth'; // 🛡️ Import authentication hook
 
 const AdminAiUsagePage = () => {
   const { t, language } = useLanguage();
   const isRTL = language === 'ar' || language === 'eg';
+  
+  // 🛡️ Track current user authority layer
+  const { authUser, isLoading: authLoading } = useAuth();
+  const myLevel = parseInt(authUser?.authority_level || localStorage.getItem('authorityLevel') || 0, 10);
+
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
+    // Prevent background network calls if the user shouldn't see this page anyway
+    if (myLevel < 1 || authLoading) return;
+
     const fetchLogs = async () => {
       try {
         const response = await dataService.admin.getAIUsageLogs();
-        // backend contract: { success: true, data: [] }
         const envelope = response?.data;
         const list = Array.isArray(envelope?.data)
           ? envelope.data
@@ -24,7 +32,6 @@ const AdminAiUsagePage = () => {
             ? envelope
             : [];
         setLogs(list);
-
       } catch (err) {
         console.error('Failed to load AI usage logs:', err);
         setError('تعذّر جلب سجلات استخدام الذكاء الاصطناعي.');
@@ -34,7 +41,22 @@ const AdminAiUsagePage = () => {
     };
 
     fetchLogs();
-  }, []);
+  }, [myLevel, authLoading]);
+
+  // 🛡️ SECURITY GUARD: LEVEL 1 REQUIRED
+  if (!authLoading && myLevel < 1) {
+    return (
+      <AdminLayout title="Access Denied" description="صلاحية غير كافية للمشاهدة.">
+        <div className="flex flex-col items-center justify-center py-24 text-center bg-[#161922] rounded-3xl border border-white/10 p-8 max-w-4xl mx-auto mt-6">
+          <Lock size={56} className="text-red-500 mb-4 animate-pulse" />
+          <h3 className="text-xl font-bold text-white mb-2">عفواً، حسابك لا يملك الصلاحيات الكافية</h3>
+          <p className="text-gray-400 text-sm max-w-md leading-relaxed">
+            مستواك الحالي لا يسمح بمشاهدة أو مراجعة سجلات تفاعلات الذكاء الاصطناعي للمنصة. يتطلب هذا القسم رتبة محلل بيانات على الأقل.
+          </p>
+        </div>
+      </AdminLayout>
+    );
+  }
 
   const filteredLogs = useMemo(() => {
     return logs.filter((item) => {

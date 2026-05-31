@@ -72,11 +72,16 @@ const handleLogin = async (e) => {
       }
 
       // 4. ✅ تخزين البيانات في الـ LocalStorage بالأسماء اللي الـ Navbar مستنيها
-      localStorage.setItem('token', token);
-      localStorage.setItem('userId', finalUserId);
-      localStorage.setItem('userRole', user.role);
-      localStorage.setItem('userName', user.name);
-      localStorage.setItem('userImage', finalUserImage); // 👈 الرابط الكامل للصورة
+// 4. ✅ تخزين البيانات في الـ LocalStorage بالأسماء اللي الـ Navbar مستنيها
+localStorage.setItem('token', token);
+localStorage.setItem('userId', finalUserId);
+localStorage.setItem('userRole', user.role);
+localStorage.setItem('userName', user.name);
+localStorage.setItem('userEmail', user.email);
+localStorage.setItem('userImage', finalUserImage); // 👈 الرابط الكامل للصورة
+if (user.authority_level) {
+    localStorage.setItem('authorityLevel', user.authority_level); // الحفاظ على اسم حقل الصلاحية للنظام
+}
 
       // 5. التوجيه بناءً على الصلاحية
       if (userRoleFromDB === 'admin') {

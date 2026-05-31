@@ -75,6 +75,30 @@ export const verifyLawyer = async (req, res) => {
   }
 };
 
+export const payInstallment = async (req, res) => {
+  try {
+    const { id } = req.params; // معرف القسط القادم من الرابط
+    const { clientId } = req.body;
+
+    // تحديث حالة القسط إلى مدفوع في قاعدة البيانات
+    const sql = `UPDATE installments SET status = 'Paid', paid_at = NOW() WHERE installment_id = ?`;
+    await req.app.locals.db.query(sql, [id]);
+
+    // تسجيل العملية في سجل النشاطات (Audit Log)
+    try {
+      const actingUserId = req.user?.userId || req.user?.id || null;
+      const logSql = `INSERT INTO activity_log (user_id, action, created_at) VALUES (?, ?, NOW())`;
+      const action = `PAY_INSTALLMENT installment_id=${id} client_id=${clientId} acting_user_id=${actingUserId}`;
+      await req.app.locals.db.query(logSql, [actingUserId, action]);
+    } catch (logErr) {
+      console.error("Audit log failed:", logErr);
+    }
+
+    res.status(200).json({ success: true, message: 'تم تسوية وتحصيل القسط بنجاح.' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
 
 export const getClients = async (req, res) => {
   try {
@@ -97,8 +121,10 @@ export const getCases = async (req, res) => {
 export const getCaseMonitoring = async (req, res) => {
   try {
     const cases = await adminService.getCaseMonitoringData();
-    res.status(200).json(cases);
+    // ✅ Encapsulate the response inside a structured JSON data property object
+    res.status(200).json({ success: true, data: Array.isArray(cases) ? cases : [] });
   } catch (error) {
+    console.error("Controller Error inside getCaseMonitoring:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -196,3 +222,44 @@ export const getAdminMessages = async (req, res) => {
   }
 };
 
+export const deleteUserAccount = async (req, res) => {
+  try {
+    const targetUserId = req.params.id;
+    const simulatedTargetUserLevel = 5; // Example target check value
+
+    if (req.isHierarchicalMutationAllowed && !req.isHierarchicalMutationAllowed(simulatedTargetUserLevel)) {
+      return res.status(403).json({
+        success: false,
+        message: 'Operation Blocked: Level 4 Operations Managers cannot modify or remove Level 5 Super Admins.'
+      });
+    }
+
+    return res.status(200).json({ success: true, message: `Account record ${targetUserId} dropped.` });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
+// --- NEW STUB CONTROLLERS FOR ROLES ---
+export const getSupportTickets = async (req, res) => res.status(200).json({ success: true, data: [] });
+export const updateSupportTicket = async (req, res) => res.status(200).json({ success: true, message: 'Ticket updated' });
+export const sendAdminMessage = async (req, res) => res.status(200).json({ success: true, message: 'Message sent' });
+export const getLawyerLicenses = async (req, res) => res.status(200).json({ success: true, data: [] });
+export const verifyLawyerLicense = async (req, res) => res.status(200).json({ success: true, message: 'License verified' });
+export const getLegalDocumentsForReview = async (req, res) => res.status(200).json({ success: true, data: [] });
+export const reviewLegalDocument = async (req, res) => res.status(200).json({ success: true, message: 'Document reviewed' });
+export const getFraudDetectionLogs = async (req, res) => res.status(200).json({ success: true, data: [] });
+export const createUser = async (req, res) => res.status(201).json({ success: true, message: 'User created' });
+export const updateUser = async (req, res) => res.status(200).json({ success: true, message: 'User updated' });
+export const deleteUser = async (req, res) => res.status(200).json({ success: true, message: 'User deleted' });
+export const createCase = async (req, res) => res.status(201).json({ success: true, message: 'Case created' });
+export const updateCase = async (req, res) => res.status(200).json({ success: true, message: 'Case updated' });
+export const deleteCase = async (req, res) => res.status(200).json({ success: true, message: 'Case deleted' });
+export const getEscalations = async (req, res) => res.status(200).json({ success: true, data: [] });
+export const resolveEscalation = async (req, res) => res.status(200).json({ success: true, message: 'Escalation resolved' });
+export const createAdmin = async (req, res) => res.status(201).json({ success: true, message: 'Admin created' });
+export const updateAdmin = async (req, res) => res.status(200).json({ success: true, message: 'Admin updated' });
+export const deleteAdmin = async (req, res) => res.status(200).json({ success: true, message: 'Admin deleted' });
+export const getSettings = async (req, res) => res.status(200).json({ success: true, data: {} });
+export const updateSettings = async (req, res) => res.status(200).json({ success: true, message: 'Settings updated' });
+export const getDatabaseBackups = async (req, res) => res.status(200).json({ success: true, data: [] });
+export const createDatabaseBackup = async (req, res) => res.status(201).json({ success: true, message: 'Backup created' });

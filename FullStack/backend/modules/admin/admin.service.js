@@ -138,22 +138,44 @@ export const getAllCases = async () => {
 };
 
 export const getCaseMonitoringData = async () => {
+  // 🚀 تم تحديث الـ GROUP BY لتشمل كافة الأعمدة المستدعاة لمنع خطأ ONLY_FULL_GROUP_BY نهائياً
   const query = `
     SELECT 
-      c.case_id, c.title, c.status, c.category, c.description, c.created_at,
-      c.lawyer_id, c.client_id, c.deadline, c.urgency,
-      COALESCE(c.msg_count, 0) AS msg_count,
-      COALESCE(c.docs_count, 0) AS docs_count,
+      c.case_id, 
+      c.title, 
+      c.status, 
+      c.category, 
+      c.description, 
+      c.created_at,
+      c.lawyer_id, 
+      c.client_id, 
+      c.urgency,
+      COUNT(DISTINCT msg.message_id) AS msg_count,
+      COUNT(DISTINCT doc.document_id) AS docs_count,
       client.name AS client_name,
       lawyer.name AS lawyer_name,
-      DATEDIFF(NOW(), c.created_at) AS days_active,
-      IF(c.deadline IS NOT NULL AND c.deadline < NOW(), 1, 0) AS missed_deadline
-    FROM cases c
+      DATEDIFF(NOW(), c.created_at) AS days_active
+    FROM \`cases\` c
     LEFT JOIN users client ON c.client_id = client.user_id
     LEFT JOIN users lawyer ON c.lawyer_id = lawyer.user_id
+    LEFT JOIN case_messages msg ON c.case_id = msg.case_id AND msg.deleted_at IS NULL
+    LEFT JOIN documents doc ON c.case_id = doc.case_id AND doc.deleted_at IS NULL
     WHERE c.deleted_at IS NULL
+    GROUP BY 
+      c.case_id, 
+      c.title, 
+      c.status, 
+      c.category, 
+      c.description, 
+      c.created_at,
+      c.lawyer_id, 
+      c.client_id, 
+      c.urgency,
+      client.name, 
+      lawyer.name
     ORDER BY c.created_at DESC
   `;
+  
   const [rows] = await pool.promise().query(query);
   return rows;
 };

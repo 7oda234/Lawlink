@@ -23,7 +23,8 @@ const AdminManageClientsPage = () => {
       const response = await dataService.admin.getClients(); 
       const data = Array.isArray(response.data) ? response.data : [];
       setClients(data);
-    } catch  {
+    } catch (err) {
+      console.error(err);
       setError('فشل في تحميل قائمة العملاء.');
       setClients([]);
     } finally {
