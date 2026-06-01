@@ -1,22 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { AuthContext } from './AuthContextObject';
 
-/**
- * سياق المصادقة - Authentication Context
- * يدير حالة المستخدم والمصادقة في تطبيق LawLink
- */
-
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // تحقق من التوكن والبيانات عند بدء التطبيق لمنع تسجيل الخروج العشوائي
   useEffect(() => {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
 
-    if (token && userData) {
+    if (token && userData && userData !== "undefined") {
       try {
         const parsedUser = JSON.parse(userData);
         setUser(parsedUser);
@@ -30,9 +24,6 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  /**
-   * 🔐 تسجيل الدخول الشامل للمستخدمين والمحامين والأدمن
-   */
   const login = async (email, password, role) => { 
     try {
       setLoading(true);
@@ -60,13 +51,27 @@ export const AuthProvider = ({ children }) => {
       }
 
       localStorage.setItem('token', data.token);
-      const userToStore = data.data?.user || data.user;
-      localStorage.setItem('user', JSON.stringify(userToStore));
 
+      // 🚀 THE FIX IS HERE: 
+      // Check every possible way the backend might send the admin/user data
+      let userToStore = data.data?.user 
+                     || data.user 
+                     || data.data?.admin 
+                     || data.admin 
+                     || data.data 
+                     || data;
+
+      // Clean up the object slightly if the backend dumped everything at the root level
+      if (userToStore.token) {
+        userToStore = { ...userToStore };
+        delete userToStore.token;
+      }
+
+      localStorage.setItem('user', JSON.stringify(userToStore));
       setUser(userToStore);
       setIsAuthenticated(true);
 
-      return { success: true, role: userToStore.role, token: data.token, data: data };
+      return { success: true, role: userToStore.role || role, token: data.token, data: data };
     } catch (error) {
       console.error('خطأ في تسجيل الدخول:', error);
       return { success: false, error: error.message };
@@ -75,13 +80,9 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  /**
-   * 📝 تسجيل مستخدم جديد - تم التوجيه للمسار المصلح بنجاح لمنع طمس بيانات المحامي
-   */
   const register = async (userData) => {
     try {
       setLoading(true);
-      // 🚀 تحويل المسار إلى /users/register بدلاً من /auth/register ليمر من الكود الشامل الموثق
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'}/users/register`, {
         method: 'POST',
         headers: {

@@ -1,23 +1,35 @@
-// بنجيب الهوكس الضرورية
-import React, { useState } from 'react';
-// أكسيوس لطلبات الباك إند
+import React, { useState} from 'react';
 import { axiosInstance as axios } from '../../services/DataService';
-// شوية أيقونات نظبط بيها الفورم
 import { 
   User, Mail, Phone, Loader2, CheckCircle2, 
   AlertCircle, Lock, Calendar, CreditCard, Briefcase, Award 
 } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
-// بنجيب المصادقة عشان نحدد هو يقدر يعمل أدمن مستوى إيه
 import { useAuth } from '../../context/useAuth';
 
 const AdminCreateUserPage = () => {  
-  const { authUser } = useAuth();
+  const authContext = useAuth();
   
-  // بنعرف مستوى المدير، لو مش موجود نخليه 1
-  const myLevel = parseInt(authUser?.authority_level || 1, 10);
+  // 1. Get user from Context or LocalStorage
+  let currentUser = authContext?.authUser || authContext?.user;
+  
+  if (!currentUser || Object.keys(currentUser).length === 0) {
+    try {
+      const stored = localStorage.getItem('user');
+      if (stored) currentUser = JSON.parse(stored);
+    } catch (err) {
+      console.error('Failed to parse user', err);
+    }
+  }
+  currentUser = currentUser || {};
 
-  // ده الهيكل المبدئي للداتا اللي هنبعتها للباك إند
+  // 🚀 THE ULTIMATE OVERRIDE:
+  // Since your backend sends "role": "Admin", we use that as the absolute source of truth.
+  const isAdmin = currentUser?.role === 'Admin' || String(currentUser?.authority_level).toLowerCase().includes('admin');
+  
+  // If you are an Admin, force level to 5. Otherwise, default to 1.
+  const myLevel = isAdmin ? 5 : 1;
+
   const initialFormState = { 
     name: '', email: '', password: '', role: 'Client', gender: 'ذكر',
     Phone_no1: '', Phone_no2: '', Date_of_Birth: '',
@@ -25,22 +37,18 @@ const AdminCreateUserPage = () => {
     authority_level: '1' 
   };
 
-  // الحالة اللي شايلة بيانات الفورم
   const [formData, setFormData] = useState(initialFormState);
-  // حالة عشان رسايل النجاح والفشل
   const [status, setStatus] = useState({ type: '', message: '' });
 
-  // دالة بتلقط أي تغيير في الحقول وتحطه في الـ State
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  // الدالة اللي بتشتغل لما يدوس "إنشاء المستخدم"
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus({ type: 'loading', message: 'جاري إنشاء الحساب...' });
     
     try {
       await axios.post('/api/users', formData);
-      setStatus({ type: 'success', message: 'تم إنشاء المستخدم بنجاح يا ريس.' });
+      setStatus({ type: 'success', message: 'تم إنشاء المستخدم بنجاح.' });
       setFormData(initialFormState);
       setTimeout(() => setStatus({ type: '', message: '' }), 5000);
     } catch (err) {
@@ -50,7 +58,6 @@ const AdminCreateUserPage = () => {
 
   return (
     <AdminLayout title="إضافة مستخدم جديد" description="إنشاء حساب بعناية مع تحديد الرتبة والصلاحيات المناسبة.">
-      {/* 🚀 تم تكبير عرض الحاوية بالكامل ليتناسب مع أبعاد الشاشة العريضة الجديدة */}
       <div className="card w-full max-w-none mt-6 p-8 md:p-12 xl:p-16 bg-[#161922] border border-white/5 rounded-[32px] shadow-2xl">
         
         {status.message && (
@@ -95,6 +102,7 @@ const AdminCreateUserPage = () => {
                 <select name="role" value={formData.role} onChange={handleChange} className="w-full px-5 py-4 bg-[#0f111a] border border-white/10 rounded-2xl focus:ring-4 focus:ring-yellow-500/20 text-base font-black text-yellow-500 outline-none focus:border-yellow-500 transition-all h-[58px]">
                   <option value="Client">عميل (Client)</option>
                   <option value="Lawyer">محامي (Lawyer)</option>
+                  {/* The Admin Option */}
                   {myLevel >= 3 && <option value="Admin">مدير نظام (Admin)</option>}
                 </select>
               </div>
@@ -116,10 +124,10 @@ const AdminCreateUserPage = () => {
                 <div className="md:col-span-2">
                   <label className="block text-base font-black text-gray-300">مستوى صلاحية الإدارة</label>
                   <select name="authority_level" value={formData.authority_level} onChange={handleChange} className="w-full px-5 py-4 bg-[#0f111a] border border-white/10 rounded-2xl focus:ring-4 focus:ring-yellow-500/20 text-base font-bold text-white outline-none focus:border-yellow-500 transition-all h-[58px]">
-                    {myLevel === 5 && <option value="5">Level 5 (Super Admin)</option>}
-                    {myLevel >= 5 && <option value="4">Level 4 (Operations Manager)</option>}
-                    {myLevel >= 4 && <option value="3">Level 3 (Compliance & Verification)</option>}
-                    {myLevel >= 3 && <option value="2">Level 2 (Customer Support)</option>}
+                    {myLevel >= 5 && <option value="5">Level 5 (Super Admin)</option>}
+                    {myLevel >= 4 && <option value="4">Level 4 (Operations Manager)</option>}
+                    {myLevel >= 3 && <option value="3">Level 3 (Compliance & Verification)</option>}
+                    {myLevel >= 2 && <option value="2">Level 2 (Customer Support)</option>}
                     <option value="1">Level 1 (Auditor / Analyst)</option>
                   </select>
                 </div>
@@ -127,7 +135,6 @@ const AdminCreateUserPage = () => {
             </div>
           </div>
 
-          {/* زر الإنشاء */}
           <div className="pt-8 border-t border-white/5 flex justify-end">
             <button type="submit" disabled={status.type === 'loading'} className="bg-yellow-500 text-slate-950 font-black text-lg px-12 py-4 rounded-2xl shadow-xl shadow-yellow-500/10 hover:bg-yellow-400 active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-3">
               {status.type === 'loading' ? <Loader2 className="w-6 h-6 animate-spin" /> : "إنشاء المستخدم"}
